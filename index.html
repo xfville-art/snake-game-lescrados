@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - @lescrados.ai</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+        #game-container {
+            text-align: center;
+        }
+        #game-canvas {
+            border: 2px solid #333;
+            background-color: #fff;
+        }
+        #score-display {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #restart-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #restart-button:disabled {
+            background-color: #cccccc;
+        }
+        .controls {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Snake Game</h1>
+        <p class="controls">Glisse pour diriger le serpent !</p>
+        <canvas id="game-canvas" width="300" height="300"></canvas>
+        <div id="score-display">Score: 0</div>
+        <button id="restart-button" disabled>Recommencer</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score-display');
+        const restartButton = document.getElementById('restart-button');
+
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+        let score = 0;
+        let gameRunning = true;
+
+        // Direction du serpent (0: haut, 1: droite, 2: bas, 3: gauche)
+        let direction = 1;
+        let nextDirection = 1;
+
+        // Position initiale du serpent
+        let snake = [
+            {x: 10, y: 10}
+        ];
+
+        // Position de la nourriture
+        let food = {
+            x: Math.floor(Math.random() * tileCount),
+            y: Math.floor(Math.random() * tileCount)
+        };
+
+        // Gestion des touches tactiles
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning) return;
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const diffX = touchX - touchStartX;
+            const diffY = touchY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Mouvement horizontal
+                if (diffX > 0 && direction !== 3) nextDirection = 1; // Droite
+                else if (diffX < 0 && direction !== 1) nextDirection = 3; // Gauche
+            } else {
+                // Mouvement vertical
+                if (diffY > 0 && direction !== 0) nextDirection = 2; // Bas
+                else if (diffY < 0 && direction !== 2) nextDirection = 0; // Haut
+            }
+
+            touchStartX = touchX;
+            touchStartY = touchY;
+            e.preventDefault();
+        });
+
+        restartButton.addEventListener('click', () => {
+            resetGame();
+        });
+
+        function resetGame() {
+            snake = [{x: 10, y: 10}];
+            direction = 1;
+            nextDirection = 1;
+            score = 0;
+            scoreDisplay.textContent = `Score: ${score}`;
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+            gameRunning = true;
+            restartButton.disabled = true;
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            direction = nextDirection;
+
+            // Déplacement du serpent
+            const head = {x: snake[0].x, y: snake[0].y};
+
+            switch (direction) {
+                case 0: head.y--; break; // Haut
+                case 1: head.x++; break; // Droite
+                case 2: head.y++; break; // Bas
+                case 3: head.x--; break; // Gauche
+            }
+
+            // Vérification des collisions avec les bords
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            // Vérification des collisions avec le corps
+            for (let i = 0; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            // Ajout de la nouvelle tête
+            snake.unshift(head);
+
+            // Vérification si le serpent a mangé la nourriture
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                // Génération d'une nouvelle nourriture
+                food = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+            } else {
+                // Suppression de la queue si pas de nourriture mangée
+                snake.pop();
+            }
+
+            // Dessiner le jeu
+            drawGame();
+
+            // Boucle récursive
+            setTimeout(gameLoop, 100);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            restartButton.disabled = false;
+            alert(`Game Over! Score: ${score}`);
+        }
+
+        function drawGame() {
+            // Effacer le canvas
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dessiner le serpent
+            ctx.fillStyle = '#4CAF50';
+            snake.forEach(segment => {
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1);
+            });
+
+            // Dessiner la tête du serpent
+            ctx.fillStyle = '#2E7D32';
+            const head = snake[0];
+            ctx.fillRect(head.x * gridSize, head.y * gridSize, gridSize - 1, gridSize - 1);
+
+            // Dessiner la nourriture
+            ctx.fillStyle = '#ff4d4d';
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 1, gridSize - 1);
+        }
+
+        // Démarrer le jeu
+        resetGame();
+        gameLoop();
+    </script>
+</body>
+          </html>
+          
