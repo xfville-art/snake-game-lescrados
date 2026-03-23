@@ -2,17 +2,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CarbuFuel V2</title>
+<title>CarbuFuel V3 🔥</title>
 <style>
 body{background:#0a0c0f;color:#fff;font-family:sans-serif;padding:20px}
-button{padding:10px;margin:5px}
-.card{background:#111;padding:10px;margin:10px 0;border-radius:10px}
+button{padding:12px;margin:5px;border-radius:8px;border:none;cursor:pointer}
+.primary{background:#f0a500;color:#000;font-weight:bold}
+.card{background:#111;padding:15px;margin:10px 0;border-radius:12px;border:1px solid #222}
+.big{font-size:22px;font-weight:bold}
+.green{color:#3fb950}
 </style>
 </head>
-<body><h1>⛽ CarbuFuel V2</h1><input id="city" placeholder="Ville...">
+<body><h1>⛽ CarbuFuel V3</h1><input id="city" placeholder="Ville...">
 <button onclick="search()">Rechercher</button>
-<button onclick="gps()">GPS</button><div id="result"></div><script>
-let userLat=null,userLon=null;
+<button onclick="gps()">GPS</button>
+<button class="primary" onclick="bestDeal()">🔥 Meilleur prix autour</button><div id="result"></div><script>
+let userLat=null,userLon=null,stationsGlobal=[];
 
 function haversine(a,b,c,d){
 const R=6371;
@@ -41,33 +45,72 @@ loadStations();
 }
 
 async function loadStations(){
-const res=await fetch("https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=200");
+const res=await fetch("https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=300");
 const data=await res.json();
 
-const stations=data.results
+stationsGlobal=data.results
 .map(s=>{
 if(!s.geolocalisation) return null;
 const d=haversine(userLat,userLon,s.geolocalisation.lat,s.geolocalisation.lon);
 return {...s,dist:d};
 })
-.filter(s=>s && s.dist<20)
-.sort((a,b)=>a.dist-b.dist)
-.slice(0,20);
+.filter(s=>s && s.dist<30);
 
-render(stations);
+renderList();
 }
 
-function render(stations){
-const div=document.getElementById("result");
-div.innerHTML="";
-
-stations.forEach(s=>{
-const prices=[
+function getPrices(s){
+return [
 {s:"SP95",p:s.prix_sp95},
 {s:"SP98",p:s.prix_sp98},
 {s:"Diesel",p:s.prix_gazole}
 ].filter(p=>p.p);
+}
 
+function bestDeal(){
+if(!stationsGlobal.length) return;
+
+let best=null;
+
+stationsGlobal.forEach(s=>{
+getPrices(s).forEach(p=>{
+if(!best || p.p < best.price){
+best={station:s,price:p.p,fuel:p.s};
+}
+});
+});
+
+renderBest(best);
+}
+
+function renderBest(best){
+const s=best.station;
+const economy=(2.1 - best.price)*50; // estimation plein 50L
+
+const div=document.getElementById("result");
+div.innerHTML=`
+<div class="card">
+<div class="big">🔥 MEILLEUR PRIX</div><br>
+<strong>${s.nom || "Station"}</strong><br>
+${s.ville}<br>
+${s.dist.toFixed(1)} km<br><br>
+<div class="big green">${best.fuel} : ${best.price}€</div><br>
+💸 Économie estimée : <strong>${economy.toFixed(2)}€</strong><br><br>
+<a href="https://maps.google.com/?q=${s.geolocalisation.lat},${s.geolocalisation.lon}" target="_blank">
+<button class="primary">Y aller</button>
+</a>
+</div>`;
+}
+
+function renderList(){
+const div=document.getElementById("result");
+div.innerHTML="";
+
+stationsGlobal
+.sort((a,b)=>a.dist-b.dist)
+.slice(0,15)
+.forEach(s=>{
+const prices=getPrices(s);
 const cheapest=Math.min(...prices.map(p=>p.p));
 
 const el=document.createElement("div");
