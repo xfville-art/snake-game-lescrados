@@ -1,16 +1,17 @@
 // ── CarbuFuel Service Worker ───────────────────────────────────────────────────
-const CACHE_NAME = 'carbufuel-v3';
-const SHELL_CACHE = 'carbufuel-shell-v3';
+const CACHE_NAME = 'carbufuel-v4';
+const SHELL_CACHE = 'carbufuel-shell-v4';
 
-// App shell — fichiers à mettre en cache à l'installation
+// FIX: polices corrigées (Barlow, pas Bebas/DM/JetBrains)
+// FIX: sw.js lui-même ajouté dans le shell
 const SHELL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap'
+  './sw.js',
+  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap'
 ];
 
-// ── INSTALL : cache l'app shell ───────────────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
@@ -19,54 +20,46 @@ self.addEventListener('install', event => {
   );
 });
 
-// ── ACTIVATE : supprime les anciens caches ────────────────────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(k => k !== CACHE_NAME && k !== SHELL_CACHE)
-          .map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE_NAME && k !== SHELL_CACHE).map(k => caches.delete(k))
       )
     ).then(() => self.clients.claim())
   );
 });
 
-// ── FETCH : stratégie selon la ressource ─────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // API carburants → Network first, fallback cache 5min
   if (url.hostname === 'data.economie.gouv.fr') {
     event.respondWith(networkFirst(event.request, CACHE_NAME, 5 * 60));
     return;
   }
 
-  // API adresse (géocodage) → Network only (pas de cache)
   if (url.hostname === 'api-adresse.data.gouv.fr') {
-    event.respondWith(fetch(event.request).catch(() => new Response('{}', {headers:{'Content-Type':'application/json'}})));
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        new Response('{"features":[]}', { headers: { 'Content-Type': 'application/json' } })
+      )
+    );
     return;
   }
 
-  // Google Fonts → Cache first (longue durée)
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(cacheFirst(event.request, SHELL_CACHE));
     return;
   }
 
-  // App shell → Cache first
-  if (url.pathname.match(/\.(html|json|js|css|png|ico|svg)$/)) {
+  if (url.pathname.match(/\.(html|json|js|css|png|ico|svg|webp)$/)) {
     event.respondWith(cacheFirst(event.request, SHELL_CACHE));
     return;
   }
 
-  // Tout le reste → Network with cache fallback
   event.respondWith(networkFirst(event.request, CACHE_NAME, 60));
 });
 
-// ── STRATÉGIES ────────────────────────────────────────────────────────────────
-
-// Cache d'abord, réseau en fallback
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -82,17 +75,14 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-// Réseau d'abord, cache en fallback (avec TTL en secondes)
 async function networkFirst(request, cacheName, ttl) {
   try {
     const response = await fetch(request);
     if (response.ok) {
       const cache = await caches.open(cacheName);
-      const toCache = response.clone();
-      // Ajoute un header timestamp pour le TTL
-      const headers = new Headers(toCache.headers);
-      headers.append('sw-fetched-at', Date.now().toString());
-      const body = await toCache.arrayBuffer();
+      const body = await response.clone().arrayBuffer();
+      const headers = new Headers(response.headers);
+      headers.set('sw-fetched-at', Date.now().toString());
       cache.put(request, new Response(body, { status: response.status, headers }));
     }
     return response;
@@ -108,7 +98,6 @@ async function networkFirst(request, cacheName, ttl) {
   }
 }
 
-// ── MESSAGE : force update ────────────────────────────────────────────────────
 self.addEventListener('message', event => {
   if (event.data === 'skipWaiting') self.skipWaiting();
 });

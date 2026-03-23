@@ -4,12 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CarbuFuel V4 🚀</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0a0c0f">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CarbuFuel">
-<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap');
 
@@ -460,20 +454,6 @@ function copyText(text) {
     setTimeout(() => btn.textContent = orig, 1800);
   });
 }
-
-// ── PWA : Service Worker registration ────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .catch(err => console.warn('SW registration failed:', err));
-  });
-}
-
-// ── PWA shortcut : ?action=gps ────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('action') === 'gps') gps();
-});
 </script>
 </body>
 </html>
