@@ -223,12 +223,9 @@ function gps() {
 }
 
 // ── Load data ─────────────────────────────────────────────────────────────────
-const API_URLS = [
-  // v2.1 ODS
-  "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=300",
-  // v1 ODS (fallback)
-  "https://data.economie.gouv.fr/api/records/1.0/search/?dataset=prix-des-carburants-en-france-flux-instantane-v2&rows=300"
-];
+// URLs construites dynamiquement selon la position dans load()
+const RADIUS_KM = 20; // rayon de recherche
+
 
 // Normalise une entrée quelle que soit la version d'API
 function normalizeRecord(s) {
@@ -257,32 +254,46 @@ function normalizeRecord(s) {
 
 async function load() {
   showLoader("Chargement des prix...");
+  const lat = userLat, lon = userLon;
+  const radiusM = RADIUS_KM * 1000;
+
+  // v2.1 : filtre géo natif → where + order_by distance
+  const urlV2 = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records`
+    + `?where=distance(geolocalisation%2C+GEOM'POINT(${lon}+${lat})'%2C+${radiusM}m)`
+    + `&order_by=distance(geolocalisation%2C+GEOM'POINT(${lon}+${lat})')`
+    + `&limit=100`;
+
+  // v1 : geofilter.distance (fallback)
+  const urlV1 = `https://data.economie.gouv.fr/api/records/1.0/search/`
+    + `?dataset=prix-des-carburants-en-france-flux-instantane-v2`
+    + `&rows=100`
+    + `&geofilter.distance=${lat}%2C${lon}%2C${radiusM}`;
+
   let raw = [];
 
-  for (const url of API_URLS) {
+  for (const url of [urlV2, urlV1]) {
     try {
       const r = await fetch(url);
       if (!r.ok) continue;
       const d = await r.json();
-      // v2.1 → d.results ; v1 → d.records
       const list = d.results || d.records;
       if (Array.isArray(list) && list.length > 0) { raw = list; break; }
     } catch(_) { /* essaye l'URL suivante */ }
   }
 
   if (!raw.length) {
-    showError("API indisponible. Réessaie dans quelques instants.");
+    showError("API indisponible ou aucune station dans un rayon de " + RADIUS_KM + " km.");
     return;
   }
 
   stations = raw
     .map(normalizeRecord)
     .filter(s => s && s.geolocalisation)
-    .map(s => ({ ...s, dist: haversine(userLat, userLon, s.geolocalisation.lat, s.geolocalisation.lon) }))
-    .filter(s => s.dist < 30);
+    .map(s => ({ ...s, dist: haversine(lat, lon, s.geolocalisation.lat, s.geolocalisation.lon) }))
+    .filter(s => s.dist <= RADIUS_KM);
 
   if (!stations.length) {
-    showError("Aucune station trouvée dans un rayon de 30 km.");
+    showError("Aucune station trouvée dans un rayon de " + RADIUS_KM + " km.");
     return;
   }
 
