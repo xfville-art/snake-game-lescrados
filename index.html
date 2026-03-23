@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CarbuFuel — Prix carburants</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0c0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CarbuFuel">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:#0a0c0f; --surface:#111418; --card:#161b22; --border:#21262d;
+    --accent:#f0a500; --accent2:#e05c2a; --green:#3fb950; --red:#f85149;
+    --blue:#58a6ff; --text:#e6edf3; --muted:#7d8590; --radius:12px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{height:100%;}
+  body{
+    background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;
+    min-height:100vh;overflow-x:hidden;
+    padding-top:var(--safe-top);
+    padding-bottom:var(--safe-bottom);
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%,rgba(240,165,0,.07) 0%,transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%,rgba(224,92,42,.06) 0%,transparent 60%);
+    pointer-events:none;z-index:0;
+  }
+  .container{max-width:960px;margin:0 auto;padding:0 16px 80px;position:relative;z-index:1;}
+
+  /* ── HEADER ── */
+  header{
+    padding:28px 0 22px;border-bottom:1px solid var(--border);margin-bottom:24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .header-left{}
+  .logo-main{
+    font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .logo-tag{font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+
+  /* Install button */
+  #btnInstall{
+    display:none;align-items:center;gap:7px;padding:10px 16px;
+    background:var(--card);border:1px solid var(--accent);border-radius:var(--radius);
+    color:var(--accent);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+    cursor:pointer;letter-spacing:.5px;transition:all .2s;white-space:nowrap;
+  }
+  #btnInstall.visible{display:flex;}
+  #btnInstall:hover{background:var(--accent);color:#0a0c0f;}
+
+  /* ── CONTROLS ── */
+  .controls{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;margin-bottom:20px;display:flex;flex-direction:column;gap:20px;
+  }
+  .label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:8px;display:block;}
+
+  /* Location row */
+  .location-row{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;}
+  .search-wrap{flex:1;min-width:180px;position:relative;}
+  .city-input{
+    width:100%;padding:12px 14px;background:var(--card);border:1px solid var(--border);
+    border-radius:var(--radius);color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;
+    outline:none;transition:border-color .2s;
+  }
+  .city-input:focus{border-color:var(--accent);}
+  .city-input::placeholder{color:var(--muted);}
+
+  .autocomplete{
+    position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:200;
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.7);display:none;
+  }
+  .autocomplete.open{display:block;}
+  .ac-item{
+    padding:11px 14px;cursor:pointer;font-size:14px;
+    display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);
+    transition:background .12s;
+  }
+  .ac-item:last-child{border-bottom:none;}
+  .ac-item:hover,.ac-item.focused{background:var(--surface);}
+  .ac-name{font-weight:500;}
+  .ac-dept{font-size:11px;color:var(--muted);margin-left:auto;font-family:'JetBrains Mono',monospace;}
+
+  .btn-search,.btn-gps{
+    display:flex;align-items:center;gap:7px;padding:12px 16px;
+    border:none;border-radius:var(--radius);cursor:pointer;
+    font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;
+    transition:all .2s;white-space:nowrap;
+  }
+  .btn-search{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0c0f;}
+  .btn-search:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(240,165,0,.3);}
+  .btn-search:active{transform:translateY(0);}
+  .btn-gps{background:var(--card);border:1px solid var(--border);color:var(--text);}
+  .btn-gps:hover{border-color:var(--blue);color:var(--blue);}
+  .btn-gps:active{background:var(--surface);}
+
+  /* Radius */
+  .radius-display{
+    font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;
+    color:var(--accent);margin-bottom:10px;letter-spacing:-1px;
+  }
+  input[type=range]{
+    -webkit-appearance:none;width:100%;height:4px;
+    background:var(--border);border-radius:2px;outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 12px rgba(240,165,0,.5);
+    cursor:pointer;transition:transform .15s,box-shadow .15s;
+  }
+  input[type=range]::-webkit-slider-thumb:active{transform:scale(1.2);}
+  .range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:5px;}
+
+  /* Fuel chips */
+  .fuel-filters{display:flex;gap:7px;flex-wrap:wrap;}
+  .fuel-chip{
+    padding:7px 14px;border-radius:20px;border:1px solid var(--border);
+    background:transparent;color:var(--muted);font-size:12px;font-weight:500;
+    font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s;user-select:none;
+  }
+  .fuel-chip:active{transform:scale(.95);}
+  .fuel-chip.active{background:var(--accent);border-color:var(--accent);color:#0a0c0f;}
+
+  /* ── STATUS ── */
+  .status-bar{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);margin-bottom:14px;min-height:20px;}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+  .status-dot.loading{background:var(--accent);animation:pulse 1s infinite;}
+  .status-dot.ok{background:var(--green);}
+  .status-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  .progress-wrap{margin-bottom:14px;}
+  .progress-bar-bg{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .35s;width:0%;}
+
+  /* ── SORT ── */
+  .sort-bar{display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
+  .sort-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-right:2px;}
+  .sort-btn{
+    padding:5px 11px;border-radius:6px;border:1px solid var(--border);
+    background:transparent;color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;
+  }
+  .sort-btn:active{transform:scale(.96);}
+  .sort-btn.active{background:var(--card);border-color:var(--accent);color:var(--accent);}
+  .result-count{margin-left:auto;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+
+  .legend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+  .legend-dot{width:8px;height:8px;border-radius:2px;border:1px solid;}
+  .legend-dot.green{border-color:var(--green);background:rgba(63,185,80,.2);}
+  .legend-dot.red{border-color:var(--red);background:rgba(248,81,73,.1);}
+
+  /* ── CARDS ── */
+  .stations-grid{display:flex;flex-direction:column;gap:10px;}
+  .station-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px;
+    transition:border-color .2s,transform .2s,box-shadow .2s;
+    animation:fadeUp .3s ease both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .station-card:hover{border-color:rgba(240,165,0,.3);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.4);}
+  .station-name{font-size:15px;font-weight:500;margin-bottom:3px;}
+  .station-meta{font-size:12px;color:var(--muted);font-weight:300;margin-bottom:12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .distance-badge{
+    background:var(--surface);border:1px solid var(--border);padding:2px 7px;
+    border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);
+  }
+  .fuels-row{display:flex;flex-wrap:wrap;gap:7px;}
+  .fuel-pill{
+    display:flex;flex-direction:column;align-items:center;
+    background:var(--surface);border:1px solid var(--border);border-radius:7px;
+    padding:7px 10px;min-width:64px;
+  }
+  .fuel-pill.cheapest{border-color:rgba(63,185,80,.5);}
+  .fuel-pill.priciest{border-color:rgba(248,81,73,.2);}
+  .fuel-pill-name{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:3px;}
+  .fuel-pill-price{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--text);}
+  .fuel-pill.cheapest .fuel-pill-price{color:var(--green);}
+  .fuel-pill-unit{font-size:8px;margin-top:2px;color:var(--muted);}
+  .station-actions{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;}
+  .brand-logo{
+    font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    text-align:right;
+  }
+  .maps-link{
+    display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);
+    text-decoration:none;padding:5px 9px;border:1px solid var(--border);border-radius:6px;
+    transition:all .15s;white-space:nowrap;
+  }
+  .maps-link:hover{color:var(--blue);border-color:var(--blue);}
+
+  /* ── EMPTY / ERROR ── */
+  .empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+  .empty-icon{font-size:44px;margin-bottom:14px;opacity:.4;}
+  .empty-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;opacity:.4;margin-bottom:8px;}
+  .empty-sub{font-size:14px;font-weight:300;line-height:1.7;}
+
+  /* ── SKELETONS ── */
+  .skeleton{background:linear-gradient(90deg,var(--card) 25%,#1d2229 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .skel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;}
+  .skel-line{height:13px;margin-bottom:9px;}
+  .skel-sm{width:38%}.skel-md{width:62%}
+
+  /* ── TOAST ── */
+  .toast{
+    position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:12px 20px;font-size:13px;color:var(--text);
+    box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:999;
+    opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ── FOOTER ── */
+  footer{border-top:1px solid var(--border);padding-top:18px;margin-top:36px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+
+  /* ── OFFLINE BANNER ── */
+  .offline-banner{
+    display:none;background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);
+    border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);
+    margin-bottom:16px;align-items:center;gap:8px;
+  }
+  .offline-banner.show{display:flex;}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:560px){
+    .logo-main{font-size:34px;}
+    .station-card{grid-template-columns:1fr;}
+    .station-actions{flex-direction:row;align-items:center;}
+    .location-row{flex-direction:column;}
+    .btn-gps .gps-label{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <div class="logo-main">CARBUFUEL</div>
+      <div class="logo-tag">Prix carburants · France</div>
+    </div>
+    <button id="btnInstall" title="Installer l'application">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 19h18"/></svg>
+      Installer
+    </button>
+  </header>
+
+  <!-- OFFLINE -->
+  <div class="offline-banner" id="offlineBanner">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6s4-4 11-4 11 4 11 4"/><path d="M5 10s2.5-2.5 7-2.5 7 2.5 7 2.5"/><path d="M9 14s1-1 3-1 3 1 3 1"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+    Hors ligne — affichage du dernier cache
+  </div>
+
+  <!-- GPS PERMISSION MODAL -->
+  <div id="gpsModal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">
+      <div style="font-size:40px;margin-bottom:14px;">📍</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:10px;color:var(--text);">LOCALISATION BLOQUÉE</div>
+      <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px;">
+        L'accès à votre position a été refusé.<br>
+        Pour l'activer, allez dans les <strong style="color:var(--text)">paramètres de votre navigateur</strong> et autorisez la localisation pour ce site.
+      </p>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:20px;text-align:left;font-size:13px;color:var(--muted);line-height:1.8;">
+        <div id="gpsInstructions"></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button id="gpsModalClose" style="padding:11px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;">
+          Utiliser la recherche
+        </button>
+        <button id="gpsModalRetry" style="padding:11px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0c0f;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;">
+          Réessayer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div>
+      <span class="label">Votre position</span>
+      <div class="location-row">
+        <div class="search-wrap">
+          <input class="city-input" id="cityInput" type="text" placeholder="Ville, code postal…" autocomplete="off" inputmode="search">
+          <div class="autocomplete" id="autocomplete"></div>
+        </div>
+        <button class="btn-search" id="btnSearch">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Chercher
+        </button>
+        <button class="btn-gps" id="btnGps" title="Utiliser ma position GPS">
+          <svg id="gpsIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9" opacity="0.3"/></svg>
+          <span class="gps-label" id="gpsLabel">GPS</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <span class="label">Rayon de recherche</span>
+      <div class="radius-display" id="radiusVal">10 km</div>
+      <input type="range" id="radiusSlider" min="2" max="50" value="10" step="1">
+      <div class="range-labels"><span>2 km</span><span>25 km</span><span>50 km</span></div>
+    </div>
+
+    <div>
+      <span class="label">Carburants</span>
+      <div class="fuel-filters">
+        <button class="fuel-chip active" data-fuel="SP95">SP95</button>
+        <button class="fuel-chip active" data-fuel="SP98">SP98</button>
+        <button class="fuel-chip active" data-fuel="Gazole">Gazole</button>
+        <button class="fuel-chip active" data-fuel="E10">E10</button>
+        <button class="fuel-chip active" data-fuel="E85">E85</button>
+        <button class="fuel-chip active" data-fuel="GPLc">GPLc</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Saisissez une ville ou utilisez le GPS</span>
+  </div>
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- SORT + LEGEND -->
+  <div id="sortSection" style="display:none">
+    <div class="sort-bar">
+      <span class="sort-label">Trier</span>
+      <button class="sort-btn active" data-sort="distance">Distance</button>
+      <button class="sort-btn" data-sort="price">Prix ↓</button>
+      <button class="sort-btn" data-sort="name">Nom</button>
+      <span class="result-count" id="resultCount"></span>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot green"></div>Prix le plus bas</div>
+      <div class="legend-item"><div class="legend-dot red"></div>Prix le plus élevé</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="output"></div>
+
+  <footer>
+    <span>CarbuFuel PWA · data.economie.gouv.fr</span>
+    <span id="lastUpdate"></span>
+  </footer>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let userLat=null,userLon=null,userDept=null;
+let allStations=[];
+let activeFuels=new Set(['SP95','SP98','Gazole','E10','E85','GPLc']);
+let sortMode='distance',radius=10;
+let acTimer=null,acIndex=-1;
+const PRICE_KEYS={'prix_sp95':'SP95','prix_sp98':'SP98','prix_gazole':'Gazole','prix_e10':'E10','prix_e85':'E85','prix_gplc':'GPLc'};
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function haversine(a,b,c,d){
+  const R=6371,dLat=(c-a)*Math.PI/180,dLon=(d-b)*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+function escapeHTML(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function setStatus(msg,state=''){
+  document.getElementById('statusText').textContent=msg;
+  document.getElementById('statusDot').className='status-dot'+(state?' '+state:'');
+}
+function setProgress(pct){
+  document.getElementById('progressWrap').style.display=pct<100?'block':'none';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+function showToast(msg,ms=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),ms);
+}
+function getDept(citycode='',postcode=''){
+  if(citycode){return citycode.startsWith('97')?citycode.slice(0,3):citycode.slice(0,2);}
+  if(postcode){return postcode.startsWith('97')?postcode.slice(0,3):postcode.slice(0,2);}
+  return '';
+}
+function parsePrices(s){
+  return Object.entries(PRICE_KEYS).filter(([k])=>s[k]&&!isNaN(+s[k])).map(([k,name])=>({name,price:+s[k]}));
+}
+
+// ── OFFLINE DETECTION ─────────────────────────────────────────────────────────
+function updateOnlineStatus(){
+  document.getElementById('offlineBanner').classList.toggle('show',!navigator.onLine);
+}
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);
+updateOnlineStatus();
+
+// ── PWA INSTALL ───────────────────────────────────────────────────────────────
+let deferredPrompt=null;
+const btnInstall=document.getElementById('btnInstall');
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  btnInstall.classList.add('visible');
+});
+btnInstall.addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted'){showToast('✅ Application installée !');btnInstall.classList.remove('visible');}
+  deferredPrompt=null;
+});
+window.addEventListener('appinstalled',()=>{btnInstall.classList.remove('visible');showToast('✅ CarbuFuel installé !');});
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{showToast('🔄 Mise à jour disponible…');});
+  });
+}
+
+// ── SLIDER ────────────────────────────────────────────────────────────────────
+document.getElementById('radiusSlider').addEventListener('input',function(){
+  radius=+this.value;
+  document.getElementById('radiusVal').textContent=radius+' km';
+  if(userLat!==null) renderStations();
+});
+
+// ── FUEL CHIPS ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.fuel-chip').forEach(c=>c.addEventListener('click',function(){
+  const f=this.dataset.fuel;
+  this.classList.toggle('active');
+  activeFuels.has(f)?activeFuels.delete(f):activeFuels.add(f);
+  if(userLat!==null) renderStations();
+}));
+
+// ── SORT ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.sort-btn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.sort-btn').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active');sortMode=this.dataset.sort;renderStations();
+}));
+
+// ── AUTOCOMPLETE ──────────────────────────────────────────────────────────────
+const cityInput=document.getElementById('cityInput');
+const acBox=document.getElementById('autocomplete');
+
+cityInput.addEventListener('input',()=>{
+  clearTimeout(acTimer);acIndex=-1;
+  const q=cityInput.value.trim();
+  if(q.length<2){acBox.classList.remove('open');return;}
+  acTimer=setTimeout(()=>geocodeSuggest(q),280);
+});
+cityInput.addEventListener('keydown',e=>{
+  const items=acBox.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){acIndex=Math.min(acIndex+1,items.length-1);highlightAc(items);e.preventDefault();}
+  else if(e.key==='ArrowUp'){acIndex=Math.max(acIndex-1,-1);highlightAc(items);e.preventDefault();}
+  else if(e.key==='Enter'){if(acIndex>=0&&items[acIndex])items[acIndex].click();else searchCity();}
+  else if(e.key==='Escape')acBox.classList.remove('open');
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))acBox.classList.remove('open');});
+
+function highlightAc(items){
+  items.forEach((it,i)=>it.classList.toggle('focused',i===acIndex));
+  if(acIndex>=0&&items[acIndex])items[acIndex].scrollIntoView({block:'nearest'});
+}
+
+async function geocodeSuggest(q){
+  try{
+    const r=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=6&type=municipality`);
+    const data=await r.json();
+    const features=data.features||[];
+    if(!features.length){acBox.classList.remove('open');return;}
+    acBox.innerHTML=features.map(f=>{
+      const[lon,lat]=f.geometry.coordinates;
+      const label=f.properties.label;
+      const dept=(f.properties.context||'').split(',')[0];
+      const cc=f.properties.citycode||'';
+      const pc=f.properties.postcode||'';
+      return `<div class="ac-item" data-lat="${lat}" data-lon="${lon}" data-label="${escapeHTML(label)}" data-dept="${getDept(cc,pc)}">
+        <span style="color:var(--accent)">📍</span>
+        <span class="ac-name">${escapeHTML(label)}</span>
+        <span class="ac-dept">${escapeHTML(dept)}</span>
+      </div>`;
+    }).join('');
+    acBox.classList.add('open');
+    acBox.querySelectorAll('.ac-item').forEach(item=>{
+      item.addEventListener('click',()=>{
+        userLat=+item.dataset.lat;userLon=+item.dataset.lon;userDept=item.dataset.dept;
+        cityInput.value=item.dataset.label;
+        acBox.classList.remove('open');
+        fetchStations();
+      });
+    });
+  }catch(e){acBox.classList.remove('open');}
+}
+
+// ── SEARCH & GPS ──────────────────────────────────────────────────────────────
+document.getElementById('btnSearch').addEventListener('click',searchCity);
+
+async function searchCity(){
+  const q=cityInput.value.trim();if(!q)return;
+  acBox.classList.remove('open');setStatus('Géocodage…','loading');
+  try{
+    const r=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
+    const data=await r.json();
+    const f=data.features?.[0];
+    if(!f)throw new Error('Adresse non trouvée');
+    const[lon,lat]=f.geometry.coordinates;
+    userLat=lat;userLon=lon;
+    userDept=getDept(f.properties.citycode||'',f.properties.postcode||'');
+    cityInput.value=f.properties.label;
+    fetchStations();
+  }catch(e){setStatus('Adresse introuvable — essayez un nom de ville','error');}
+}
+
+// ── GPS PERMISSION SYSTEM ─────────────────────────────────────────────────────
+const btnGps = document.getElementById('btnGps');
+const gpsModal = document.getElementById('gpsModal');
+const gpsLabel = document.getElementById('gpsLabel');
+const gpsIcon  = document.getElementById('gpsIcon');
+
+// Détecte le navigateur pour les instructions personnalisées
+function getGpsInstructions() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+  const isSamsung = /SamsungBrowser/.test(ua);
+  const isFirefox = /Firefox/.test(ua);
+  const isChrome = /Chrome/.test(ua) && !isSamsung;
+
+  if (isIOS) return `
+    <strong style="color:var(--text)">Sur iPhone / Safari :</strong><br>
+    ① Réglages → Safari<br>
+    ② Localisation → <em>Demander</em> ou <em>Autoriser</em><br>
+    ③ Revenez sur l'app et réessayez`;
+  if (isSamsung) return `
+    <strong style="color:var(--text)">Sur Samsung Internet :</strong><br>
+    ① Menu ⋮ → Paramètres → Sites<br>
+    ② Localisation → Autoriser<br>
+    ③ Revenez sur l'app et réessayez`;
+  if (isFirefox) return `
+    <strong style="color:var(--text)">Sur Firefox :</strong><br>
+    ① Cliquez sur 🔒 dans la barre d'adresse<br>
+    ② Autorisations → Accéder à la localisation<br>
+    ③ Rechargez la page`;
+  // Chrome / Android default
+  return `
+    <strong style="color:var(--text)">Sur Chrome Android :</strong><br>
+    ① Appuyez sur 🔒 dans la barre d'adresse<br>
+    ② Autorisations → Localisation → Autoriser<br>
+    ③ Rechargez la page et réessayez`;
+}
+
+function setGpsState(state) {
+  // states: idle | loading | ok | denied | unavailable
+  btnGps.className = 'btn-gps';
+  gpsIcon.style.animation = '';
+  if (state === 'loading') {
+    gpsLabel.textContent = '…';
+    gpsIcon.style.animation = 'pulse 1s infinite';
+    btnGps.disabled = true;
+  } else if (state === 'ok') {
+    gpsLabel.textContent = '✓ GPS';
+    btnGps.style.borderColor = 'var(--green)';
+    btnGps.style.color = 'var(--green)';
+    btnGps.disabled = false;
+  } else if (state === 'denied') {
+    gpsLabel.textContent = 'Bloqué';
+    btnGps.style.borderColor = 'var(--red)';
+    btnGps.style.color = 'var(--red)';
+    btnGps.disabled = false;
+  } else {
+    gpsLabel.textContent = 'GPS';
+    btnGps.style.borderColor = '';
+    btnGps.style.color = '';
+    btnGps.disabled = false;
+  }
+}
+
+function showGpsModal() {
+  document.getElementById('gpsInstructions').innerHTML = getGpsInstructions();
+  gpsModal.style.display = 'flex';
+}
+
+document.getElementById('gpsModalClose').addEventListener('click', () => {
+  gpsModal.style.display = 'none';
+  cityInput.focus();
+});
+document.getElementById('gpsModalRetry').addEventListener('click', () => {
+  gpsModal.style.display = 'none';
+  requestGps();
+});
+gpsModal.addEventListener('click', e => { if (e.target === gpsModal) gpsModal.style.display = 'none'; });
+
+function requestGps() {
+  if (!navigator.geolocation) {
+    setStatus('GPS non disponible sur ce navigateur.', 'error');
+    setGpsState('unavailable');
+    return;
+  }
+
+  setGpsState('loading');
+  setStatus('Localisation GPS en cours…', 'loading');
+
+  // ⚠️ IMPORTANT : getCurrentPosition() doit être appelé DIRECTEMENT
+  // dans le handler de click, sans aucun await avant lui.
+  // Sinon le navigateur mobile refuse d'afficher la popup d'autorisation.
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      userLat = pos.coords.latitude;
+      userLon = pos.coords.longitude;
+      setGpsState('ok');
+      try {
+        const r = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${userLon}&lat=${userLat}`);
+        const data = await r.json();
+        const f = data.features?.[0];
+        if (f) {
+          cityInput.value = f.properties.city || f.properties.label || 'Position GPS';
+          userDept = getDept(f.properties.citycode || '', f.properties.postcode || '');
+        } else {
+          cityInput.value = `${userLat.toFixed(4)}, ${userLon.toFixed(4)}`;
+          userDept = '';
+        }
+      } catch {
+        cityInput.value = `${userLat.toFixed(4)}, ${userLon.toFixed(4)}`;
+        userDept = '';
+      }
+      fetchStations();
+    },
+    err => {
+      // code 1 = PERMISSION_DENIED, code 2 = POSITION_UNAVAILABLE, code 3 = TIMEOUT
+      if (err.code === 1) {
+        setGpsState('denied');
+        setStatus('Localisation refusée', 'error');
+        showGpsModal(); // affiche les instructions pour débloquer
+      } else if (err.code === 2) {
+        setGpsState('idle');
+        setStatus('Position indisponible — vérifiez que le GPS est activé', 'error');
+        showToast('⚠️ GPS désactivé sur l\'appareil');
+      } else {
+        setGpsState('idle');
+        setStatus('Délai GPS dépassé — réessayez', 'error');
+      }
+    },
+    { timeout: 12000, enableHighAccuracy: true, maximumAge: 30000 }
+  );
+}
+
+btnGps.addEventListener('click', requestGps);
+
+// Vérifie silencieusement la permission au chargement
+// (SANS bloquer le flux — uniquement pour teinter le bouton)
+(async () => {
+  if (navigator.permissions) {
+    try {
+      const perm = await navigator.permissions.query({ name: 'geolocation' });
+      if (perm.state === 'granted') {
+        setGpsState('ok');
+      } else if (perm.state === 'denied') {
+        setGpsState('denied');
+        setStatus('Localisation bloquée — saisissez une ville ou autorisez le GPS', '');
+      }
+      perm.onchange = () => {
+        if (perm.state === 'granted') { setGpsState('ok'); setStatus('Localisation autorisée — cliquez GPS', ''); }
+        else if (perm.state === 'denied') setGpsState('denied');
+        else setGpsState('idle');
+      };
+    } catch {}
+  }
+})();
+
+// ── FETCH ─────────────────────────────────────────────────────────────────────
+async function fetchStations(){
+  setStatus('Chargement…','loading');setProgress(10);showSkeletons();
+  const depts=getDepartmentsToQuery(userDept,radius);
+  try{
+    let allRaw=[];
+    for(let i=0;i<depts.length;i++){
+      setProgress(10+Math.round((i/depts.length)*80));
+      try{
+        const res=await fetch(buildUrl(depts[i]),{headers:{'Accept':'application/json'}});
+        if(res.ok){const d=await res.json();allRaw=allRaw.concat(d.results||[]);}
+      }catch{}
+    }
+    setProgress(90);
+    const seen=new Set();
+    allStations=allRaw
+      .filter(s=>{if(seen.has(s.id))return false;seen.add(s.id);return true;})
+      .map(s=>{
+        const lat=s.geolocalisation?.lat,lon=s.geolocalisation?.lon;
+        if(!lat||!lon)return null;
+        return{...s,_lat:lat,_lon:lon,_dist:haversine(userLat,userLon,lat,lon)};
+      })
+      .filter(s=>s&&s._dist<=radius);
+    setProgress(100);
+    // Cache result
+    try{localStorage.setItem('cf_stations',JSON.stringify({lat:userLat,lon:userLon,dept:userDept,ts:Date.now(),data:allStations}));}catch{}
+    document.getElementById('lastUpdate').textContent='Actualisé '+new Date().toLocaleTimeString('fr-FR');
+    renderStations();
+  }catch(e){
+    setProgress(100);
+    // Try cache fallback
+    tryCache();
+  }
+}
+
+function tryCache(){
+  try{
+    const raw=localStorage.getItem('cf_stations');
+    if(!raw)throw new Error('Aucun cache');
+    const saved=JSON.parse(raw);
+    allStations=saved.data;
+    const age=Math.round((Date.now()-saved.ts)/60000);
+    setStatus(`Cache (il y a ${age} min) — vérifiez votre connexion`,'error');
+    document.getElementById('lastUpdate').textContent='Cache ('+age+' min)';
+    renderStations();
+    showToast('⚠️ Données en cache — connexion indisponible');
+  }catch{
+    setStatus('Erreur de chargement — vérifiez votre connexion','error');
+    showError('Impossible de charger les données.<br>Vérifiez votre connexion internet.');
+  }
+}
+
+function buildUrl(dept){
+  const encoded=encodeURIComponent(`cp like "${dept}%"`);
+  return `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=100&where=${encoded}`;
+}
+
+function getDepartmentsToQuery(dept,km){
+  if(!dept)return['75','92','93','94'];
+  const depts=[dept];
+  if(km>=20){
+    const n=parseInt(dept,10);
+    if(!isNaN(n)){
+      if(n>1)depts.push(String(n-1).padStart(2,'0'));
+      if(n<95)depts.push(String(n+1).padStart(2,'0'));
+    }
+  }
+  return[...new Set(depts)];
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderStations(){
+  let stations=allStations.filter(s=>parsePrices(s).some(p=>activeFuels.has(p.name)));
+  const allP={};
+  stations.forEach(s=>parsePrices(s).forEach(p=>{if(!allP[p.name])allP[p.name]=[];allP[p.name].push(p.price);}));
+  const minP={},maxP={};
+  for(const[f,arr]of Object.entries(allP)){minP[f]=Math.min(...arr);maxP[f]=Math.max(...arr);}
+
+  if(sortMode==='distance')stations.sort((a,b)=>a._dist-b._dist);
+  else if(sortMode==='name')stations.sort((a,b)=>(a.nom||a.adresse||'').localeCompare(b.nom||b.adresse||''));
+  else stations.sort((a,b)=>{
+    const pa=parsePrices(a).filter(p=>activeFuels.has(p.name));
+    const pb=parsePrices(b).filter(p=>activeFuels.has(p.name));
+    return(pa.length?Math.min(...pa.map(p=>p.price)):Infinity)-(pb.length?Math.min(...pb.map(p=>p.price)):Infinity);
+  });
+
+  document.getElementById('sortSection').style.display='block';
+  const count=stations.length;
+  setStatus(`${count} station${count>1?'s':''} dans un rayon de ${radius} km`,'ok');
+  document.getElementById('resultCount').textContent=count+' station'+(count>1?'s':'');
+
+  const output=document.getElementById('output');
+  if(!count){
+    output.innerHTML=`<div class="empty-state"><div class="empty-icon">⛽</div><div class="empty-title">Aucune station</div><div class="empty-sub">Augmentez le rayon ou modifiez les filtres</div></div>`;
+    return;
+  }
+
+  output.innerHTML='<div class="stations-grid">'+stations.map((s,i)=>{
+    const prices=parsePrices(s).filter(p=>activeFuels.has(p.name));
+    const addr=escapeHTML([s.adresse,s.ville,s.cp].filter(Boolean).join(', '));
+    const brand=escapeHTML(s.enseignes||s.nom||'Station');
+    const dist=s._dist;
+    const distStr=dist<1?Math.round(dist*1000)+' m':dist.toFixed(1)+' km';
+    const mapsLink=`https://maps.google.com/?q=${s._lat},${s._lon}`;
+
+    const pillsHtml=prices.map(p=>{
+      let cls='';
+      if(minP[p.name]!==undefined&&minP[p.name]!==maxP[p.name]){
+        if(p.price<=minP[p.name])cls='cheapest';
+        else if(p.price>=maxP[p.name])cls='priciest';
+      }
+      return `<div class="fuel-pill ${cls}">
+        <span class="fuel-pill-name">${p.name}</span>
+        <span class="fuel-pill-price">${p.price.toFixed(3)}</span>
+        <span class="fuel-pill-unit">€/L</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="station-card" style="animation-delay:${Math.min(i,15)*35}ms">
+      <div>
+        <div class="station-name">${brand}</div>
+        <div class="station-meta"><span>${addr}</span><span class="distance-badge">${distStr}</span></div>
+        <div class="fuels-row">${pillsHtml}</div>
+      </div>
+      <div class="station-actions">
+        <div class="brand-logo">${brand.slice(0,10).toUpperCase()}</div>
+        <a class="maps-link" href="${mapsLink}" target="_blank" rel="noopener">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Itinéraire
+        </a>
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+function showSkeletons(){
+  document.getElementById('output').innerHTML=Array.from({length:4}).map(()=>`
+    <div class="skel-card">
+      <div class="skeleton skel-line skel-md"></div>
+      <div class="skeleton skel-line skel-sm" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:7px">
+        <div class="skeleton" style="width:64px;height:56px;border-radius:7px"></div>
+        <div class="skeleton" style="width:64px;height:56px;border-radius:7px"></div>
+        <div class="skeleton" style="width:64px;height:56px;border-radius:7px"></div>
+      </div>
+    </div>`).join('');
+}
+
+function showError(msg){
+  document.getElementById('output').innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Erreur</div><div class="empty-sub">${msg}</div></div>`;
+}
+</script>
+</body>
+</html>

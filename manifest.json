@@ -1,0 +1,36 @@
+{
+  "name": "CarbuFuel — Prix carburants",
+  "short_name": "CarbuFuel",
+  "description": "Prix des carburants en temps réel autour de vous",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0c0f",
+  "theme_color": "#0a0c0f",
+  "lang": "fr",
+  "categories": ["utilities", "travel"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Rechercher près de moi",
+      "short_name": "GPS",
+      "description": "Lancer la géolocalisation",
+      "url": "./index.html?action=gps",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}
