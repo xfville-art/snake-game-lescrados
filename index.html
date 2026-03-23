@@ -229,27 +229,56 @@ const RADIUS_KM = 20; // rayon de recherche
 
 // Normalise une entrée quelle que soit la version d'API
 function normalizeRecord(s) {
-  // v2.1 : s.geolocalisation = {lat, lon}
-  if (s.geolocalisation && s.geolocalisation.lat != null) return s;
   // v1 : s.fields + s.geometry
   if (s.fields) {
     const f = s.fields;
     const geo = s.geometry && s.geometry.coordinates;
     return {
-      ...f,
-      geolocalisation: geo ? { lat: geo[1], lon: geo[0] } : null,
-      nom: f.nom,
-      ville: f.ville,
-      adresse: f.adresse,
-      prix_sp95: f.prix_sp95,
-      prix_sp98: f.prix_sp98,
-      prix_gazole: f.prix_gazole,
-      prix_e10: f.prix_e10,
-      prix_e85: f.prix_e85,
-      prix_gplc: f.prix_gplc,
+      geolocalisation: geo ? { lat: geo[1], lon: geo[0] } : (f.geolocalisation || null),
+      nom: f.nom || f.name || f.enseignecommerciale || null,
+      ville: f.ville || f.city || null,
+      adresse: f.adresse || f.address || null,
+      prix_sp95:  parseFloat(f.prix_sp95  || f.sp95  || 0) || 0,
+      prix_sp98:  parseFloat(f.prix_sp98  || f.sp98  || 0) || 0,
+      prix_gazole:parseFloat(f.prix_gazole|| f.gazole|| 0) || 0,
+      prix_e10:   parseFloat(f.prix_e10   || f.e10   || 0) || 0,
+      prix_e85:   parseFloat(f.prix_e85   || f.e85   || 0) || 0,
+      prix_gplc:  parseFloat(f.prix_gplc  || f.gplc  || 0) || 0,
     };
   }
-  return null;
+
+  // v2.1 flat — les champs peuvent s'appeler différemment selon le flux
+  // On tente toutes les variantes connues du dataset gouvernemental
+  const geo = s.geolocalisation || s.geo_point_2d || null;
+  const geoNorm = geo
+    ? (geo.lat != null ? geo : { lat: geo.latitude || geo.lat, lon: geo.longitude || geo.lon })
+    : null;
+
+  return {
+    geolocalisation: geoNorm,
+    nom:        s.nom         || s.name        || s.enseignecommerciale || s.enseigne || null,
+    ville:      s.ville       || s.city         || s.com_arm_name        || null,
+    adresse:    s.adresse     || s.address      || null,
+    prix_sp95:  parseFloat(s.prix_sp95  || s.sp95_prix  || s.sp95  || 0) || 0,
+    prix_sp98:  parseFloat(s.prix_sp98  || s.sp98_prix  || s.sp98  || 0) || 0,
+    prix_gazole:parseFloat(s.prix_gazole|| s.gazole_prix|| s.gazole|| 0) || 0,
+    prix_e10:   parseFloat(s.prix_e10   || s.e10_prix   || s.e10   || 0) || 0,
+    prix_e85:   parseFloat(s.prix_e85   || s.e85_prix   || s.e85   || 0) || 0,
+    prix_gplc:  parseFloat(s.prix_gplc  || s.gplc_prix  || s.gplc  || 0) || 0,
+    // garde l'objet brut pour debug
+    _raw: s,
+  };
+}
+
+// ── DEBUG : affiche les clés du 1er enregistrement brut dans la console ──────
+function debugFirstRecord(raw) {
+  if (!raw.length) return;
+  const r = raw[0];
+  console.group('CarbuFuel — champs API bruts');
+  console.log('Clés top-level :', Object.keys(r));
+  if (r.fields) console.log('Clés fields :', Object.keys(r.fields));
+  console.log('Objet complet :', r);
+  console.groupEnd();
 }
 
 async function load() {
@@ -277,7 +306,7 @@ async function load() {
       if (!r.ok) continue;
       const d = await r.json();
       const list = d.results || d.records;
-      if (Array.isArray(list) && list.length > 0) { raw = list; break; }
+      if (Array.isArray(list) && list.length > 0) { raw = list; debugFirstRecord(list); break; }
     } catch(_) { /* essaye l'URL suivante */ }
   }
 
@@ -331,7 +360,9 @@ function requireStations() {
   return true;
 }
 
-// ── Best deal ─────────────────────────────────────────────────────────────────
+function displayName(s) {
+  return s.nom || s.adresse || ('Station ' + (s.ville || '').trim()) || 'Station';
+}
 function bestDeal() {
   if (!requireStations()) return;
   let best = null;
@@ -345,7 +376,7 @@ function bestDeal() {
   document.getElementById("result").innerHTML = `
     <div class="card">
       <div class="big orange">🔥 MEILLEUR PRIX</div>
-      <div style="margin:10px 0 4px;font-weight:600">${best.s.nom || "Station"}</div>
+      <div style="margin:10px 0 4px;font-weight:600">${displayName(best.s)}</div>
       <div class="muted">${best.s.adresse || ""} — ${best.s.ville || ""}</div>
       <div class="muted">${best.s.dist.toFixed(1)} km</div>
       <div style="margin:14px 0"><span class="xl green">${best.price.toFixed(3)}€</span><span class="muted"> /L</span></div>
@@ -373,7 +404,7 @@ function scanExpensive() {
       ${bad.map(s => `
         <div class="station-row">
           <div>
-            <div style="font-weight:600">${s.nom || "Station"}</div>
+            <div style="font-weight:600">${displayName(s)}</div>
             <div class="muted">${s.dist.toFixed(1)} km — ${s.ville || ""}</div>
           </div>
           <span class="red" style="font-weight:700">${Math.min(...prices(s)).toFixed(3)}€</span>
@@ -396,7 +427,7 @@ function renderList() {
       const isCheap = p !== null && p < mean - 0.05;
       return `<div class="station-row">
         <div>
-          <div style="font-weight:600">${s.nom || "Station"} <span class="muted">· ${s.dist.toFixed(1)} km</span></div>
+          <div style="font-weight:600">${displayName(s)} <span class="muted">· ${s.dist.toFixed(1)} km</span></div>
           <div class="muted">${s.ville || ""}</div>
           ${isCheap ? '<span class="tag">🔥 Bon plan</span>' : ''}
         </div>
