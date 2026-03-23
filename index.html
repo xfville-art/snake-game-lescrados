@@ -169,41 +169,78 @@ function renderList() {
     <div class="card">
       ${sorted.map(s => `
         <div class="station-row">
-          <div>
-            <div style="font-weight:600">${s.nom || 'Station'}</div>
-            <div class="muted">${s.dist.toFixed(1)} km</div>
-          </div>
-          <div style="font-weight:900">${s[fuel] ? s[fuel].toFixed(3)+'€' : 'N/A'}</div>
-        </div>`).join('')}
-    </div>`;
+<script>
+let userLat = null, userLon = null, stations = [];
+
+function haversine(a, b, c, d) {
+  const R = 6371, toR = x => x * Math.PI / 180;
+  const dLat = toR(c - a), dLon = toR(d - b);
+  const x = Math.sin(dLat/2)**2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
 }
 
-function scanExpensive() {
-  const fuel = document.getElementById("fuelType").value;
-  const avg = stations.reduce((acc, s) => acc + s[fuel], 0) / stations.length;
-  const bad = stations.filter(s => s[fuel] > avg + 0.1);
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="red" style="font-weight:900; margin-bottom:10px">⚠️ STATIONS À ÉVITER (+0.10€ vs moyenne)</div>
-      ${bad.map(s => `<div class="station-row"><span>${s.nom || s.ville}</span><span class="red">${s[fuel].toFixed(3)}€</span></div>`).join('')}
-    </div>`;
+async function search() {
+  const q = document.getElementById("city").value;
+  if(!q) return;
+  try {
+    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}`);
+    const d = await r.json();
+    if (d.features.length) {
+      userLat = d.features[0].geometry.coordinates[1];
+      userLon = d.features[0].geometry.coordinates[0];
+      load();
+    }
+  } catch(e) { console.error("Erreur ville", e); }
 }
 
-function generateContent() {
-  const fuel = document.getElementById("fuelType").value;
-  const best = [...stations].sort((a, b) => a[fuel] - b[fuel])[0];
-  const worst = [...stations].sort((a, b) => b[fuel] - a[fuel])[0];
-  const script = `🚨 ALERTE ESSENCE à ${best.ville} !\n\n❌ Ne va pas chez ${worst.nom || 'certaines stations'} à ${worst[fuel].toFixed(3)}€\n✅ Fonce chez ${best.nom || 'cette station'} à ${best[fuel].toFixed(3)}€\n\n💸 Tu gagnes ${( (worst[fuel] - best[fuel]) * 50).toFixed(2)}€ sur ton plein !`;
-  document.getElementById("result").innerHTML = `<div class="card"><h3>Script TikTok</h3><textarea rows="6">${script}</textarea></div>`;
+function gps() {
+  navigator.geolocation.getCurrentPosition(p => {
+    userLat = p.coords.latitude; userLon = p.coords.longitude;
+    load();
+  }, () => alert("Activez le GPS"));
 }
 
-function generateVideo() {
-  const fuel = document.getElementById("fuelType").value;
-  const best = [...stations].sort((a, b) => a[fuel] - b[fuel])[0];
-  const prompt = `Cinematic vertical shot, high contrast. A close-up of a fuel pump nozzle, then switching to a bright neon sign showing ${best[fuel].toFixed(3)}€. Fast cuts, energetic street atmosphere in ${best.ville}, France. 4k, hyper-realistic.`;
-  document.getElementById("result").innerHTML = `<div class="card"><h3>Prompt IA Video</h3><textarea rows="6">${prompt}</textarea></div>`;
+async function load() {
+  const fuel = document.getElementById("fuelType") ? document.getElementById("fuelType").value : "prix_gazole";
+  const radius = document.getElementById("radiusRange") ? document.getElementById("radiusRange").value : 20;
+  const resultDiv = document.getElementById("result");
+  
+  resultDiv.innerHTML = "<div class='card muted'>Recherche en cours...</div>";
+  
+  // On utilise l'URL v2.1 qui est la plus stable actuellement
+  const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=distance(geolocalisation%2C%20GEOM'POINT(${userLon}%20${userLat})'%2C%20${radius}km)%20and%20${fuel}%3E0&limit=50`;
+
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    
+    // Correction ici : on vérifie d.results pour la v2.1
+    const data = d.results || d.records || [];
+    
+    stations = data.map(s => {
+      // On normalise la position car l'API peut varier
+      const lat = s.geolocalisation?.lat || s.lat;
+      const lon = s.geolocalisation?.lon || s.lon;
+      return {
+        ...s,
+        dist: haversine(userLat, userLon, lat, lon)
+      };
+    });
+
+    if(stations.length === 0) {
+      resultDiv.innerHTML = "<div class='card red'>Aucune station trouvée dans ce rayon.</div>";
+    } else {
+      renderList(); 
+    }
+  } catch(e) { 
+    resultDiv.innerHTML = "<div class='card red'>Erreur de connexion à l'API.</div>";
+    console.error(e);
+  }
 }
+
+// Assure-toi que les fonctions renderList(), bestDeal(), etc. utilisent bien la variable globale 'stations'
 </script>
+
 
 </body>
 </html>
