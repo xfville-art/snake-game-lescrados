@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarbuFuel V4 🚀</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap');
+
+  :root {
+    --orange: #f0a500;
+    --red: #e05c2a;
+    --green: #3fb950;
+    --danger: #f85149;
+    --bg: #0a0c0f;
+    --card: #111318;
+    --border: #1e2229;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: #fff;
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--orange), var(--red));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+
+  .subtitle { color: #555; font-size: 0.85rem; margin-bottom: 20px; }
+
+  .search-row {
+    display: flex; gap: 8px; margin-bottom: 12px;
+  }
+
+  input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Barlow', sans-serif;
+    outline: none;
+    transition: border-color .2s;
+  }
+  input:focus { border-color: var(--orange); }
+  input::placeholder { color: #444; }
+
+  button {
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    letter-spacing: .5px;
+    transition: transform .1s, opacity .2s;
+  }
+  button:active { transform: scale(.97); }
+
+  .btn-primary { background: linear-gradient(135deg, var(--orange), var(--red)); color: #000; }
+  .btn-ghost { background: var(--card); color: #aaa; border: 1px solid var(--border); }
+  .btn-ghost:hover { color: #fff; border-color: #444; }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .action-grid .wide { grid-column: 1 / -1; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 10px;
+    animation: fadeUp .35s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .big { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 900; }
+  .xl  { font-family: 'Barlow Condensed', sans-serif; font-size: 2.4rem; font-weight: 900; }
+  .green { color: var(--green); }
+  .red   { color: var(--danger); }
+  .orange { color: var(--orange); }
+  .muted { color: #666; font-size: .85rem; }
+
+  .station-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .station-row:last-child { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 700;
+    background: #1a2a1a;
+    color: var(--green);
+    margin-top: 4px;
+  }
+
+  textarea {
+    width: 100%;
+    background: #0d0f12;
+    color: #3fb950;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: .85rem;
+    resize: vertical;
+    margin-top: 10px;
+  }
+
+  .loader {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid #333;
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .sep { height: 1px; background: var(--border); margin: 10px 0; }
+
+  a button { text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>⛽ CarbuFuel V4</h1>
+<p class="subtitle">Prix carburants en temps réel · France</p>
+
+<div class="search-row">
+  <input id="city" placeholder="Ville ou code postal..." onkeydown="if(event.key==='Enter')search()">
+  <button class="btn-ghost" onclick="search()">🔍</button>
+  <button class="btn-ghost" onclick="gps()">📍</button>
+</div>
+
+<div class="action-grid">
+  <button class="btn-primary wide" onclick="bestDeal()">🔥 Meilleur prix autour de moi</button>
+  <button class="btn-ghost" onclick="scanExpensive()">⚠️ Stations chères</button>
+  <button class="btn-ghost" onclick="renderList()">📋 Liste stations</button>
+  <button class="btn-ghost" onclick="generateContent()">🎬 Script TikTok</button>
+  <button class="btn-ghost" onclick="autoTikTok()">🤖 Auto TikTok x4</button>
+  <button class="btn-ghost wide" onclick="generateVideo()">🎥 Prompt vidéo IA</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+let userLat = null, userLon = null, stations = [];
+
+// ── Haversine ────────────────────────────────────────────────────────────────
+function haversine(a, b, c, d) {
+  const R = 6371, toR = x => x * Math.PI / 180;
+  const dLat = toR(c - a), dLon = toR(d - b);
+  const x = Math.sin(dLat/2)**2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+// ── Geocode city ─────────────────────────────────────────────────────────────
+async function search() {
+  const q = document.getElementById("city").value.trim();
+  if (!q) return;
+  showLoader("Géolocalisation...");
+  try {
+    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}`);
+    const d = await r.json();
+    if (!d.features.length) { showError("Ville introuvable."); return; }
+    const f = d.features[0];
+    userLat = f.geometry.coordinates[1];
+    userLon = f.geometry.coordinates[0];
+    await load();
+  } catch(e) { showError("Erreur géolocalisation : " + e.message); }
+}
+
+// ── GPS ───────────────────────────────────────────────────────────────────────
+function gps() {
+  if (!navigator.geolocation) { showError("Géolocalisation non supportée."); return; }
+  showLoader("Position GPS...");
+  navigator.geolocation.getCurrentPosition(
+    async p => {
+      userLat = p.coords.latitude;
+      userLon = p.coords.longitude;
+      await load();
+    },
+    () => showError("Accès GPS refusé.")
+  );
+}
+
+// ── Load data ─────────────────────────────────────────────────────────────────
+async function load() {
+  showLoader("Chargement des prix...");
+  try {
+    const r = await fetch(
+      "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=300"
+    );
+    const d = await r.json();
+
+    stations = d.results
+      .map(s => {
+        if (!s.geolocalisation) return null;
+        const dist = haversine(userLat, userLon, s.geolocalisation.lat, s.geolocalisation.lon);
+        return { ...s, dist };
+      })
+      .filter(s => s && s.dist < 30);
+
+    renderList();
+  } catch(e) { showError("Erreur chargement données : " + e.message); }
+}
+
+// ── Prix valides d'une station ────────────────────────────────────────────────
+function prices(s) {
+  return [s.prix_sp95, s.prix_sp98, s.prix_gazole, s.prix_e10, s.prix_e85, s.prix_gplc]
+    .map(Number)
+    .filter(p => p > 0);
+}
+
+function minPrice(s) {
+  const p = prices(s);
+  return p.length ? Math.min(...p) : null;
+}
+
+// ── Render helpers ────────────────────────────────────────────────────────────
+function showLoader(msg) {
+  document.getElementById("result").innerHTML =
+    `<div class="card" style="color:#666"><span class="loader"></span>${msg}</div>`;
+}
+
+function showError(msg) {
+  document.getElementById("result").innerHTML =
+    `<div class="card red">❌ ${msg}</div>`;
+}
+
+function requireStations() {
+  if (!stations.length) {
+    showError("Lance d'abord une recherche par ville ou GPS.");
+    return false;
+  }
+  return true;
+}
+
+// ── Best deal ─────────────────────────────────────────────────────────────────
+function bestDeal() {
+  if (!requireStations()) return;
+  let best = null;
+  stations.forEach(s => {
+    prices(s).forEach(p => {
+      if (!best || p < best.price) best = { s, price: p };
+    });
+  });
+  if (!best) { showError("Aucun prix disponible."); return; }
+  const eco = ((2.1 - best.price) * 50).toFixed(2);
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <div class="big orange">🔥 MEILLEUR PRIX</div>
+      <div style="margin:10px 0 4px;font-weight:600">${best.s.nom || "Station"}</div>
+      <div class="muted">${best.s.adresse || ""} — ${best.s.ville || ""}</div>
+      <div class="muted">${best.s.dist.toFixed(1)} km</div>
+      <div style="margin:14px 0"><span class="xl green">${best.price.toFixed(3)}€</span><span class="muted"> /L</span></div>
+      <div style="color:#aaa;font-size:.9rem">💸 Gain estimé sur un plein : <strong class="green">${eco}€</strong></div>
+      <div style="margin-top:14px">
+        <a href="https://maps.google.com/?q=${best.s.geolocalisation.lat},${best.s.geolocalisation.lon}" target="_blank">
+          <button class="btn-primary">🗺️ Y aller</button>
+        </a>
+      </div>
+    </div>`;
+}
+
+// ── Stations chères ───────────────────────────────────────────────────────────
+function scanExpensive() {
+  if (!requireStations()) return;
+  const allPrices = stations.flatMap(s => prices(s));
+  if (!allPrices.length) { showError("Aucun prix disponible."); return; }
+  const mean = allPrices.reduce((a, b) => a + b, 0) / allPrices.length;
+  const bad = stations.filter(s => { const p = prices(s); return p.length && Math.min(...p) > mean + 0.1; });
+
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <div class="big red">⚠️ ${bad.length} stations au-dessus de la moyenne</div>
+      <div class="muted" style="margin:6px 0 14px">Prix moyen local : ${mean.toFixed(3)}€/L · seuil +0.10€</div>
+      ${bad.map(s => `
+        <div class="station-row">
+          <div>
+            <div style="font-weight:600">${s.nom || "Station"}</div>
+            <div class="muted">${s.dist.toFixed(1)} km — ${s.ville || ""}</div>
+          </div>
+          <span class="red" style="font-weight:700">${Math.min(...prices(s)).toFixed(3)}€</span>
+        </div>`).join("")}
+    </div>`;
+}
+
+// ── Liste stations ────────────────────────────────────────────────────────────
+function renderList() {
+  if (!requireStations()) return;
+  const div = document.getElementById("result");
+  const sorted = [...stations].sort((a, b) => a.dist - b.dist).slice(0, 12);
+  const allPrices = stations.flatMap(s => prices(s));
+  const mean = allPrices.length ? allPrices.reduce((a, b) => a + b, 0) / allPrices.length : 999;
+
+  div.innerHTML = `<div class="card">
+    <div class="big" style="margin-bottom:12px">📋 ${sorted.length} stations proches</div>
+    ${sorted.map(s => {
+      const p = minPrice(s);
+      const isCheap = p !== null && p < mean - 0.05;
+      return `<div class="station-row">
+        <div>
+          <div style="font-weight:600">${s.nom || "Station"} <span class="muted">· ${s.dist.toFixed(1)} km</span></div>
+          <div class="muted">${s.ville || ""}</div>
+          ${isCheap ? '<span class="tag">🔥 Bon plan</span>' : ''}
+        </div>
+        <span style="font-weight:700;color:${p !== null ? (isCheap ? 'var(--green)' : '#fff') : '#555'}">
+          ${p !== null ? p.toFixed(3) + '€' : '—'}
+        </span>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+// ── Script TikTok simple ──────────────────────────────────────────────────────
+function generateContent() {
+  if (!requireStations()) return;
+  const { best, worst } = getBestWorst();
+  if (!best) { showError("Aucun prix disponible."); return; }
+
+  const diff = (worst.price - best.price).toFixed(2);
+  const gain = (diff * 50).toFixed(2);
+
+  const script = `🚨 TU PAYES TON ESSENCE TROP CHER
+
+Station chère : ${worst.price.toFixed(3)}€/L
+Station pas chère : ${best.price.toFixed(3)}€/L
+
+💸 Différence : ${diff}€/L
+🔥 Gain sur un plein : ${gain}€
+
+👉 Va ici maintenant : ${best.s.ville}`;
+
+  renderTextArea("🎬 SCRIPT TIKTOK", script);
+}
+
+// ── Auto TikTok x4 ────────────────────────────────────────────────────────────
+function autoTikTok() {
+  if (!requireStations()) return;
+  const { best, worst } = getBestWorst();
+  if (!best) { showError("Aucun prix disponible."); return; }
+
+  const diff = (worst.price - best.price).toFixed(2);
+  const gain = (diff * 50).toFixed(2);
+
+  const hooks = [
+    "🚨 Tu te fais arnaquer à la pompe",
+    "💸 Arrête de payer trop cher ton essence",
+    "😳 Cette station abuse clairement",
+    "🔥 J'ai trouvé le meilleur prix autour de moi"
+  ];
+
+  const scripts = hooks.map(h =>
+    `${h}\n\n⛽ ${worst.price.toFixed(3)}€ vs ${best.price.toFixed(3)}€\n💸 Gain : ${gain}€\n📍 ${best.s.ville}\n👉 Go maintenant`
+  );
+
+  const combined = scripts.join("\n\n---\n\n");
+
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <div class="big" style="margin-bottom:12px">🤖 AUTO TIKTOK x${scripts.length}</div>
+      ${scripts.map((s, i) => `
+        <div style="margin-bottom:12px">
+          <div class="muted" style="margin-bottom:4px">Version ${i + 1}</div>
+          <textarea rows="6">${s}</textarea>
+        </div>`).join("")}
+      <button class="btn-primary" onclick="copyText(${JSON.stringify(combined)})">📋 Tout copier</button>
+    </div>`;
+}
+
+// ── Prompt vidéo IA ───────────────────────────────────────────────────────────
+function generateVideo() {
+  if (!requireStations()) return;
+  const { best, worst } = getBestWorst();
+  if (!best) { showError("Aucun prix disponible."); return; }
+
+  const diff = (worst.price - best.price).toFixed(2);
+  const gain = (diff * 50).toFixed(2);
+
+  const prompt = `Vertical video 9:16, realistic scene at a gas station, dramatic cinematic lighting.
+
+Scene 1: Close-up of a shocked person staring at a fuel price display showing ${worst.price.toFixed(3)}€/L. Text overlay: "🚨 STOP PAYING TOO MUCH". Duration: 2s.
+
+Scene 2: Quick cut transition to a cheaper station price board at ${best.price.toFixed(3)}€/L. Text overlay: "SAVE ${gain}€ PER TANK — ${diff}€/L DIFFERENCE". Duration: 2s.
+
+Scene 3: Animated map zoom into ${best.s.ville}. Final text: "GO NOW — BEST PRICE NEARBY". Duration: 2s.
+
+Style: Viral TikTok energy, fast cuts, bold subtitles, high contrast, cinematic color grade. Music: urgent suspenseful loop.`;
+
+  renderTextArea("🎥 PROMPT VIDÉO IA", prompt);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getBestWorst() {
+  let best = null, worst = null;
+  stations.forEach(s => {
+    prices(s).forEach(p => {
+      if (!best || p < best.price) best = { s, price: p };
+      if (!worst || p > worst.price) worst = { s, price: p };
+    });
+  });
+  return { best, worst };
+}
+
+function renderTextArea(title, text) {
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <div class="big" style="margin-bottom:8px">${title}</div>
+      <textarea rows="10">${text}</textarea>
+      <div style="margin-top:12px">
+        <button class="btn-primary" onclick="copyText(${JSON.stringify(text)})">📋 Copier</button>
+      </div>
+    </div>`;
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = "✅ Copié !";
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+</script>
+</body>
+</html>
