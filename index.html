@@ -11,114 +11,69 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap');
-
-  :root {
-    --orange: #f0a500; --red: #e05c2a; --green: #3fb950;
-    --danger: #f85149; --bg: #0a0c0f; --card: #111318; --border: #1e2229;
-  }
-
+  :root { --orange: #f0a500; --red: #e05c2a; --green: #3fb950; --danger: #f85149; --bg: #0a0c0f; --card: #111318; --border: #1e2229; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg); color: #fff; font-family: 'Barlow', sans-serif;
-    padding: 20px 16px 40px; max-width: 600px; margin: 0 auto;
-  }
-
-  h1 {
-    font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; font-weight: 900;
-    background: linear-gradient(135deg, var(--orange), var(--red));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-
-  .subtitle { color: #555; font-size: 0.85rem; margin-bottom: 20px; }
-
+  body { background: var(--bg); color: #fff; font-family: 'Barlow', sans-serif; padding: 20px 16px; max-width: 500px; margin: 0 auto; }
+  h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .search-row, .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  input, select {
-    flex: 1; padding: 12px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; color: #fff; font-family: 'Barlow', sans-serif; outline: none;
-  }
-
-  button {
-    padding: 12px 18px; border-radius: 10px; border: none; cursor: pointer;
-    font-weight: 700; font-family: 'Barlow Condensed', sans-serif; transition: 0.2s;
-  }
-  .btn-primary { background: linear-gradient(135deg, var(--orange), var(--red)); color: #000; width: 100%; }
+  input, select { flex: 1; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; }
+  button { padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; transition: 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--orange), var(--red)); color: #000; width: 100%; margin-bottom: 10px; }
   .btn-ghost { background: var(--card); color: #aaa; border: 1px solid var(--border); }
-
-  .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-  .wide { grid-column: 1 / -1; }
-
-  .card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 18px; margin-bottom: 10px; animation: fadeUp 0.35s ease both;
-  }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
-  .xl { font-family: 'Barlow Condensed', sans-serif; font-size: 2.4rem; font-weight: 900; }
-  .green { color: var(--green); } .red { color: var(--danger); } .muted { color: #666; font-size: .85rem; }
-
-  .station-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-  }
-  textarea {
-    width: 100%; background: #0d0f12; color: var(--green); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px; margin-top: 10px;
-  }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 10px; }
+  .xl { font-size: 2.4rem; font-weight: 900; font-family: 'Barlow Condensed'; }
+  .station-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .muted { color: #666; font-size: .85rem; }
+  .green { color: var(--green); } .red { color: var(--danger); }
 </style>
 </head>
 <body>
 
 <h1>⛽ CarbuFuel V4</h1>
-<p class="subtitle">Prix en temps réel · France</p>
+<p class="muted" style="margin-bottom:20px">Prix officiels en temps réel</p>
 
 <div class="search-row">
-  <input id="city" placeholder="Ville ou code postal...">
+  <input id="city" placeholder="Ville ou Code Postal">
   <button class="btn-ghost" onclick="search()">🔍</button>
   <button class="btn-ghost" onclick="gps()">📍</button>
 </div>
 
 <div class="filter-row">
   <select id="fuelType">
-    <option value="prix_gazole">Gazole</option>
-    <option value="prix_sp95">Sans Plomb 95</option>
-    <option value="prix_e10">Sans Plomb 95-E10</option>
-    <option value="prix_sp98">Sans Plomb 98</option>
-    <option value="prix_e85">Superéthanol E85</option>
-    <option value="prix_gplc">GPLc</option>
+    <option value="gazole">Gazole</option>
+    <option value="sp95">SP95</option>
+    <option value="e10">SP95-E10</option>
+    <option value="sp98">SP98</option>
+    <option value="e85">E85</option>
+    <option value="gplc">GPLc</option>
   </select>
-  <select id="radiusRange" style="flex: 0.5;">
-    <option value="5">5 km</option>
-    <option value="10">10 km</option>
-    <option value="20" selected>20 km</option>
-    <option value="50">50 km</option>
+  <select id="radiusRange" style="max-width: 100px;">
+    <option value="10">10km</option>
+    <option value="20" selected>20km</option>
+    <option value="50">50km</option>
   </select>
 </div>
 
-<div class="action-grid">
-  <button class="btn-primary wide" onclick="bestDeal()">🔥 Meilleur prix (selon carburant)</button>
-  <button class="btn-ghost" onclick="renderList()">📋 Liste stations</button>
-  <button class="btn-ghost" onclick="scanExpensive()">⚠️ Trop chères</button>
-  <button class="btn-ghost" onclick="generateContent()">🎬 Script TikTok</button>
-  <button class="btn-ghost" onclick="generateVideo()">🎥 Prompt Vidéo IA</button>
-</div>
-
+<button class="btn-primary" onclick="bestDeal()">🔥 TROUVER LE MOINS CHER</button>
 <div id="result"></div>
 
 <script>
-let userLat = null, userLon = null, stations = [];
+let userLat = 47.75, userLon = 2.63, stations = []; // Gien par défaut
 
-function haversine(a, b, c, d) {
-  const R = 6371, toR = x => x * Math.PI / 180;
-  const dLat = toR(c - a), dLon = toR(d - b);
-  const x = Math.sin(dLat/2)**2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 async function search() {
   const q = document.getElementById("city").value;
+  if(!q) return;
   const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}`);
   const d = await r.json();
-  if (d.features.length) {
+  if(d.features.length) {
     userLat = d.features[0].geometry.coordinates[1];
     userLon = d.features[0].geometry.coordinates[0];
     load();
@@ -129,118 +84,75 @@ function gps() {
   navigator.geolocation.getCurrentPosition(p => {
     userLat = p.coords.latitude; userLon = p.coords.longitude;
     load();
-  }, () => alert("GPS refusé"));
-}
-
-async function load() {
-  const fuel = document.getElementById("fuelType").value;
-  const radius = document.getElementById("radiusRange").value;
-  document.getElementById("result").innerHTML = "<div class='card muted'>Chargement...</div>";
-  
-  try {
-    const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=distance(geolocalisation%2C%20GEOM'POINT(${userLon}%20${userLat})'%2C%20${radius}km)%20and%20${fuel}%3E0&limit=50`;
-    const r = await fetch(url);
-    const d = await r.json();
-    stations = d.results.map(s => ({...s, dist: haversine(userLat, userLon, s.geolocalisation.lat, s.geolocalisation.lon)}));
-    renderList();
-  } catch(e) { document.getElementById("result").innerHTML = "<div class='card red'>Erreur API</div>"; }
-}
-
-function bestDeal() {
-  if (!stations.length) return;
-  const fuel = document.getElementById("fuelType").value;
-  const best = [...stations].sort((a, b) => a[fuel] - b[fuel])[0];
-  
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="xl green">${best[fuel].toFixed(3)}€</div>
-      <div style="font-weight:600; margin: 10px 0;">${best.nom || 'Station'}</div>
-      <div class="muted">${best.adresse}, ${best.ville} (${best.dist.toFixed(1)} km)</div>
-      <a href="https://www.google.com/maps/dir/?api=1&destination=${best.geolocalisation.lat},${best.geolocalisation.lon}" target="_blank">
-        <button class="btn-primary" style="margin-top:15px">🗺️ Itinéraire</button>
-      </a>
-    </div>`;
-}
-
-function renderList() {
-  const fuel = document.getElementById("fuelType").value;
-  const sorted = [...stations].sort((a, b) => a.dist - b.dist);
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      ${sorted.map(s => `
-        <div class="station-row">
-<script>
-let userLat = null, userLon = null, stations = [];
-
-function haversine(a, b, c, d) {
-  const R = 6371, toR = x => x * Math.PI / 180;
-  const dLat = toR(c - a), dLon = toR(d - b);
-  const x = Math.sin(dLat/2)**2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
-}
-
-async function search() {
-  const q = document.getElementById("city").value;
-  if(!q) return;
-  try {
-    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}`);
-    const d = await r.json();
-    if (d.features.length) {
-      userLat = d.features[0].geometry.coordinates[1];
-      userLon = d.features[0].geometry.coordinates[0];
-      load();
-    }
-  } catch(e) { console.error("Erreur ville", e); }
-}
-
-function gps() {
-  navigator.geolocation.getCurrentPosition(p => {
-    userLat = p.coords.latitude; userLon = p.coords.longitude;
-    load();
   }, () => alert("Activez le GPS"));
 }
 
 async function load() {
-  const fuel = document.getElementById("fuelType") ? document.getElementById("fuelType").value : "prix_gazole";
-  const radius = document.getElementById("radiusRange") ? document.getElementById("radiusRange").value : 20;
-  const resultDiv = document.getElementById("result");
-  
-  resultDiv.innerHTML = "<div class='card muted'>Recherche en cours...</div>";
-  
-  // On utilise l'URL v2.1 qui est la plus stable actuellement
-  const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=distance(geolocalisation%2C%20GEOM'POINT(${userLon}%20${userLat})'%2C%20${radius}km)%20and%20${fuel}%3E0&limit=50`;
+  const fuel = document.getElementById("fuelType").value;
+  const rad = document.getElementById("radiusRange").value;
+  const res = document.getElementById("result");
+  res.innerHTML = "<div class='card muted'>Mise à jour des prix...</div>";
+
+  // URL V2.1 optimisée pour la distance
+  const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=distance(geolocalisation,GEOM'POINT(${userLon} ${userLat})',${rad}km)&limit=50`;
 
   try {
-    const r = await fetch(url);
-    const d = await r.json();
-    
-    // Correction ici : on vérifie d.results pour la v2.1
-    const data = d.results || d.records || [];
-    
-    stations = data.map(s => {
-      // On normalise la position car l'API peut varier
-      const lat = s.geolocalisation?.lat || s.lat;
-      const lon = s.geolocalisation?.lon || s.lon;
-      return {
-        ...s,
-        dist: haversine(userLat, userLon, lat, lon)
-      };
-    });
+    const response = await fetch(url);
+    const data = await response.json();
+    const raw = data.results || [];
 
-    if(stations.length === 0) {
-      resultDiv.innerHTML = "<div class='card red'>Aucune station trouvée dans ce rayon.</div>";
-    } else {
-      renderList(); 
-    }
-  } catch(e) { 
-    resultDiv.innerHTML = "<div class='card red'>Erreur de connexion à l'API.</div>";
-    console.error(e);
+    stations = raw.map(s => {
+      // Normalisation des prix (cherche prix_gazole, gazole_prix, etc)
+      const price = parseFloat(s[`prix_${fuel}`] || s[`${fuel}_prix`] || s[fuel] || 0);
+      return {
+        nom: s.nom || s.enseigne || "Station",
+        ville: s.ville || "",
+        adresse: s.adresse || "",
+        prix: price,
+        lat: s.geolocalisation.lat,
+        lon: s.geolocalisation.lon,
+        dist: haversine(userLat, userLon, s.geolocalisation.lat, s.geolocalisation.lon)
+      };
+    }).filter(s => s.prix > 0).sort((a, b) => a.dist - b.dist);
+
+    renderList();
+  } catch(e) {
+    res.innerHTML = "<div class='card red'>Erreur API : Vérifiez votre connexion.</div>";
   }
 }
 
-// Assure-toi que les fonctions renderList(), bestDeal(), etc. utilisent bien la variable globale 'stations'
+function renderList() {
+  const res = document.getElementById("result");
+  if(!stations.length) { res.innerHTML = "<div class='card'>Aucune station trouvée.</div>"; return; }
+  
+  res.innerHTML = stations.map(s => `
+    <div class="card">
+      <div class="station-row">
+        <div>
+          <div style="font-weight:600">${s.nom}</div>
+          <div class="muted">${s.dist.toFixed(1)} km - ${s.ville}</div>
+        </div>
+        <div style="font-weight:900; font-size:1.2rem">${s.prix.toFixed(3)}€</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function bestDeal() {
+  if(!stations.length) return;
+  const best = [...stations].sort((a, b) => a.prix - b.prix)[0];
+  document.getElementById("result").innerHTML = `
+    <div class="card" style="border: 2px solid var(--green)">
+      <div class="green" style="font-weight:900">MEILLEUR PRIX PROCHE</div>
+      <div class="xl green">${best.prix.toFixed(3)}€</div>
+      <div style="margin: 10px 0;">${best.nom}</div>
+      <div class="muted">${best.adresse}</div>
+      <a href="https://www.google.com/maps/dir/?api=1&destination=${best.lat},${best.lon}" target="_blank">
+        <button class="btn-primary" style="margin-top:15px">🗺️ Y ALLER MAINTENANT</button>
+      </a>
+    </div>
+  ` + document.getElementById("result").innerHTML;
+}
 </script>
-
-
 </body>
 </html>
