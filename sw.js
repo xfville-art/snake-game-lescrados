@@ -1,14 +1,14 @@
-// ── CarbuFuel Service Worker ───────────────────────────────────────────────────
-const CACHE_NAME = 'carbufuel-v4';
-const SHELL_CACHE = 'carbufuel-shell-v4';
+// ── CarbuFuel Service Worker v5 ───────────────────────────────────────────────
+const CACHE_VERSION = 'carbufuel-v5';
+const SHELL_CACHE   = 'carbufuel-shell-v5';
 
-// FIX: polices corrigées (Barlow, pas Bebas/DM/JetBrains)
-// FIX: sw.js lui-même ajouté dans le shell
 const SHELL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './sw.js',
+  './icon-192.png',
+  './icon-512.png',
   'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap'
 ];
 
@@ -24,7 +24,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME && k !== SHELL_CACHE).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE_VERSION && k !== SHELL_CACHE).map(k => caches.delete(k))
       )
     ).then(() => self.clients.claim())
   );
@@ -33,11 +33,13 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
+  // API carburants : network-first avec cache 5 min
   if (url.hostname === 'data.economie.gouv.fr') {
-    event.respondWith(networkFirst(event.request, CACHE_NAME, 5 * 60));
+    event.respondWith(networkFirst(event.request, CACHE_VERSION, 5 * 60));
     return;
   }
 
+  // Géocodage : network-first sans cache persistant
   if (url.hostname === 'api-adresse.data.gouv.fr') {
     event.respondWith(
       fetch(event.request).catch(() =>
@@ -47,17 +49,19 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Google Fonts : cache-first
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(cacheFirst(event.request, SHELL_CACHE));
     return;
   }
 
+  // Assets statiques : cache-first
   if (url.pathname.match(/\.(html|json|js|css|png|ico|svg|webp)$/)) {
     event.respondWith(cacheFirst(event.request, SHELL_CACHE));
     return;
   }
 
-  event.respondWith(networkFirst(event.request, CACHE_NAME, 60));
+  event.respondWith(networkFirst(event.request, CACHE_VERSION, 60));
 });
 
 async function cacheFirst(request, cacheName) {

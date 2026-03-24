@@ -43,6 +43,5 @@
       "url": "./index.html?action=gps",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
-  ],
-  "screenshots": []
+  ]
 }
