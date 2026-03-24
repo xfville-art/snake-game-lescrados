@@ -315,26 +315,36 @@ function haversine(a, b, c, d) {
 }
 
 // ── Extract prices from a station record ─────────────────────────────────────
-// L'API v2.1 peut retourner les prix de deux façons :
-//   1. Champs plats : prix_sp95, prix_sp98, prix_gazole, prix_e10, prix_e85, prix_gplc
-//   2. Tableau "prix" : [{nom:"SP95", valeur:1.789}, ...]
-// On supporte les deux.
+// Parsing des prix — supporte plusieurs formats d'API :
+//  - data.economie.gouv.fr v2.1 : prix_sp95, prix_gazole...
+//  - api.prix-carburants.2aaz.fr : Prix_SP95, Prix_Gazole...  (clé Capitalisée)
+//  - Tableau { nom, valeur } ou { nom, prix }
 const FUEL_KEYS = {
-  sp95:   ['prix_sp95',  'SP95',  'sp95'],
-  sp98:   ['prix_sp98',  'SP98',  'sp98'],
-  e10:    ['prix_e10',   'E10',   'e10'],
-  gazole: ['prix_gazole','Gazole','gazole','DIESEL','Diesel'],
-  e85:    ['prix_e85',   'E85',   'e85'],
-  gplc:   ['prix_gplc',  'GPLc',  'gplc','GPL'],
+  sp95:   ['prix_sp95',  'Prix_SP95',  'SP95',  'sp95'],
+  sp98:   ['prix_sp98',  'Prix_SP98',  'SP98',  'sp98'],
+  e10:    ['prix_e10',   'Prix_E10',   'E10',   'e10'],
+  gazole: ['prix_gazole','Prix_Gazole','Gazole', 'gazole','DIESEL'],
+  e85:    ['prix_e85',   'Prix_E85',   'E85',   'e85'],
+  gplc:   ['prix_gplc',  'Prix_GPLc',  'GPLc',  'gplc','GPL'],
 };
 
 function extractFuelPrice(s, fuel) {
-  // Method 1: flat fields
+  // Method 1: flat fields (essaie toutes les variantes de clé)
   for (const key of FUEL_KEYS[fuel] || []) {
     const v = parseFloat(s[key]);
     if (v > 0) return v;
   }
-  // Method 2: prix[] array
+  // Method 2: tableau Carburants[] format 2aaz : [{Nom:"SP95", Prix:1.789}]
+  const carbs = s.Carburants || s.carburants;
+  if (Array.isArray(carbs)) {
+    const names = FUEL_KEYS[fuel] || [];
+    for (const entry of carbs) {
+      const nom = (entry.Nom || entry.nom || entry.name || '').toLowerCase();
+      const val = parseFloat(entry.Prix || entry.prix || entry.valeur || entry.value || 0);
+      if (val > 0 && names.some(n => nom.includes(n.toLowerCase()))) return val;
+    }
+  }
+  // Method 3: tableau prix[] format govt : [{nom:"SP95", valeur:1.789}]
   if (Array.isArray(s.prix)) {
     const names = FUEL_KEYS[fuel] || [];
     for (const entry of s.prix) {
@@ -343,7 +353,7 @@ function extractFuelPrice(s, fuel) {
       if (val > 0 && names.some(n => nom.includes(n.toLowerCase()))) return val;
     }
   }
-  // Method 3: prix as JSON string
+  // Method 4: prix as JSON string
   if (typeof s.prix === 'string') {
     try {
       const arr = JSON.parse(s.prix);
@@ -413,35 +423,38 @@ async function load() {
   const radius = parseInt(document.getElementById('radius').value);
   showLoader(`Chargement des stations dans un rayon de ${radius} km...`);
   try {
-    // Approche robuste : filtrer par code département ou ville via champ texte
-    // + calcul haversine côté client pour le rayon
-    // On récupère toutes les stations avec limit=100 et on filtre nous-mêmes
-    // L'API v2.1 accepte geofilter.distance=lat,lon,distance_en_metres
-    const distMeters = radius * 1000;
-    const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?geofilter.distance=${userLat},${userLon},${distMeters}&limit=100`;
+    // API tierce dédiée (données gouvernementales) avec support GPS natif
+    // https://api.prix-carburants.2aaz.fr/station/?latitude=X&longitude=Y
+    const url = `https://api.prix-carburants.2aaz.fr/station/?latitude=${userLat}&longitude=${userLon}`;
     const r = await fetch(url);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
 
-    if (!d.results || d.results.length === 0) {
+    // L'API 2aaz retourne un tableau directement, pas { results: [] }
+    const raw = Array.isArray(d) ? d : (d.results || d.data || []);
+
+    if (raw.length === 0) {
       showError("L'API ne retourne aucune station. Réessaie dans quelques secondes.");
       return;
     }
 
-    stations = d.results
+    stations = raw
       .map(s => {
         let lat = null, lon = null;
-        // Support lat/lon in multiple formats
-        if (s.geolocalisation) {
+        // Format 2aaz : { Latitude, Longitude } ou { latitude, longitude }
+        if (s.Latitude  != null) { lat = parseFloat(s.Latitude);  lon = parseFloat(s.Longitude); }
+        else if (s.latitude != null) { lat = parseFloat(s.latitude); lon = parseFloat(s.longitude); }
+        else if (s.geolocalisation) {
           lat = parseFloat(s.geolocalisation.lat || s.geolocalisation.latitude || 0);
           lon = parseFloat(s.geolocalisation.lon || s.geolocalisation.longitude || 0);
-        } else if (s.latitude && s.longitude) {
-          lat = parseFloat(s.latitude);
-          lon = parseFloat(s.longitude);
         }
         if (!lat || !lon) return null;
         const dist = haversine(userLat, userLon, lat, lon);
-        return { ...s, _lat: lat, _lon: lon, dist };
+        // Normaliser les champs nom/ville pour l'affichage
+        const nom     = s.Nom     || s.nom     || s.Name     || s.enseigne || 'Station';
+        const ville   = s.Ville   || s.ville   || s.City     || s.cp       || '';
+        const adresse = s.Adresse || s.adresse || s.Address  || '';
+        return { ...s, nom, ville, adresse, _lat: lat, _lon: lon, dist };
       })
       .filter(s => s && s.dist <= radius);
 
