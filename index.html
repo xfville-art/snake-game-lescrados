@@ -32,6 +32,7 @@
     padding: 20px 16px 80px;
     max-width: 540px;
     margin: auto;
+    overflow-x: hidden;
   }
 
   h1 {
@@ -47,36 +48,59 @@
 
   .subtitle { color: #555; font-size: 0.85rem; margin-bottom: 20px; }
 
-  /* Inputs & Search */
-  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  /* Correction de la barre de recherche pour éviter le dépassement */
+  .search-row { 
+    display: flex; 
+    gap: 6px; 
+    margin-bottom: 12px; 
+    width: 100%;
+  }
   input[type=text] {
-    flex: 1; padding: 12px 16px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; color: #fff; font-size: 1rem; outline: none;
+    flex: 1; 
+    min-width: 0; /* Important pour flexbox */
+    padding: 12px; 
+    background: var(--card); 
+    border: 1px solid var(--border);
+    border-radius: 10px; 
+    color: #fff; 
+    font-size: 0.95rem; 
+    outline: none;
+  }
+  .btn-search {
+    padding: 0 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: #aaa;
+    cursor: pointer;
+    flex-shrink: 0;
   }
 
   .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .radius-row label { color: #666; font-size: .85rem; }
+  .radius-row label { color: #666; font-size: .85rem; white-space: nowrap; }
   input[type=range] { flex: 1; accent-color: var(--orange); }
+  #radiusVal { color: var(--orange); font-weight: 700; min-width: 45px; text-align: right; }
 
-  /* Buttons */
+  /* Boutons d'action */
   button {
-    padding: 12px 18px; border-radius: 10px; border: none; cursor: pointer;
+    padding: 12px; border-radius: 10px; border: none; cursor: pointer;
     font-weight: 700; font-family: 'Barlow Condensed', sans-serif; font-size: 1rem;
+    transition: transform .1s;
   }
+  button:active { transform: scale(.97); }
   .btn-primary { background: linear-gradient(135deg, var(--orange), var(--red)); color: #000; }
   .btn-ghost { background: var(--card); color: #aaa; border: 1px solid var(--border); }
-
   .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-  .action-grid .wide { grid-column: 1 / -1; }
+  .wide { grid-column: 1 / -1; }
 
   .fuel-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   .fuel-btn {
-    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
-    background: var(--card); color: #888; font-size: .85rem; font-weight: 600;
+    padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--card); color: #888; font-size: .8rem; font-weight: 600;
   }
   .fuel-btn.active { background: var(--orange); color: #000; border-color: var(--orange); }
 
-  /* CARDS STYLE IMPROVED */
+  /* Style des cartes avec LOGO */
   .card {
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
     padding: 18px; margin-bottom: 12px; animation: fadeUp .35s ease both;
@@ -84,30 +108,28 @@
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
   .station-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; }
-  
   .station-logo {
     width: 48px; height: 48px; background: #0d0f12; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 1.2rem; color: var(--orange); border: 1px solid var(--border); flex-shrink: 0;
+    font-weight: 900; font-size: 1.1rem; color: var(--orange); border: 1px solid var(--border); flex-shrink: 0;
   }
-
   .station-info { flex: 1; min-width: 0; }
-  .station-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+  .station-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
   .station-city { color: #555; font-size: 0.8rem; margin-top: 2px; }
 
-  .price-main { text-align: right; }
+  .price-main { text-align: right; flex-shrink: 0; }
   .price-val { font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 900; line-height: 1; }
   .price-unit { font-size: 0.7rem; color: #555; }
 
-  .prices-mini { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #1e2229; }
-  .price-chip { padding: 4px 8px; border-radius: 6px; font-size: .8rem; font-weight: 600; background: #1a1e25; color: #ccc; border: 1px solid var(--border); }
+  .prices-mini { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e2229; }
+  .price-chip { padding: 3px 7px; border-radius: 5px; font-size: .75rem; font-weight: 600; background: #1a1e25; color: #ccc; border: 1px solid var(--border); }
   .price-chip.active { border-color: var(--orange); color: var(--orange); }
 
   .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: .7rem; font-weight: 700; text-transform: uppercase; margin-top: 5px; }
   .tag-green { background: #1a2a1a; color: var(--green); }
   .tag-red { background: #2a1a1a; color: var(--danger); }
 
-  textarea { width: 100%; background: #0d0f12; color: #3fb950; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: 'Barlow', sans-serif; margin-top: 10px; }
+  textarea { width: 100%; background: #0d0f12; color: #3fb950; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: 'Barlow', sans-serif; font-size: .85rem; margin-top: 10px; }
   .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #333; border-top-color: var(--orange); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
@@ -118,9 +140,9 @@
 <p class="subtitle">Prix carburants en temps réel · France</p>
 
 <div class="search-row">
-  <input id="city" type="text" placeholder="Ville ou code postal..." onkeydown="if(event.key==='Enter')search()">
-  <button class="btn-ghost" onclick="search()">🔍</button>
-  <button class="btn-ghost" onclick="gps()">📍</button>
+  <input id="city" type="text" placeholder="Ville ou CP..." onkeydown="if(event.key==='Enter')search()">
+  <button class="btn-search" onclick="search()">🔍</button>
+  <button class="btn-search" onclick="gps()">📍</button>
 </div>
 
 <div class="radius-row">
@@ -130,7 +152,7 @@
 </div>
 
 <div class="fuel-grid" id="fuelGrid">
-  <button class="fuel-btn active" data-fuel="all" onclick="setFuel('all',this)">Tous</button>
+  <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
   <button class="fuel-btn" onclick="setFuel('sp95',this)">SP95</button>
   <button class="fuel-btn" onclick="setFuel('sp98',this)">SP98</button>
   <button class="fuel-btn" onclick="setFuel('e10',this)">E10</button>
@@ -151,28 +173,30 @@
 <div id="result"></div>
 
 <script>
-let userLat = null, userLon = null, userDep = '', stations = [], activeFuel = 'all';
+let userLat = null, userLon = null, stations = [], activeFuel = 'all';
 
 const FUEL_KEYS = {
-  sp95:   ['sp95_prix', 'prix_sp95',  'Prix_SP95',  'SP95'],
-  sp98:   ['sp98_prix', 'prix_sp98',  'Prix_SP98',  'SP98'],
-  e10:    ['e10_prix',  'prix_e10',   'Prix_E10',   'E10'],
+  sp95: ['sp95_prix', 'prix_sp95', 'Prix_SP95', 'SP95'],
+  sp98: ['sp98_prix', 'prix_sp98', 'Prix_SP98', 'SP98'],
+  e10: ['e10_prix', 'prix_e10', 'Prix_E10', 'E10'],
   gazole: ['gazole_prix','prix_gazole','Prix_Gazole','Gazole','DIESEL'],
-  e85:    ['e85_prix',  'prix_e85',   'Prix_E85',   'E85'],
-  gplc:   ['gplc_prix', 'prix_gplc',  'Prix_GPLc',  'GPLc','GPL'],
+  e85: ['e85_prix', 'prix_e85', 'Prix_E85', 'E85'],
+  gplc: ['gplc_prix', 'prix_gplc', 'Prix_GPLc', 'GPLc','GPL'],
 };
 
-// Fonction pour récupérer le logo selon le nom
+// Logique des logos par enseigne
 function getStationLogo(name) {
   const n = (name || "").toUpperCase();
   if (n.includes('TOTAL')) return 'TE';
-  if (n.includes('LECLERC')) return 'E.L';
+  if (n.includes('LECLERC') || n.includes('E.LECLERC')) return 'E.L';
   if (n.includes('CARREFOUR')) return 'C.F';
   if (n.includes('INTERMARCHE')) return 'I.M';
-  if (n.includes('SYSTEME U') || n.includes('MAGASIN U') || n.includes('SUPER U')) return 'U';
+  if (n.includes('SYSTEME U') || n.includes('SUPER U') || n.includes('MAGASIN U')) return 'U';
   if (n.includes('ESSO')) return 'ES';
   if (n.includes('AVIA')) return 'AV';
   if (n.includes('BP')) return 'BP';
+  if (n.includes('AUCHAN')) return 'AU';
+  if (n.includes('CASINO')) return 'CA';
   return '⛽';
 }
 
@@ -223,7 +247,7 @@ async function search() {
 
 function gps() {
   if (!navigator.geolocation) return;
-  showLoader("Position GPS...");
+  showLoader("GPS...");
   navigator.geolocation.getCurrentPosition(p => {
     userLat = p.coords.latitude; userLon = p.coords.longitude;
     load();
@@ -248,9 +272,9 @@ async function load() {
 function renderList() {
   if (!requireStations()) return;
   const allP = stations.flatMap(s => Object.keys(FUEL_KEYS).map(f => extractFuelPrice(s, f)).filter(v => v > 0));
-  const mean = allP.reduce((a,b) => a+b, 0) / allP.length;
+  const mean = allP.length ? (allP.reduce((a,b) => a+b, 0) / allP.length) : 0;
 
-  let html = `<div style="margin-bottom:10px; font-weight:700; color:#555; font-size:.8rem;">📍 ${stations.length} STATIONS</div>`;
+  let html = `<div style="margin-bottom:10px; font-weight:700; color:#555; font-size:.8rem;">📍 ${stations.length} STATIONS PROCHES</div>`;
   
   stations.forEach(s => {
     const p = activeFuel === 'all' ? (extractFuelPrice(s, 'gazole') || extractFuelPrice(s, 'e10')) : extractFuelPrice(s, activeFuel);
@@ -268,7 +292,7 @@ function renderList() {
         </div>
         <div class="price-main">
           <div class="price-val ${isCheap ? 'green' : (isExp ? 'red' : '')}">${p ? p.toFixed(3) : '---'}</div>
-          <div class="price-unit">€/Litre</div>
+          <div class="price-unit">€/L</div>
         </div>
       </div>
       <div class="prices-mini">
@@ -277,13 +301,13 @@ function renderList() {
           return val ? `<span class="price-chip ${activeFuel === f ? 'active' : ''}">${f.toUpperCase()} ${val.toFixed(3)}</span>` : '';
         }).join('')}
       </div>
-      <button class="btn-ghost" onclick="window.open('https://maps.google.com/?q=${s._lat},${s._lon}')" style="width:100%; margin-top:12px; font-size:.8rem; padding:8px">🗺️ VOIR SUR MAPS</button>
+      <button class="btn-ghost" onclick="window.open('https://www.google.com/maps?q=${s._lat},${s._lon}')" style="width:100%; margin-top:12px; font-size:.8rem; padding:8px">🗺️ VOIR SUR MAPS</button>
     </div>`;
   });
   document.getElementById("result").innerHTML = html;
 }
 
-// RESTAURATION DES FONCTIONS TIKTOK / STATS
+// TikTok / Stats Logic
 function getBestWorst() {
   let best = null, worst = null;
   const fuel = activeFuel === 'all' ? 'gazole' : activeFuel;
@@ -311,10 +335,10 @@ function bestDeal() {
         </div>
       </div>
       <div style="text-align:center; margin:15px 0;">
-        <div class="xl green">${best.price.toFixed(3)}€/L</div>
-        <div style="color:#aaa; font-size:.9rem">Gain : <strong>${eco}€</strong> sur un plein</div>
+        <div class="price-val green" style="font-size:2.5rem">${best.price.toFixed(3)}€</div>
+        <div style="color:#aaa; font-size:.9rem">Économisez <strong>${eco}€</strong> sur un plein</div>
       </div>
-      <button class="btn-primary" onclick="window.open('https://maps.google.com/?q=${best.s._lat},${best.s._lon}')" style="width:100%">🗺️ Y ALLER</button>
+      <button class="btn-primary" onclick="window.open('https://www.google.com/maps?q=${best.s._lat},${best.s._lon}')" style="width:100%">🗺️ Y ALLER</button>
     </div>`;
 }
 
@@ -324,10 +348,16 @@ function renderStats() {
   if (!best) return;
   document.getElementById("result").innerHTML = `
     <div class="card">
-      <div class="station-name">📊 STATS LOCALES</div>
-      <div class="stat-grid">
-        <div class="stat-box"><div class="val green">${best.price.toFixed(3)}€</div><div class="lbl">Mini</div></div>
-        <div class="stat-box"><div class="val red">${worst.price.toFixed(3)}€</div><div class="lbl">Max</div></div>
+      <div class="station-name">📊 ANALYSE LOCALE</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
+        <div style="background:#0d0f12; padding:15px; border-radius:10px; text-align:center;">
+          <div class="green" style="font-size:1.5rem; font-weight:900;">${best.price.toFixed(3)}€</div>
+          <div style="font-size:0.7rem; color:#555;">MINIMUM</div>
+        </div>
+        <div style="background:#0d0f12; padding:15px; border-radius:10px; text-align:center;">
+          <div class="red" style="font-size:1.5rem; font-weight:900;">${worst.price.toFixed(3)}€</div>
+          <div style="font-size:0.7rem; color:#555;">MAXIMUM</div>
+        </div>
       </div>
     </div>`;
 }
@@ -335,7 +365,7 @@ function renderStats() {
 function generateContent() {
   const { best, worst } = getBestWorst();
   if (!best) return;
-  const script = `🚨 ALERTE ESSENCE\n\nStation chère : ${worst.price.toFixed(3)}€\nStation pas chère : ${best.price.toFixed(3)}€\n\n💸 Tu gagnes ${((worst.price - best.price)*50).toFixed(2)}€ !\n📍 ${best.s.ville}`;
+  const script = `🚨 ALERTE ESSENCE\n\nStation la plus chère : ${worst.price.toFixed(3)}€\nStation la moins chère : ${best.price.toFixed(3)}€\n\n💸 Tu gagnes ${((worst.price - best.price)*50).toFixed(2)}€ sur ton plein !\n📍 Ça se passe à ${best.s.ville}`;
   renderTextArea("🎬 SCRIPT TIKTOK", script);
 }
 
@@ -343,13 +373,13 @@ function autoTikTok() {
   const { best, worst } = getBestWorst();
   if (!best) return;
   const gain = ((worst.price - best.price) * 50).toFixed(2);
-  const combined = `🚨 Tu payes trop cher !\n⛽ ${worst.price.toFixed(3)}€ vs ${best.price.toFixed(3)}€\n💸 Gain : ${gain}€\n📍 ${best.s.ville}`;
+  const combined = `🚨 ARNAQUE À LA POMPE\n⛽ ${worst.price.toFixed(3)}€ vs ${best.price.toFixed(3)}€\n💸 Gain : ${gain}€ sur 50L\n📍 ${best.s.ville}\n👉 Abonne-toi !`;
   renderTextArea("🤖 AUTO TIKTOK", combined);
 }
 
 function generateVideo() {
   const { best, worst } = getBestWorst();
-  const prompt = `Vertical video, gas station, cinematic lighting. Price ${worst.price.toFixed(3)}€ vs ${best.price.toFixed(3)}€. Text: SAVE MONEY NOW.`;
+  const prompt = `Vertical cinematic shot, high contrast. Overlay text: "🚨 SAVE ${((worst.price - best.price)*50).toFixed(2)}€ ON FUEL". Cut from price ${worst.price.toFixed(3)} to ${best.price.toFixed(3)}. Background: gas station at night.`;
   renderTextArea("🎥 PROMPT VIDÉO IA", prompt);
 }
 
@@ -358,14 +388,14 @@ function renderTextArea(title, text) {
     <div class="card">
       <div class="station-name">${title}</div>
       <textarea rows="8" id="copyArea">${text}</textarea>
-      <button class="btn-primary" style="width:100%; margin-top:10px" onclick="copyText()">📋 COPIER</button>
+      <button class="btn-primary" style="width:100%; margin-top:10px" onclick="copyText()">📋 COPIER LE TEXTE</button>
     </div>`;
 }
 
 function copyText() {
   const t = document.getElementById("copyArea");
   t.select(); navigator.clipboard.writeText(t.value);
-  alert("Copié !");
+  alert("Copié dans le presse-papier !");
 }
 
 function requireStations() { if (!stations.length) { showError("Cherchez une ville d'abord 📍"); return false; } return true; }
