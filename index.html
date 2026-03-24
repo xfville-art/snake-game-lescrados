@@ -413,10 +413,10 @@ async function load() {
   const radius = parseInt(document.getElementById('radius').value);
   showLoader(`Chargement des stations dans un rayon de ${radius} km...`);
   try {
-    // OpenDataSoft v2.1 : filtrer par distance avec where=distance_to()
-    // distance_to() attend (champ_geo, "lat,lon", "Xkm")
-    const where = `distance(geolocalisation, geom'POINT(${userLon} ${userLat})', ${radius}km)`;
-    const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=${encodeURIComponent(where)}&limit=200&order_by=id`;
+    // OpenDataSoft v2.1 : syntaxe officielle within_distance()
+    // within_distance(champ_geo, geom'POINT(lon lat)', Xkm)
+    const where = `within_distance(geolocalisation, geom'POINT(${userLon} ${userLat})', ${radius}km)`;
+    const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=${encodeURIComponent(where)}&limit=200`;
     const r = await fetch(url);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
