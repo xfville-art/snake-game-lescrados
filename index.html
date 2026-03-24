@@ -8,43 +8,43 @@
 <meta name="theme-color" content="#0a0c0f">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap');
-  :root { --orange: #f0a500; --red: #e05c2a; --green: #3fb950; --danger: #f85149; --bg: #0a0c0f; --card: #111318; --border: #1e2229; }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: #fff; font-family: 'Barlow', sans-serif; padding: 15px; max-width: 500px; margin: auto; padding-bottom: 50px; }
+  :root { --orange: #f0a500; --red: #e05c2a; --green: #3fb950; --bg: #0a0c0f; --card: #111318; --border: #1e2229; }
+  * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+  body { background: var(--bg); color: #fff; font-family: 'Barlow', sans-serif; padding: 15px; max-width: 500px; margin: auto; padding-bottom: 80px; }
   
   h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
   
-  .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
-  input { flex: 1; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; font-size: 1rem; }
-  .btn-icon { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--card); border: 1px solid var(--border); border-radius: 10px; color: var(--orange); cursor: pointer; }
+  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  input { flex: 1; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-size: 1rem; }
+  .btn-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--orange); cursor: pointer; }
 
-  .fuel-grid { display: flex; flex-wrap: wrap; gap: 5px; margin: 15px 0; }
-  .fuel-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: #666; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
+  .fuel-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+  .fuel-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: #666; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
   .fuel-btn.active { background: var(--orange); color: #000; border-color: var(--orange); }
 
   .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
   .wide { grid-column: 1 / -1; }
-  button { padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-family: 'Barlow Condensed'; cursor: pointer; font-size: 1rem; }
+  button { padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-family: 'Barlow Condensed'; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+  button:active { transform: scale(0.95); }
   .btn-primary { background: linear-gradient(135deg, var(--orange), var(--red)); color: #000; }
   .btn-ghost { background: var(--card); color: #aaa; border: 1px solid var(--border); }
 
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 10px; animation: slide 0.3s ease; }
-  @keyframes slide { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
   .st-header { display: flex; align-items: center; gap: 12px; }
-  .logo-square { 
-    width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; 
-    font-weight: 900; color: #fff; flex-shrink: 0; font-size: 0.9rem; text-align: center; line-height: 1;
-  }
+  
+  /* Logo System */
+  .logo-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; flex-shrink: 0; font-size: 0.85rem; text-align: center; }
+  
   .st-info { flex: 1; min-width: 0; }
-  .st-name { font-family: 'Barlow Condensed'; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
-  .st-city { color: #555; font-size: 0.75rem; }
-  .price-box { text-align: right; }
-  .price-val { font-family: 'Barlow Condensed'; font-size: 1.6rem; font-weight: 900; line-height: 1; }
-  .price-unit { font-size: 0.6rem; color: #555; font-weight: 700; }
+  .st-name { font-family: 'Barlow Condensed'; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st-city { color: #555; font-size: 0.8rem; font-weight: 600; }
+  
+  .price-side { text-align: right; }
+  .p-val { font-family: 'Barlow Condensed'; font-size: 1.7rem; font-weight: 900; line-height: 1; color: var(--orange); }
+  .p-unit { font-size: 0.6rem; color: #444; font-weight: 800; }
 
-  textarea { width: 100%; background: #080a0d; color: var(--green); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-family: monospace; font-size: 0.85rem; margin-top: 10px; }
-  .loader { width: 20px; height: 20px; border: 3px solid #333; border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 10px; }
+  textarea { width: 100%; background: #080a0d; color: var(--green); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-family: monospace; font-size: 0.85rem; margin-top: 12px; resize: none; }
+  .loader { width: 20px; height: 20px; border: 3px solid #333; border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -67,7 +67,7 @@
 </div>
 
 <div class="action-grid">
-  <button class="btn-primary wide" onclick="bestDeal()">🔥 TROUVER LE MOINS CHER</button>
+  <button class="btn-primary wide" onclick="bestDeal()">🔥 LE MOINS CHER</button>
   <button class="btn-ghost" onclick="renderList()">📋 LISTE</button>
   <button class="btn-ghost" onclick="autoTikTok()">🎬 SCRIPT TIKTOK</button>
   <button class="btn-ghost wide" onclick="generateVideo()">🎥 PROMPT VIDÉO IA</button>
@@ -78,27 +78,29 @@
 <script>
 let stations = [], activeFuel = 'all', uLat, uLon;
 
-const MAP = {
+const FUELS = {
   gazole: ['gazole_prix','Gazole'], e10: ['e10_prix','E10'],
-  sp98: ['sp98_prix','SP98'], e85: ['e85_prix','E85']
+  sp98: ['sp98_prix','SP98'], sp95: ['sp95_prix','SP95'], e85: ['e85_prix','E85']
 };
 
-function getLogo(s) {
-  const t = ((s.enseigne || s.nom || "") + " " + (s.adresse || "")).toUpperCase();
-  if (t.includes('TOTAL')) return {t:'TOTAL', c:'#ff3030'};
-  if (t.includes('LECLERC')) return {t:'E.L', c:'#0066ad'};
-  if (t.includes('CARREFOUR')) return {t:'C.F', c:'#3b5998'};
-  if (t.includes('INTERMARCHE')) return {t:'I.M', c:'#ca2128'};
-  if (t.includes('SYSTEME U') || t.includes('SUPER U')) return {t:'U', c:'#0055a4'};
-  if (t.includes('ESSO')) return {t:'ESSO', c:'#ed1c24'};
-  if (t.includes('AVIA')) return {t:'AVIA', c:'#e30613'};
-  if (t.includes('BP')) return {t:'BP', c:'#00a651'};
-  return {t:'⛽', c:'#333'};
+function getBrand(s) {
+  const t = ((s.enseigne || "") + " " + (s.nom || "") + " " + (s.adresse || "")).toUpperCase();
+  if (t.includes('TOTAL')) return {n: 'TOTAL', c: '#ff3030'};
+  if (t.includes('LECLERC')) return {n: 'E.L', c: '#0066ad'};
+  if (t.includes('CARREFOUR')) return {n: 'C.F', c: '#3b5998'};
+  if (t.includes('INTERMARCHE')) return {n: 'I.M', c: '#ca2128'};
+  if (t.includes('SYSTEME U') || t.includes('SUPER U') || t.includes('HYPER U')) return {n: 'U', c: '#0055a4'};
+  if (t.includes('ESSO')) return {n: 'ESSO', c: '#ed1c24'};
+  if (t.includes('AVIA')) return {n: 'AVIA', c: '#e30613'};
+  if (t.includes('BP')) return {n: 'BP', c: '#00a651'};
+  if (t.includes('AUCHAN')) return {n: 'AU', c: '#e1000f'};
+  if (t.includes('CASINO')) return {n: 'CAS', c: '#006a32'};
+  return {n: '⛽', c: '#333'};
 }
 
-function getP(s, f) {
-  let fuel = f === 'all' ? 'gazole' : f;
-  for (let k of MAP[fuel]) if (parseFloat(s[k]) > 0) return parseFloat(s[k]);
+function getPrice(s, fuel) {
+  let f = fuel === 'all' ? 'gazole' : fuel;
+  for (let k of FUELS[f]) if (parseFloat(s[k]) > 0) return parseFloat(s[k]);
   return null;
 }
 
@@ -112,7 +114,7 @@ function setFuel(f, b) {
 async function search() {
   const v = document.getElementById('city').value;
   if (!v) return;
-  showLoad("Localisation...");
+  showStatus("Localisation...");
   try {
     const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(v)}&limit=1`);
     const d = await r.json();
@@ -131,37 +133,40 @@ function gps() {
 }
 
 async function fetchData() {
-  showLoad("Récupération des prix...");
-  const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=50&where=within_distance(geom%2C%20geom'POINT(${uLon}%20${uLat})'%2C%2020km)`;
+  showStatus("Chargement des prix...");
+  const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=60&where=within_distance(geom%2C%20geom'POINT(${uLon}%20${uLat})'%2C%2025km)`;
   try {
     const r = await fetch(url);
     const d = await r.json();
-    stations = d.results.map(s => ({
-      ...s,
-      nom: s.enseigne || s.nom || "Station",
-      dist: Math.sqrt((s.geom.lat-uLat)**2 + (s.geom.lon-uLon)**2) * 111
-    })).sort((a,b) => a.dist - b.dist);
+    stations = d.results.map(s => {
+      const b = getBrand(s);
+      return {
+        ...s,
+        displayName: b.n !== '⛽' ? (s.enseigne || b.n) : (s.nom || s.ville || "Station"),
+        brand: b,
+        dist: Math.sqrt((s.geom.lat-uLat)**2 + (s.geom.lon-uLon)**2) * 111
+      };
+    }).sort((a,b) => a.dist - b.dist);
     renderList();
-  } catch(e) { showError("Erreur réseau"); }
+  } catch(e) { showError("Erreur API"); }
 }
 
 function renderList() {
   if (!stations.length) return;
-  let html = `<p style="color:#555; font-size:0.75rem; font-weight:700; margin-bottom:10px;">📍 ${stations.length} STATIONS PROCHES</p>`;
+  let html = `<p style="color:#444; font-size:0.75rem; font-weight:800; margin-bottom:10px;">PROXIMITÉ (${stations.length} STATIONS)</p>`;
   stations.forEach(s => {
-    const p = getP(s, activeFuel);
-    const logo = getLogo(s);
+    const p = getPrice(s, activeFuel);
     html += `
     <div class="card">
       <div class="st-header">
-        <div class="logo-square" style="background:${logo.c}">${logo.t}</div>
+        <div class="logo-box" style="background:${s.brand.c}">${s.brand.n}</div>
         <div class="st-info">
-          <div class="st-name">${s.nom}</div>
+          <div class="st-name">${s.displayName}</div>
           <div class="st-city">${s.ville} • ${s.dist.toFixed(1)} km</div>
         </div>
-        <div class="price-box">
-          <div class="price-val">${p ? p.toFixed(3) : '---'}</div>
-          <div class="price-unit">€ / LITRE</div>
+        <div class="price-side">
+          <div class="p-val">${p ? p.toFixed(3) : '---'}</div>
+          <div class="p-unit">€ / L</div>
         </div>
       </div>
     </div>`;
@@ -169,11 +174,10 @@ function renderList() {
   document.getElementById('result').innerHTML = html;
 }
 
-function getBestWorst() {
+function getBW() {
   let b = null, w = null;
   stations.forEach(s => {
-    const p = getP(s, activeFuel);
-    if (!p) return;
+    const p = getPrice(s, activeFuel); if (!p) return;
     if (!b || p < b.p) b = {s, p};
     if (!w || p > w.p) w = {s, p};
   });
@@ -181,41 +185,37 @@ function getBestWorst() {
 }
 
 function bestDeal() {
-  const { b } = getBestWorst();
-  if (!b) return;
-  const logo = getLogo(b.s);
+  const { b } = getBW(); if (!b) return;
   document.getElementById('result').innerHTML = `
-    <div class="card" style="border-color:var(--green)">
+    <div class="card" style="border:2px solid var(--green)">
       <div class="st-header">
-        <div class="logo-square" style="background:${logo.c}">${logo.t}</div>
-        <div class="st-name" style="color:var(--green)">PRIX LE PLUS BAS</div>
+        <div class="logo-box" style="background:${b.s.brand.c}">${b.s.brand.n}</div>
+        <div class="st-name" style="color:var(--green)">PRIX IMBATTABLE</div>
       </div>
       <div style="text-align:center; padding:20px 0;">
-        <div class="st-name" style="font-size:1.5rem">${b.s.nom}</div>
+        <div class="st-name" style="font-size:1.6rem">${b.s.displayName}</div>
         <div style="font-size:3.5rem; font-weight:900; color:var(--green); font-family:'Barlow Condensed'">${b.p.toFixed(3)}€</div>
-        <div style="color:#555">${b.s.ville} (${b.s.dist.toFixed(1)} km)</div>
+        <div style="color:#555">${b.s.ville}</div>
       </div>
-      <button class="btn-primary wide" onclick="window.open('https://www.google.com/maps?q=${b.s.geom.lat},${b.s.geom.lon}')">📍 Y ALLER MAINTENANT</button>
+      <button class="btn-primary wide" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${b.s.geom.lat},${b.s.geom.lon}')">🚀 GO !</button>
     </div>`;
 }
 
 function autoTikTok() {
-  const { b, w } = getBestWorst();
-  if (!b || !w) return;
+  const { b, w } = getBW(); if (!b || !w) return;
   const gain = ((w.p - b.p) * 50).toFixed(2);
-  const script = `🚨 ALERTE PRIX ESSENCE\n\nStation chère : ${w.p.toFixed(3)}€/L\nStation pas chère : ${b.p.toFixed(3)}€/L\n\n💸 Tu gagnes ${gain}€ sur ton plein !\n📍 Ça se passe à ${b.s.ville}\n⛽ Station : ${b.s.nom}\n\n#essence #bonplan #economie`;
-  document.getElementById('result').innerHTML = `<div class="card"><div class="st-name">SCRIPT TIKTOK</div><textarea rows="8">${script}</textarea></div>`;
+  const txt = `🚨 ALERTE CARBURANT\n\n❌ Chère : ${w.p.toFixed(3)}€\n✅ Moins chère : ${b.p.toFixed(3)}€\n\n💰 Gain : ${gain}€ sur ton plein de 50L !\n📍 Trouvé à ${b.s.ville} (${b.s.displayName})\n\n#essence #gasoil #bonplan`;
+  document.getElementById('result').innerHTML = `<div class="card"><div class="st-name">🎬 SCRIPT TIKTOK</div><textarea rows="8" readonly>${txt}</textarea></div>`;
 }
 
 function generateVideo() {
-  const { b, w } = getBestWorst();
-  if (!b || !w) return;
-  const prompt = `Vertical video 9:16, gas station background. Text overlay 1: "🚨 STOP PAYING ${w.p.toFixed(3)}€/L". Text overlay 2: "GO TO ${b.s.nom} IN ${b.s.ville.toUpperCase()}". Text overlay 3: "ONLY ${b.p.toFixed(3)}€/L - SAVE ${(w.p-b.p).toFixed(2)}€/L"`;
-  document.getElementById('result').innerHTML = `<div class="card"><div class="st-name">PROMPT VIDÉO IA</div><textarea rows="6">${prompt}</textarea></div>`;
+  const { b, w } = getBW(); if (!b || !w) return;
+  const p = `Video 9:16, urban night aesthetic. Text 1: "DON'T PAY ${w.p.toFixed(3)}€/L". Text 2: "GO TO ${b.s.displayName}". Text 3: "SAVE ${((w.p-b.p)*50).toFixed(2)}€ NOW". High quality 4k.`;
+  document.getElementById('result').innerHTML = `<div class="card"><div class="st-name">🎥 PROMPT VIDÉO</div><textarea rows="6" readonly>${p}</textarea></div>`;
 }
 
-function showLoad(m) { document.getElementById('result').innerHTML = `<div class="card"><div class="loader"></div>${m}</div>`; }
-function showError(m) { document.getElementById('result').innerHTML = `<div class="card" style="border-color:var(--danger)">❌ ${m}</div>`; }
+function showStatus(m) { document.getElementById('result').innerHTML = `<div class="card"><div class="loader"></div> ${m}</div>`; }
+function showError(m) { document.getElementById('result').innerHTML = `<div class="card" style="color:var(--red)">❌ ${m}</div>`; }
 </script>
 </body>
 </html>
