@@ -30,44 +30,39 @@ self.addEventListener('activate', event => {
   );
 });
 
-
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
   // API carburants : network-first avec cache 5 min
   if (url.hostname === 'data.economie.gouv.fr') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return caches.open(CACHE_VERSION)
-            .then(cache => {
-              cache.put(event.request, response.clone());
-              return response;
-            });
-        })
-        .catch(error => {
-          console.error('Fetch failed; returning cached data.', error);
-          return caches.match(event.request)
-            .then(cachedResponse => {
-              if (cachedResponse) {
-                return cachedResponse;
-              }
-              // Return a default error response
-              return new Response(JSON.stringify({
-                error: 'No network and no cache available',
-                details: 'Échec de toutes les sources. Aucune station trouvée dans le rayon spécifié.'
-              }), {
-                headers: { 'Content-Type': 'application/json' }
-              });
-            });
-        })
-    );
+    event.respondWith(networkFirst(event.request, CACHE_VERSION, 5 * 60));
+    return;
   }
-});
 
+  // Géocodage : network-first sans cache persistant
+  if (url.hostname === 'api-adresse.data.gouv.fr') {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        new Response('{"features":[]}', { headers: { 'Content-Type': 'application/json' } })
+      )
+    );
+    return;
+  }
+
+  // Google Fonts : cache-first
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(cacheFirst(event.request, SHELL_CACHE));
+    return;
+  }
+
+  // Assets statiques : cache-first
+  if (url.pathname.match(/\.(html|json|js|css|png|ico|svg|webp)$/)) {
+    event.respondWith(cacheFirst(event.request, SHELL_CACHE));
+    return;
+  }
+
+  event.respondWith(networkFirst(event.request, CACHE_VERSION, 60));
+});
 
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);
