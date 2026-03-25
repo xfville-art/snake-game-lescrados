@@ -27,9 +27,8 @@
     background: linear-gradient(135deg, var(--orange), var(--red));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;
   }
-  .subtitle { color: #555; font-size: 0.85rem; margin-bottom: 20px; }
   .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  input[type=text], select {
+  input[type=text] {
     flex: 1; padding: 12px 16px; background: var(--card); border: 1px solid var(--border);
     border-radius: 10px; color: #fff; font-size: 1rem; outline: none;
   }
@@ -48,23 +47,19 @@
   }
   .fuel-btn.active { background: var(--orange); color: #000; border-color: var(--orange); }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 10px; }
+  
   .station-logo {
-    width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center;
+    width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
     justify-content: center; flex-shrink: 0; margin-right: 12px; border: 1px solid rgba(255,255,255,.1); overflow: hidden;
+    background: #fff;
   }
   .station-logo img { width: 100%; height: 100%; object-fit: contain; }
-  .station-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
-  .prices-mini { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .price-chip { padding: 2px 7px; border-radius: 5px; font-size: .78rem; background: #1a1e25; border: 1px solid var(--border); }
+  .station-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: center; }
   .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #333; border-top-color: var(--orange); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-
-<div id="offlineBanner" style="display:none; background:#2a1a0a; color:var(--orange); padding:10px; margin-bottom:10px; border-radius:10px; font-size:.85rem; border:1px solid var(--orange)">
-  📡 Mode hors-ligne <button onclick="forceUpdate()" style="float:right; background:var(--orange); border:none; padding:2px 8px; border-radius:4px; font-weight:bold">Update</button>
-</div>
 
 <h1>⛽ CarbuFuel</h1>
 <div class="search-row">
@@ -79,88 +74,103 @@
   <span id="radiusVal" style="color:var(--orange); font-weight:bold">15km</span>
 </div>
 
-<div class="fuel-grid" id="fuelGrid">
+<div class="fuel-grid">
   <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
   <button class="fuel-btn" onclick="setFuel('gazole',this)">Gazole</button>
   <button class="fuel-btn" onclick="setFuel('e10',this)">E10</button>
   <button class="fuel-btn" onclick="setFuel('sp98',this)">SP98</button>
-  <button class="fuel-btn" onclick="setFuel('e85',this)">E85</button>
 </div>
 
 <div id="result"></div>
 
 <script>
-let userLat = null, userLon = null, userDep = '', stations = [], activeFuel = 'all';
+let userLat = null, userLon = null, stations = [], activeFuel = 'all';
 
-// --- CONFIG LOGOS LOCAUX ---
-const LOGO_PATH = './assets/logos/';
-const BRAND_LOGOS = {
-  'total': 'total.png', 'totalenergies': 'total.png', 'leclerc': 'leclerc.png',
-  'carrefour': 'carrefour.png', 'intermarche': 'intermarche.png', 'systemeu': 'systemeu.png',
-  'auchan': 'auchan.png', 'esso': 'esso.png', 'bp': 'bp.png', 'shell': 'shell.png',
-  'casino': 'casino.png', 'netto': 'netto.png', 'avia': 'avia.png'
-};
-
-const BRAND_STYLES = {
-  'total': {bg:'#c8102e', c:'#fff'}, 'leclerc': {bg:'#003ca6', c:'#f7c300'},
-  'carrefour': {bg:'#004a97', c:'#fff'}, 'intermarche': {bg:'#e30613', c:'#fff'}
+// Configuration des styles de secours (Fallback)
+const BRAND_DATA = {
+  'total': {bg:'#c8102e', c:'#fff', domain:'totalenergies.fr'},
+  'leclerc': {bg:'#003ca6', c:'#f7c300', domain:'e.leclerc'},
+  'carrefour': {bg:'#004a97', c:'#fff', domain:'carrefour.fr'},
+  'intermar': {bg:'#e30613', c:'#fff', domain:'intermarche.com'},
+  'systeme u': {bg:'#c00000', c:'#fff', domain:'magasins-u.com'},
+  'super u': {bg:'#c00000', c:'#fff', domain:'magasins-u.com'},
+  'auchan': {bg:'#e10600', c:'#fff', domain:'auchan.fr'},
+  'esso': {bg:'#003087', c:'#fff', domain:'esso.fr'},
+  'bp': {bg:'#007a33', c:'#fff', domain:'bp.com'},
+  'shell': {bg:'#fbce07', c:'#cc0000', domain:'shell.fr'},
+  'avia': {bg:'#e30613', c:'#fff', domain:'avia-france.fr'}
 };
 
 function stationLogoBadge(s) {
   const brandRaw = (s.enseigne || s.nom || '').toLowerCase();
-  let logoFile = null;
-  for (let key in BRAND_LOGOS) { if (brandRaw.includes(key)) { logoFile = BRAND_LOGOS[key]; break; } }
+  let style = {bg:'#1e2229', c:'#aaa', domain:''};
+  let abbr = brandRaw.substring(0, 2).toUpperCase();
 
-  let bg = '#1e2229', color = '#aaa';
-  for (let key in BRAND_STYLES) { if (brandRaw.includes(key)) { bg = BRAND_STYLES[key].bg; color = BRAND_STYLES[key].c; break; } }
-
-  const abbr = brandRaw.substring(0,2).toUpperCase();
-
-  if (logoFile) {
-    return `<div class="station-logo" style="background:#fff;padding:4px">
-      <img src="${LOGO_PATH}${logoFile}" alt="logo" 
-           onerror="this.parentElement.style.background='${bg}'; this.parentElement.innerHTML='<span style=\\'color:${color};font-weight:900\\'>${abbr}</span>';">
-    </div>`;
+  // On cherche si on connaît la marque
+  for (let key in BRAND_DATA) {
+    if (brandRaw.includes(key)) {
+      style = BRAND_DATA[key];
+      break;
+    }
   }
-  return `<div class="station-logo" style="background:${bg};color:${color};font-weight:900">${abbr}</div>`;
+
+  // Si on a un domaine précis, on l'utilise, sinon on tente un nettoyage du nom
+  const domain = style.domain || brandRaw.replace(/[^a-z]/g, '') + '.fr';
+  const logoUrl = `https://logo.clearbit.com/${domain}`;
+
+  return `<div class="station-logo">
+    <img src="${logoUrl}" alt="" 
+         onerror="this.parentElement.style.background='${style.bg}'; this.parentElement.innerHTML='<span style=\\'color:${style.c}; font-weight:900; font-family:Barlow Condensed\\'>${abbr}</span>';">
+  </div>`;
 }
 
-// --- LOGIQUE API ---
 async function search() {
   const q = document.getElementById("city").value;
+  if(!q) return;
   const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
   const d = await r.json();
   if (d.features.length) {
     userLat = d.features[0].geometry.coordinates[1];
     userLon = d.features[0].geometry.coordinates[0];
-    userDep = d.features[0].properties.postcode.substring(0,2);
     load();
   }
 }
 
+async function gps() {
+  navigator.geolocation.getCurrentPosition(p => {
+    userLat = p.coords.latitude;
+    userLon = p.coords.longitude;
+    load();
+  });
+}
+
 async function load() {
-  document.getElementById("result").innerHTML = '<div class="card"><span class="loader"></span> Recherche...</div>';
+  const resDiv = document.getElementById("result");
+  resDiv.innerHTML = '<div class="card"><span class="loader"></span> Recherche des stations...</div>';
   const radius = document.getElementById("radius").value;
-  const url = `https://api.prix-carburants.2aaz.fr/stations/around/${userLat},${userLon}/?m=${radius*1000}`;
-  const r = await fetch(url);
-  const data = await r.json();
-  stations = data.map(s => ({
-    ...s,
-    nom: s.Brand?.name || s.name || "Station",
-    enseigne: s.Brand?.name || "",
-    dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
-  })).sort((a,b) => a.dist - b.dist);
-  render();
+  try {
+    const r = await fetch(`https://api.prix-carburants.2aaz.fr/stations/around/${userLat},${userLon}/?m=${radius*1000}`);
+    const data = await r.json();
+    stations = data.map(s => ({
+      ...s,
+      nom: s.Brand?.name || s.name || "Station",
+      enseigne: s.Brand?.name || "",
+      dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
+    })).sort((a,b) => a.dist - b.dist);
+    render();
+  } catch(e) {
+    resDiv.innerHTML = '<div class="card" style="color:red">Erreur lors du chargement.</div>';
+  }
 }
 
 function render() {
-  let html = `<div class="card"><div style="font-weight:bold;margin-bottom:10px">📍 ${stations.length} stations trouvées</div>`;
+  let html = `<div class="card"><div style="font-weight:bold;margin-bottom:10px">📍 ${stations.length} stations</div>`;
   stations.forEach(s => {
     html += `<div class="station-row">
       ${stationLogoBadge(s)}
       <div style="flex:1">
-        <div style="font-weight:bold">${s.nom} <span style="color:#666;font-size:0.8rem">· ${s.dist.toFixed(1)}km</span></div>
-        <div style="font-size:0.8rem;color:#555">${s.Address?.street_line || ''}</div>
+        <div style="font-weight:bold">${s.nom}</div>
+        <div style="font-size:0.8rem;color:#555">${s.dist.toFixed(1)}km · ${s.Address?.city_line || ''}</div>
       </div>
     </div>`;
   });
