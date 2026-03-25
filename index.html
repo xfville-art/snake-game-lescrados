@@ -343,55 +343,61 @@ function normalizeCoord(value, type = 'lat') {
 }
 
 // ── Extract prices from a station record ─────────────────────────────────────
-// Parsing des prix — supporte plusieurs formats d'API :
-//  - data.economie.gouv.fr v2.1 : prix_sp95, prix_gazole...
-//  - api.prix-carburants.2aaz.fr : Prix_SP95, Prix_Gazole...  (clé Capitalisée)
-//  - Tableau { nom, valeur } ou { nom, prix }
-const FUEL_KEYS = {
-  sp95:   ['sp95_prix', 'prix_sp95',  'Prix_SP95',  'SP95',  'sp95'],
-  sp98:   ['sp98_prix', 'prix_sp98',  'Prix_SP98',  'SP98',  'sp98'],
-  e10:    ['e10_prix',  'prix_e10',   'Prix_E10',   'E10',   'e10'],
-  gazole: ['gazole_prix','prix_gazole','Prix_Gazole','Gazole','gazole','DIESEL'],
-  e85:    ['e85_prix',  'prix_e85',   'Prix_E85',   'E85',   'e85'],
-  gplc:   ['gplc_prix', 'prix_gplc',  'Prix_GPLc',  'GPLc',  'gplc','GPL'],
+// Format 2aaz (source principale) :
+//   Fuels: [{ shortName:"Gazole", Price:{ value:2.259 } }, { shortName:"SP95-E10", Price:{ value:1.979 } }]
+// Format gouv OpenDataSoft (fallback) :
+//   gazole_prix, prix_sp95, prix_e10... ou tableau prix:[{nom,valeur}]
+
+// Mapping shortName 2aaz → clé interne
+const FUEL_SHORTNAME = {
+  sp95:   ['sp95', 'sp95-e5', 'super sans plomb 95'],
+  sp98:   ['sp98', 'super sans plomb 98'],
+  e10:    ['e10', 'sp95-e10', 'super sans plomb 95 e10'],
+  gazole: ['gazole', 'diesel', 'b7'],
+  e85:    ['e85', 'superéthanol', 'superethanol', 'ed85'],
+  gplc:   ['gplc', 'gpl', 'lpg'],
+};
+
+// Mapping clés plates OpenDataSoft
+const FUEL_FLAT_KEYS = {
+  sp95:   ['sp95_prix', 'prix_sp95'],
+  sp98:   ['sp98_prix', 'prix_sp98'],
+  e10:    ['e10_prix',  'prix_e10'],
+  gazole: ['gazole_prix','prix_gazole'],
+  e85:    ['e85_prix',  'prix_e85'],
+  gplc:   ['gplc_prix', 'prix_gplc'],
 };
 
 function extractFuelPrice(s, fuel) {
-  // Method 1: flat fields (essaie toutes les variantes de clé)
-  for (const key of FUEL_KEYS[fuel] || []) {
+  // ── Format 2aaz : Fuels[]
+  if (Array.isArray(s.Fuels)) {
+    const targets = FUEL_SHORTNAME[fuel] || [];
+    for (const f of s.Fuels) {
+      if (!f.available) continue;
+      const sn = (f.shortName || f.name || '').toLowerCase();
+      if (targets.some(t => sn.includes(t))) {
+        const v = parseFloat(f.Price?.value ?? f.price ?? 0);
+        if (v > 0) return v;
+      }
+    }
+  }
+  // ── Format OpenDataSoft : champs plats
+  for (const key of FUEL_FLAT_KEYS[fuel] || []) {
     const v = parseFloat(s[key]);
     if (v > 0) return v;
   }
-  // Method 2: tableau Carburants[] format 2aaz : [{Nom:"SP95", Prix:1.789}]
-  const carbs = s.Carburants || s.carburants;
-  if (Array.isArray(carbs)) {
-    const names = FUEL_KEYS[fuel] || [];
-    for (const entry of carbs) {
-      const nom = (entry.Nom || entry.nom || entry.name || entry['@nom'] || '').toLowerCase();
-      const val = parseFloat(entry.Prix || entry.prix || entry.valeur || entry.value || entry['@valeur'] || 0);
-      if (val > 0 && names.some(n => nom.includes(n.toLowerCase()))) return val;
-    }
-  }
-  // Method 3: tableau prix[] format govt : [{nom:"SP95", valeur:1.789}]
-  if (Array.isArray(s.prix)) {
-    const names = FUEL_KEYS[fuel] || [];
-    for (const entry of s.prix) {
+  // ── Format gouv tableau prix:[{nom,valeur}]
+  const prixArr = Array.isArray(s.prix) ? s.prix
+    : (typeof s.prix === 'string' ? (() => { try { return JSON.parse(s.prix); } catch { return []; } })() : []);
+  if (prixArr.length) {
+    const targets = FUEL_SHORTNAME[fuel] || [];
+    for (const entry of prixArr) {
       const nom = (entry.nom || entry.name || entry['@nom'] || '').toLowerCase();
-      const val = parseFloat(entry.valeur || entry.prix || entry.value || entry['@valeur'] || 0);
-      if (val > 0 && names.some(n => nom.includes(n.toLowerCase()))) return val;
-    }
-  }
-  // Method 4: prix as JSON string
-  if (typeof s.prix === 'string') {
-    try {
-      const arr = JSON.parse(s.prix);
-      const names = FUEL_KEYS[fuel] || [];
-      for (const entry of arr) {
-        const nom = (entry.nom || entry.name || entry['@nom'] || '').toLowerCase();
-        const val = parseFloat(entry.valeur || entry.prix || entry['@valeur'] || 0);
-        if (val > 0 && names.some(n => nom.includes(n.toLowerCase()))) return val;
+      if (targets.some(t => nom.includes(t))) {
+        const v = parseFloat(entry.valeur || entry.prix || entry['@valeur'] || 0);
+        if (v > 0) return v;
       }
-    } catch {}
+    }
   }
   return null;
 }
@@ -469,30 +475,32 @@ function extractRaw(d) {
 
 // Parse les coordonnées GPS depuis tous les formats connus
 function parseCoords(s) {
-  // 2aaz v2 : { Coordonnees: { latitude, longitude } }
-  if (s.Coordonnees?.latitude  != null) return [normalizeCoord(s.Coordonnees.latitude,'lat'), normalizeCoord(s.Coordonnees.longitude,'lon')];
-  // 2aaz v1 / OpenEventDB : champs plats capitalisés
-  if (s.Latitude  != null) return [normalizeCoord(s.Latitude,'lat'),  normalizeCoord(s.Longitude,'lon')];
-  // OpenDataSoft gouv : champs minuscules
+  // 2aaz réel : { Coordinates: { latitude, longitude } }
+  if (s.Coordinates?.latitude  != null) return [parseFloat(s.Coordinates.latitude),  parseFloat(s.Coordinates.longitude)];
+  // Variante ancienne 2aaz : Coordonnees
+  if (s.Coordonnees?.latitude  != null) return [parseFloat(s.Coordonnees.latitude),  parseFloat(s.Coordonnees.longitude)];
+  // OpenDataSoft gouv (minuscules)
   if (s.latitude  != null) return [normalizeCoord(s.latitude,'lat'),  normalizeCoord(s.longitude,'lon')];
-  // OpenDataSoft geom GeoJSON
+  if (s.Latitude  != null) return [normalizeCoord(s.Latitude,'lat'),  normalizeCoord(s.Longitude,'lon')];
+  // GeoJSON geom
   if (s.geom?.geometry?.coordinates) return [normalizeCoord(s.geom.geometry.coordinates[1],'lat'), normalizeCoord(s.geom.geometry.coordinates[0],'lon')];
-  // geolocalisation object
-  if (s.geolocalisation) return [normalizeCoord(s.geolocalisation.lat||s.geolocalisation.latitude,'lat'), normalizeCoord(s.geolocalisation.lon||s.geolocalisation.longitude,'lon')];
   return [null, null];
 }
 
-// Parse tous les champs texte d'une station (nom, enseigne, adresse, ville)
+// Parse nom, enseigne, adresse, ville depuis tous les formats connus
 function parseStationMeta(s) {
-  // 2aaz fournit ces champs : Nom, Enseigne, Adresse (dans Informations), Ville (dans Informations)
-  const infos    = s.Informations || {};
-  const enseigne = (s.Enseigne    || infos.Enseigne || s.enseigne || s.brand || s.marque || s.Marque || '').trim();
-  const nom      = (s.Nom         || infos.Nom      || s.nom      || s.name  || '').trim();
-  const adresse  = (infos.Adresse || s.Adresse || s.adresse || s.Address || '').trim();
-  const ville    = (infos.Ville   || s.Ville   || s.ville   || s.City    || s.cp || '').trim();
-  // Fallback intelligent : si nom et enseigne vides, utilise adresse
+  // ── Format 2aaz réel (confirmé par debug) ──
+  // Brand: { name:"E.Leclerc" }  |  name:"CENTRE LECLERC"
+  // Address: { street_line:"Rue de la Bosserie", city_line:"45500 Gien" }
+  const enseigne = (s.Brand?.name || s.Enseigne || s.enseigne || s.brand || '').trim();
+  const nom      = (s.name  || s.Nom || s.nom || '').trim();
+  const adresse  = (s.Address?.street_line || s.Adresse || s.adresse || '').trim();
+  const cityLine = (s.Address?.city_line   || '').trim();
+  // city_line = "45500 Gien" → extraire juste la ville
+  const ville    = (s.Ville || s.ville || s.cp || cityLine.replace(/^\d{5}\s*/, '') || '').trim();
+  // Affichage principal : enseigne si dispo, sinon nom, sinon adresse
   const displayNom = enseigne || nom || adresse || 'Station';
-  return { enseigne, nom: displayNom, adresse, ville };
+  return { enseigne, nom: displayNom, _stationName: nom, adresse, ville };
 }
 
 const APIS = [
@@ -544,8 +552,8 @@ async function load() {
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
         const dist = haversine(userLat, userLon, lat, lon);
         if (dist > radius) return null;
-        const { enseigne, nom, adresse, ville } = parseStationMeta(s);
-        return { ...s, nom, enseigne, ville, adresse, _lat: lat, _lon: lon, dist };
+        const { enseigne, nom, _stationName, adresse, ville } = parseStationMeta(s);
+        return { ...s, nom, enseigne, _stationName, ville, adresse, _lat: lat, _lon: lon, dist };
       }).filter(Boolean);
 
       if (stations.length === 0) {
@@ -591,18 +599,18 @@ const BRAND_STYLES = {
 };
 
 function getStationBrand(s) {
-  // Après parseStationMeta, s.enseigne et s.nom sont déjà normalisés
   return (s.enseigne || s.nom || '').trim();
 }
 
 function getStationDisplayName(s) {
-  const enseigne = (s.enseigne || '').trim();
-  const nom      = (s.nom      || '').trim();
-  // Si enseigne connue et différente du nom → affiche les deux
-  if (enseigne && nom && enseigne.toLowerCase() !== nom.toLowerCase()) {
-    return { primary: enseigne, secondary: nom };
+  const enseigne = (s.enseigne || '').trim(); // Ex: "E.Leclerc"
+  const nom      = (s.nom      || '').trim(); // Ex: "E.Leclerc" (après parseStationMeta, nom = enseigne si enseigne existe)
+  // s._nom_station = nom brut avant remplacement par enseigne
+  const stationName = (s._stationName || '').trim(); // Ex: "CENTRE LECLERC"
+  if (enseigne && stationName && enseigne.toLowerCase() !== stationName.toLowerCase()) {
+    return { primary: enseigne, secondary: stationName };
   }
-  return { primary: enseigne || nom || 'Station', secondary: '' };
+  return { primary: nom || 'Station', secondary: '' };
 }
 
 function stationLogoBadge(s) {
