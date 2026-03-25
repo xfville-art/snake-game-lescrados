@@ -246,17 +246,23 @@
 
   /* ── Station logo badge ── */
   .station-logo {
-    width: 42px; height: 42px;
-    border-radius: 10px;
+    width: 46px; height: 46px;
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 900;
-    font-size: .95rem;
+    font-size: 1rem;
     flex-shrink: 0;
     letter-spacing: -0.5px;
-    margin-right: 10px;
-    border: 1px solid rgba(255,255,255,.08);
+    margin-right: 12px;
+    border: 1px solid rgba(255,255,255,.10);
     text-transform: uppercase;
+    overflow: hidden;
+  }
+  .station-logo img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
   }
   .station-row { align-items: flex-start; }
 </style>
@@ -613,15 +619,60 @@ function getStationDisplayName(s) {
   return { primary: nom || 'Station', secondary: '' };
 }
 
-function stationLogoBadge(s) {
-  const brand = getStationBrand(s).toLowerCase();
-  let style = null;
-  for (const key of Object.keys(BRAND_STYLES)) {
-    if (brand.includes(key)) { style = BRAND_STYLES[key]; break; }
+// Map shortName 2aaz → URL logo (CDN fiable, format PNG/SVG carré)
+const BRAND_LOGOS = {
+  'eleclerc':      'https://logo.clearbit.com/e.leclerc',
+  'totalenergies': 'https://logo.clearbit.com/totalenergies.fr',
+  'total':         'https://logo.clearbit.com/totalenergies.fr',
+  'bp':            'https://logo.clearbit.com/bp.com',
+  'shell':         'https://logo.clearbit.com/shell.fr',
+  'esso':          'https://logo.clearbit.com/esso.fr',
+  'carrefour':     'https://logo.clearbit.com/carrefour.fr',
+  'intermarche':   'https://logo.clearbit.com/intermarche.com',
+  'auchan':        'https://logo.clearbit.com/auchan.fr',
+  'systemeu':      'https://logo.clearbit.com/magasins-u.com',
+  'systemeu2':     'https://logo.clearbit.com/magasins-u.com',
+  'casino':        'https://logo.clearbit.com/casino.fr',
+  'avia':          'https://logo.clearbit.com/avia.fr',
+  'netto':         'https://logo.clearbit.com/netto.fr',
+  'g20':           'https://logo.clearbit.com/g20.fr',
+  'vito':          'https://logo.clearbit.com/vito.fr',
+};
+
+function getLogoUrl(s) {
+  // Utilise shortName de l'API 2aaz si dispo (le plus fiable)
+  const shortName = (s.Brand?.shortName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (BRAND_LOGOS[shortName]) return BRAND_LOGOS[shortName];
+  // Sinon matching sur enseigne
+  const brand = (s.enseigne || s.nom || '').toLowerCase();
+  for (const [key, url] of Object.entries(BRAND_LOGOS)) {
+    if (brand.includes(key.replace(/\d/g, ''))) return url;
   }
-  const abbr = getStationBrand(s).substring(0, 3) || '⛽';
-  const bg    = style ? style.bg    : '#1e2229';
-  const color = style ? style.color : '#aaa';
+  return null;
+}
+
+function stationLogoBadge(s) {
+  const brand     = (s.enseigne || s.nom || '').toLowerCase();
+  const logoUrl   = getLogoUrl(s);
+  // Couleur de fond selon marque
+  let bg = '#1e2229', color = '#aaa';
+  for (const [key, style] of Object.entries(BRAND_STYLES)) {
+    if (brand.includes(key)) { bg = style.bg; color = style.color; break; }
+  }
+  // Initiales de fallback : jusqu'à 3 chars de l'enseigne
+  const raw   = (s.enseigne || s.nom || '⛽').trim();
+  const words = raw.split(/[\s.]+/).filter(Boolean);
+  const abbr  = words.length >= 2
+    ? (words[0][0] + words[1][0]).toUpperCase()        // "E.Leclerc" → "EL"
+    : raw.substring(0, 3).toUpperCase();               // "Auchan" → "AUC"
+
+  if (logoUrl) {
+    return `<div class="station-logo" style="background:#fff;padding:4px;overflow:hidden">
+      <img src="${logoUrl}" alt="${raw}"
+        style="width:100%;height:100%;object-fit:contain;border-radius:6px"
+        onerror="this.parentElement.innerHTML='<span style=\\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:.95rem;color:${color}\\'>${abbr}</span>';this.parentElement.style.background='${bg}'">
+    </div>`;
+  }
   return `<div class="station-logo" style="background:${bg};color:${color}">${abbr}</div>`;
 }
 
