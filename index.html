@@ -455,21 +455,56 @@ function gps() {
 }
 
 // ── Load data ─────────────────────────────────────────────────────────────────
-// Stratégie : essayer plusieurs URLs en cascade, afficher debug en cas d'échec
+// ── Stratégie API : 2aaz EN PREMIER (fournit nom+enseigne+adresse+ville+prix)
+// 2aaz enrichit les données gouv avec nom/enseigne scrapés de prix-carburants.gouv.fr
+// L'API gouv seule ne contient PAS ces champs — uniquement prix et coordonnées.
+
+// Extrait le tableau brut de stations depuis la réponse JSON (format variable selon source)
+function extractRaw(d) {
+  if (Array.isArray(d)) return d;                 // 2aaz retourne un tableau direct
+  if (Array.isArray(d.results)) return d.results; // OpenDataSoft v2.1
+  if (Array.isArray(d.data))    return d.data;
+  return [];
+}
+
+// Parse les coordonnées GPS depuis tous les formats connus
+function parseCoords(s) {
+  // 2aaz v2 : { Coordonnees: { latitude, longitude } }
+  if (s.Coordonnees?.latitude  != null) return [normalizeCoord(s.Coordonnees.latitude,'lat'), normalizeCoord(s.Coordonnees.longitude,'lon')];
+  // 2aaz v1 / OpenEventDB : champs plats capitalisés
+  if (s.Latitude  != null) return [normalizeCoord(s.Latitude,'lat'),  normalizeCoord(s.Longitude,'lon')];
+  // OpenDataSoft gouv : champs minuscules
+  if (s.latitude  != null) return [normalizeCoord(s.latitude,'lat'),  normalizeCoord(s.longitude,'lon')];
+  // OpenDataSoft geom GeoJSON
+  if (s.geom?.geometry?.coordinates) return [normalizeCoord(s.geom.geometry.coordinates[1],'lat'), normalizeCoord(s.geom.geometry.coordinates[0],'lon')];
+  // geolocalisation object
+  if (s.geolocalisation) return [normalizeCoord(s.geolocalisation.lat||s.geolocalisation.latitude,'lat'), normalizeCoord(s.geolocalisation.lon||s.geolocalisation.longitude,'lon')];
+  return [null, null];
+}
+
+// Parse tous les champs texte d'une station (nom, enseigne, adresse, ville)
+function parseStationMeta(s) {
+  // 2aaz fournit ces champs : Nom, Enseigne, Adresse (dans Informations), Ville (dans Informations)
+  const infos    = s.Informations || {};
+  const enseigne = (s.Enseigne    || infos.Enseigne || s.enseigne || s.brand || s.marque || s.Marque || '').trim();
+  const nom      = (s.Nom         || infos.Nom      || s.nom      || s.name  || '').trim();
+  const adresse  = (infos.Adresse || s.Adresse || s.adresse || s.Address || '').trim();
+  const ville    = (infos.Ville   || s.Ville   || s.ville   || s.City    || s.cp || '').trim();
+  // Fallback intelligent : si nom et enseigne vides, utilise adresse
+  const displayNom = enseigne || nom || adresse || 'Station';
+  return { enseigne, nom: displayNom, adresse, ville };
+}
 
 const APIS = [
-  // API 1 : OpenDataSoft v2.1 avec filtre fiable par code postal/département
+  // 1. 2aaz autour du point GPS — NOM + ENSEIGNE + ADRESSE + prix en temps réel
+  (lat, lon, radius) => `https://api.prix-carburants.2aaz.fr/stations/around/${lat},${lon}/?m=${Math.min(radius*1000,50000)}&max=200`,
+  // 2. 2aaz par département (si GPS échoue ou rayon trop grand)
+  (lat, lon, radius, dep) => dep ? `https://api.prix-carburants.2aaz.fr/stations/?dep=${dep}&max=500` : null,
+  // 3. OpenDataSoft gouv par département (fallback — sans nom/enseigne)
   (lat, lon, radius, dep) => {
-    const where = dep ? `startswith(cp, \"${dep}\")` : `gazole_prix is not null`;
+    const where = dep ? `startswith(cp, "${dep}")` : `gazole_prix is not null`;
     return `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=${encodeURIComponent(where)}&limit=100`;
   },
-  // API 2 : 2aaz par département
-  (lat, lon, radius, dep) => dep
-    ? `https://api.prix-carburants.2aaz.fr/stations/?dep=${dep}&max=200`
-    : null,
-  // API 3 : OpenDataSoft sans filtre géo, toutes stations (lourd mais ça marche)
-  (lat, lon, radius, dep) =>
-    `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?limit=100`,
 ];
 
 async function load() {
@@ -481,23 +516,21 @@ async function load() {
   for (let i = 0; i < APIS.length; i++) {
     const url = APIS[i](userLat, userLon, radius, dep);
     if (!url) continue;
-    showLoader(`Chargement... (source ${i+1}/3)`);
+    showLoader(`Chargement... (source ${i+1}/${APIS.length})`);
     try {
-      const r = await fetch(url);
+      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
       if (!r.ok) { lastError = `Source ${i+1}: HTTP ${r.status}`; continue; }
       const d = await r.json();
-      let raw = Array.isArray(d) ? d : (d.results || d.data || []);
+      let raw = extractRaw(d);
 
-      // L'API OpenDataSoft limite à 100 lignes max par requête : on pagine si besoin
-      if (i === 0 && d.total_count && raw.length < d.total_count) {
+      // Pagination OpenDataSoft (source 3)
+      if (i === 2 && d.total_count && raw.length < d.total_count) {
         const total = Math.min(d.total_count, 1000);
         for (let offset = raw.length; offset < total; offset += 100) {
-          const nextUrl = new URL(url);
-          nextUrl.searchParams.set('offset', offset);
-          const r2 = await fetch(nextUrl.toString());
+          const u2 = new URL(url); u2.searchParams.set('offset', offset);
+          const r2 = await fetch(u2.toString());
           if (!r2.ok) break;
-          const d2 = await r2.json();
-          const rows2 = Array.isArray(d2) ? d2 : (d2.results || d2.data || []);
+          const rows2 = extractRaw(await r2.json());
           if (!rows2.length) break;
           raw = raw.concat(rows2);
           if (rows2.length < 100) break;
@@ -506,40 +539,21 @@ async function load() {
 
       if (raw.length === 0) { lastError = `Source ${i+1}: 0 résultats`; continue; }
 
-      // Parsing universel
       stations = raw.map(s => {
-        let lat = null, lon = null;
-        if (s.Latitude  != null) {
-          lat = normalizeCoord(s.Latitude, 'lat');
-          lon = normalizeCoord(s.Longitude, 'lon');
-        }
-        else if (s.latitude != null) {
-          lat = normalizeCoord(s.latitude, 'lat');
-          lon = normalizeCoord(s.longitude, 'lon');
-        }
-        else if (s.geom?.geometry?.coordinates) {
-          lon = normalizeCoord(s.geom.geometry.coordinates[0], 'lon');
-          lat = normalizeCoord(s.geom.geometry.coordinates[1], 'lat');
-        }
-        else if (s.geolocalisation) {
-          lat = normalizeCoord(s.geolocalisation.lat || s.geolocalisation.latitude, 'lat');
-          lon = normalizeCoord(s.geolocalisation.lon || s.geolocalisation.longitude, 'lon');
-        }
+        const [lat, lon] = parseCoords(s);
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
         const dist = haversine(userLat, userLon, lat, lon);
-        const enseigne = s.enseigne || s.Enseigne || s.brand || s.Brand || '';
-        const nom      = s.Nom      || s.nom      || s.Name  || enseigne || 'Station';
-        const ville    = s.Ville    || s.ville    || s.City  || s.cp     || '';
-        const adresse  = s.Adresse  || s.adresse  || s.Address || '';
+        if (dist > radius) return null;
+        const { enseigne, nom, adresse, ville } = parseStationMeta(s);
         return { ...s, nom, enseigne, ville, adresse, _lat: lat, _lon: lon, dist };
-      }).filter(s => s && s.dist <= radius);
+      }).filter(Boolean);
 
       if (stations.length === 0) {
         lastError = `Source ${i+1}: aucune station dans ${radius}km (${raw.length} reçues, dep=${dep||'?'})`;
         continue;
       }
       renderList();
-      return; // succès
+      return;
     } catch(e) {
       lastError = `Source ${i+1}: ${e.message}`;
     }
@@ -577,16 +591,14 @@ const BRAND_STYLES = {
 };
 
 function getStationBrand(s) {
-  // Priorité : enseigne (marque commerciale) > nom > libelle
-  const raw = s.enseigne || s.Enseigne || s.brand || s.Brand
-    || s.nom || s.Nom || s.Name || '';
-  return raw.trim();
+  // Après parseStationMeta, s.enseigne et s.nom sont déjà normalisés
+  return (s.enseigne || s.nom || '').trim();
 }
 
 function getStationDisplayName(s) {
-  const enseigne = (s.enseigne || s.Enseigne || s.brand || s.Brand || '').trim();
-  const nom      = (s.nom      || s.Nom      || s.Name  || '').trim();
-  // Si enseigne et nom sont différents et non vides, affiche les deux
+  const enseigne = (s.enseigne || '').trim();
+  const nom      = (s.nom      || '').trim();
+  // Si enseigne connue et différente du nom → affiche les deux
   if (enseigne && nom && enseigne.toLowerCase() !== nom.toLowerCase()) {
     return { primary: enseigne, secondary: nom };
   }
