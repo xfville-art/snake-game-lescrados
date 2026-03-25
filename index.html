@@ -243,6 +243,22 @@
     font-family: 'Barlow', sans-serif;
   }
   .sort-btn.active { border-color: var(--orange); color: var(--orange); }
+
+  /* ── Station logo badge ── */
+  .station-logo {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: .95rem;
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+    margin-right: 10px;
+    border: 1px solid rgba(255,255,255,.08);
+    text-transform: uppercase;
+  }
+  .station-row { align-items: flex-start; }
 </style>
 </head>
 <body>
@@ -511,10 +527,11 @@ async function load() {
         }
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
         const dist = haversine(userLat, userLon, lat, lon);
-        const nom     = s.Nom     || s.nom     || s.Name     || s.enseigne || 'Station';
-        const ville   = s.Ville   || s.ville   || s.City     || s.cp       || '';
-        const adresse = s.Adresse || s.adresse || s.Address  || '';
-        return { ...s, nom, ville, adresse, _lat: lat, _lon: lon, dist };
+        const enseigne = s.enseigne || s.Enseigne || s.brand || s.Brand || '';
+        const nom      = s.Nom      || s.nom      || s.Name  || enseigne || 'Station';
+        const ville    = s.Ville    || s.ville    || s.City  || s.cp     || '';
+        const adresse  = s.Adresse  || s.adresse  || s.Address || '';
+        return { ...s, nom, enseigne, ville, adresse, _lat: lat, _lon: lon, dist };
       }).filter(s => s && s.dist <= radius);
 
       if (stations.length === 0) {
@@ -528,6 +545,64 @@ async function load() {
     }
   }
   showError(`Échec toutes sources. Dernier: ${lastError}`);
+}
+
+// ── Station brand / logo helpers ──────────────────────────────────────────────
+const BRAND_STYLES = {
+  'total':        { bg: '#c8102e', color: '#fff' },
+  'totalenergies':{ bg: '#c8102e', color: '#fff' },
+  'bp':           { bg: '#007a33', color: '#fff' },
+  'shell':        { bg: '#fbce07', color: '#cc0000' },
+  'esso':         { bg: '#003087', color: '#ff0000' },
+  'leclerc':      { bg: '#003ca6', color: '#f7c300' },
+  'intermarche':  { bg: '#e30613', color: '#fff' },
+  'intermarché':  { bg: '#e30613', color: '#fff' },
+  'carrefour':    { bg: '#004a97', color: '#ee1c25' },
+  'auchan':       { bg: '#e10600', color: '#fff' },
+  'casino':       { bg: '#d00010', color: '#fff' },
+  'super u':      { bg: '#c00000', color: '#fff' },
+  'système u':    { bg: '#c00000', color: '#fff' },
+  'systeme u':    { bg: '#c00000', color: '#fff' },
+  'géant':        { bg: '#c00000', color: '#fff' },
+  'geant':        { bg: '#c00000', color: '#fff' },
+  'netto':        { bg: '#ffcc00', color: '#000' },
+  'dyneff':       { bg: '#f26522', color: '#fff' },
+  'avia':         { bg: '#005baa', color: '#fff' },
+  'api':          { bg: '#00529b', color: '#fff' },
+  'uno':          { bg: '#ff6600', color: '#fff' },
+  'petro':        { bg: '#ff6600', color: '#fff' },
+  'vito':         { bg: '#00a651', color: '#fff' },
+  'relais':       { bg: '#444', color: '#fff' },
+  'autoroute':    { bg: '#333', color: '#f0a500' },
+};
+
+function getStationBrand(s) {
+  // Priorité : enseigne (marque commerciale) > nom > libelle
+  const raw = s.enseigne || s.Enseigne || s.brand || s.Brand
+    || s.nom || s.Nom || s.Name || '';
+  return raw.trim();
+}
+
+function getStationDisplayName(s) {
+  const enseigne = (s.enseigne || s.Enseigne || s.brand || s.Brand || '').trim();
+  const nom      = (s.nom      || s.Nom      || s.Name  || '').trim();
+  // Si enseigne et nom sont différents et non vides, affiche les deux
+  if (enseigne && nom && enseigne.toLowerCase() !== nom.toLowerCase()) {
+    return { primary: enseigne, secondary: nom };
+  }
+  return { primary: enseigne || nom || 'Station', secondary: '' };
+}
+
+function stationLogoBadge(s) {
+  const brand = getStationBrand(s).toLowerCase();
+  let style = null;
+  for (const key of Object.keys(BRAND_STYLES)) {
+    if (brand.includes(key)) { style = BRAND_STYLES[key]; break; }
+  }
+  const abbr = getStationBrand(s).substring(0, 3) || '⛽';
+  const bg    = style ? style.bg    : '#1e2229';
+  const color = style ? style.color : '#aaa';
+  return `<div class="station-logo" style="background:${bg};color:${color}">${abbr}</div>`;
 }
 
 // ── Render: Liste stations ─────────────────────────────────────────────────────
@@ -551,9 +626,9 @@ function renderList() {
   const sortBar = `
     <div class="sort-row">
       <span class="muted" style="line-height:26px">Tri :</span>
-      <button class="sort-btn ${sortMode==='dist'?'active':''}"   onclick="setSortMode('dist',this)">📍 Distance</button>
-      <button class="sort-btn ${sortMode==='price'?'active':''}"  onclick="setSortMode('price',this)">💰 Prix</button>
-      <button class="sort-btn ${sortMode==='name'?'active':''}"   onclick="setSortMode('name',this)">A→Z Nom</button>
+      <button class="sort-btn ${sortMode==='dist'?'active':''}"   onclick="setSortMode('dist')">📍 Distance</button>
+      <button class="sort-btn ${sortMode==='price'?'active':''}"  onclick="setSortMode('price')">💰 Prix</button>
+      <button class="sort-btn ${sortMode==='name'?'active':''}"   onclick="setSortMode('name')">A→Z Nom</button>
     </div>`;
 
   const rows = sorted.map(s => {
@@ -562,6 +637,7 @@ function renderList() {
     const isCheap = p !== null && p < mean - 0.05;
     const isExp   = p !== null && p > mean + 0.10;
     const mapsUrl = `https://maps.google.com/?q=${s._lat},${s._lon}`;
+    const { primary, secondary } = getStationDisplayName(s);
 
     const chips = Object.entries(allP2).map(([f,v]) =>
       `<span class="price-chip">${f.toUpperCase()} ${v.toFixed(3)}€</span>`
@@ -569,8 +645,10 @@ function renderList() {
 
     return `
       <div class="station-row">
+        ${stationLogoBadge(s)}
         <div style="flex:1;min-width:0">
-          <div style="font-weight:600">${s.nom || s.enseigne || 'Station'} <span class="muted">· ${s.dist.toFixed(1)} km</span></div>
+          <div style="font-weight:700">${primary} <span class="muted" style="font-weight:400">· ${s.dist.toFixed(1)} km</span></div>
+          ${secondary ? `<div style="font-size:.82rem;color:#666">${secondary}</div>` : ''}
           <div class="muted">${s.adresse || ''} ${s.ville || ''}</div>
           <div class="prices-mini">${chips}</div>
           ${isCheap ? '<span class="tag">🔥 Bon plan</span>' : ''}
