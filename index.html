@@ -13,269 +13,62 @@
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap');
 
   :root {
-    --orange: #f0a500;
-    --red: #e05c2a;
-    --green: #3fb950;
-    --danger: #f85149;
-    --bg: #0a0c0f;
-    --card: #111318;
-    --border: #1e2229;
+    --orange: #f0a500; --red: #e05c2a; --green: #3fb950; --danger: #f85149;
+    --bg: #0a0c0f; --card: #111318; --border: #1e2229;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    background: var(--bg);
-    color: #fff;
-    font-family: 'Barlow', sans-serif;
-    min-height: 100vh;
-    padding: 20px 16px 60px;
-    max-width: 540px;
-    margin: auto;
+    background: var(--bg); color: #fff; font-family: 'Barlow', sans-serif;
+    min-height: 100vh; padding: 20px 16px 60px; max-width: 540px; margin: auto;
   }
-
   h1 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 2.4rem;
-    font-weight: 900;
-    letter-spacing: 1px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 2.4rem; font-weight: 900;
     background: linear-gradient(135deg, var(--orange), var(--red));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 4px;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;
   }
-
   .subtitle { color: #555; font-size: 0.85rem; margin-bottom: 20px; }
-
-  .search-row {
-    display: flex; gap: 8px; margin-bottom: 12px;
-  }
-
+  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
   input[type=text], select {
-    flex: 1;
-    padding: 12px 16px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: #fff;
-    font-size: 1rem;
-    font-family: 'Barlow', sans-serif;
-    outline: none;
-    transition: border-color .2s;
-    -webkit-appearance: none;
+    flex: 1; padding: 12px 16px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; color: #fff; font-size: 1rem; outline: none;
   }
-  input:focus, select:focus { border-color: var(--orange); }
-  input::placeholder { color: #444; }
-
-  .radius-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
-  }
-  .radius-row label { color: #666; font-size: .85rem; white-space: nowrap; }
-  input[type=range] {
-    flex: 1; accent-color: var(--orange); cursor: pointer;
-  }
-  .radius-row span { color: var(--orange); font-weight: 700; min-width: 40px; text-align: right; }
-
+  .radius-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #666; font-size: .85rem; }
+  input[type=range] { flex: 1; accent-color: var(--orange); }
   button {
-    padding: 12px 18px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    letter-spacing: .5px;
-    transition: transform .1s, opacity .2s;
-    white-space: nowrap;
+    padding: 12px 18px; border-radius: 10px; border: none; cursor: pointer;
+    font-weight: 700; font-family: 'Barlow Condensed', sans-serif; transition: transform .1s;
   }
-  button:active { transform: scale(.97); }
-
   .btn-primary { background: linear-gradient(135deg, var(--orange), var(--red)); color: #000; }
   .btn-ghost { background: var(--card); color: #aaa; border: 1px solid var(--border); }
-  .btn-ghost:hover { color: #fff; border-color: #444; }
-
-  .action-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-  .action-grid .wide { grid-column: 1 / -1; }
-
-  .fuel-grid {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
-  }
+  .fuel-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   .fuel-btn {
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: #888;
-    cursor: pointer;
-    font-size: .85rem;
-    font-family: 'Barlow', sans-serif;
-    font-weight: 600;
-    transition: all .15s;
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--card); color: #888; font-size: .85rem; cursor: pointer;
   }
-  .fuel-btn.active {
-    background: var(--orange);
-    color: #000;
-    border-color: var(--orange);
-  }
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 10px;
-    animation: fadeUp .35s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .big { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 900; }
-  .xl  { font-family: 'Barlow Condensed', sans-serif; font-size: 2.4rem; font-weight: 900; }
-  .green { color: var(--green); }
-  .red   { color: var(--danger); }
-  .orange { color: var(--orange); }
-  .muted { color: #666; font-size: .85rem; }
-
-  .station-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .station-row:last-child { border-bottom: none; }
-
-  .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: .75rem;
-    font-weight: 700;
-    background: #1a2a1a;
-    color: var(--green);
-    margin-top: 4px;
-  }
-  .tag-red {
-    background: #2a1a1a;
-    color: var(--danger);
-  }
-
-  .prices-mini {
-    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
-  }
-  .price-chip {
-    padding: 2px 7px;
-    border-radius: 5px;
-    font-size: .78rem;
-    font-weight: 600;
-    background: #1a1e25;
-    color: #ccc;
-    border: 1px solid var(--border);
-  }
-
-  textarea {
-    width: 100%;
-    background: #0d0f12;
-    color: #3fb950;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    font-family: 'Barlow', sans-serif;
-    font-size: .85rem;
-    resize: vertical;
-    margin-top: 10px;
-  }
-
-  .loader {
-    display: inline-block;
-    width: 18px; height: 18px;
-    border: 2px solid #333;
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .offline-banner {
-    background: #2a1a0a;
-    border: 1px solid var(--orange);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 14px;
-    font-size: .85rem;
-    color: var(--orange);
-    display: none;
-  }
-
-  .stat-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px;
-  }
-  .stat-box {
-    background: #0d0f12;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-  }
-  .stat-box .val { font-family: 'Barlow Condensed', sans-serif; font-size: 1.6rem; font-weight: 900; }
-  .stat-box .lbl { color: #555; font-size: .78rem; margin-top: 2px; }
-
-  .sort-row {
-    display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;
-  }
-  .sort-btn {
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: #666;
-    cursor: pointer;
-    font-size: .8rem;
-    font-family: 'Barlow', sans-serif;
-  }
-  .sort-btn.active { border-color: var(--orange); color: var(--orange); }
-
-  /* ── Station logo badge ── */
+  .fuel-btn.active { background: var(--orange); color: #000; border-color: var(--orange); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 10px; }
   .station-logo {
-    width: 46px; height: 46px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 1rem;
-    flex-shrink: 0;
-    letter-spacing: -0.5px;
-    margin-right: 12px;
-    border: 1px solid rgba(255,255,255,.10);
-    text-transform: uppercase;
-    overflow: hidden;
+    width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; margin-right: 12px; border: 1px solid rgba(255,255,255,.1); overflow: hidden;
   }
-  .station-logo img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-    border-radius: 8px;
-  }
-  .station-row { align-items: flex-start; }
+  .station-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .station-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .prices-mini { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .price-chip { padding: 2px 7px; border-radius: 5px; font-size: .78rem; background: #1a1e25; border: 1px solid var(--border); }
+  .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #333; border-top-color: var(--orange); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="offline-banner" id="offlineBanner">📡 Hors-ligne — données en cache &nbsp;<button onclick="forceUpdate()" style="padding:3px 10px;font-size:.8rem;background:var(--orange);color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:700">Mettre à jour</button></div>
+<div id="offlineBanner" style="display:none; background:#2a1a0a; color:var(--orange); padding:10px; margin-bottom:10px; border-radius:10px; font-size:.85rem; border:1px solid var(--orange)">
+  📡 Mode hors-ligne <button onclick="forceUpdate()" style="float:right; background:var(--orange); border:none; padding:2px 8px; border-radius:4px; font-weight:bold">Update</button>
+</div>
 
 <h1>⛽ CarbuFuel</h1>
-<p class="subtitle">Prix carburants en temps réel · France</p>
-
 <div class="search-row">
-  <input id="city" type="text" placeholder="Ville ou code postal..." onkeydown="if(event.key==='Enter')search()">
+  <input id="city" type="text" placeholder="Ville ou CP..." onkeydown="if(event.key==='Enter')search()">
   <button class="btn-ghost" onclick="search()">🔍</button>
   <button class="btn-ghost" onclick="gps()">📍</button>
 </div>
@@ -283,684 +76,114 @@
 <div class="radius-row">
   <label>Rayon</label>
   <input type="range" id="radius" min="2" max="50" value="15" oninput="document.getElementById('radiusVal').textContent=this.value+'km'">
-  <span id="radiusVal">15km</span>
+  <span id="radiusVal" style="color:var(--orange); font-weight:bold">15km</span>
 </div>
 
 <div class="fuel-grid" id="fuelGrid">
-  <button class="fuel-btn active" data-fuel="all" onclick="setFuel('all',this)">Tous</button>
-  <button class="fuel-btn" data-fuel="sp95"   onclick="setFuel('sp95',this)">SP95</button>
-  <button class="fuel-btn" data-fuel="sp98"   onclick="setFuel('sp98',this)">SP98</button>
-  <button class="fuel-btn" data-fuel="e10"    onclick="setFuel('e10',this)">E10</button>
-  <button class="fuel-btn" data-fuel="gazole" onclick="setFuel('gazole',this)">Gazole</button>
-  <button class="fuel-btn" data-fuel="e85"    onclick="setFuel('e85',this)">E85</button>
-  <button class="fuel-btn" data-fuel="gplc"   onclick="setFuel('gplc',this)">GPLc</button>
-</div>
-
-<div class="action-grid">
-  <button class="btn-primary wide" onclick="bestDeal()">🔥 Meilleur prix</button>
-  <button class="btn-ghost" onclick="scanExpensive()">⚠️ Stations chères</button>
-  <button class="btn-ghost" onclick="renderList()">📋 Liste</button>
-  <button class="btn-ghost" onclick="renderStats()">📊 Stats</button>
-  <button class="btn-ghost" onclick="generateContent()">🎬 Script TikTok</button>
-  <button class="btn-ghost" onclick="autoTikTok()">🤖 Auto x4</button>
-  <button class="btn-ghost wide" onclick="generateVideo()">🎥 Prompt vidéo IA</button>
+  <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
+  <button class="fuel-btn" onclick="setFuel('gazole',this)">Gazole</button>
+  <button class="fuel-btn" onclick="setFuel('e10',this)">E10</button>
+  <button class="fuel-btn" onclick="setFuel('sp98',this)">SP98</button>
+  <button class="fuel-btn" onclick="setFuel('e85',this)">E85</button>
 </div>
 
 <div id="result"></div>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────────
-let userLat = null, userLon = null, userDep = '', stations = [], activeFuel = 'all', sortMode = 'dist';
+let userLat = null, userLon = null, userDep = '', stations = [], activeFuel = 'all';
 
-// ── Service Worker ────────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(reg => {
-    // Forcer la mise à jour immédiate du SW
-    reg.update();
-    if (reg.waiting) reg.waiting.postMessage('skipWaiting');
-    navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
-  }).catch(() => {});
-}
-
-// ── Offline banner ────────────────────────────────────────────────────────────
-window.addEventListener('offline', () => document.getElementById('offlineBanner').style.display = 'block');
-window.addEventListener('online',  () => document.getElementById('offlineBanner').style.display = 'none');
-
-// ── Fuel filter ───────────────────────────────────────────────────────────────
-function setFuel(fuel, btn) {
-  activeFuel = fuel;
-  document.querySelectorAll('.fuel-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// ── Haversine ─────────────────────────────────────────────────────────────────
-function haversine(a, b, c, d) {
-  const R = 6371, toR = x => x * Math.PI / 180;
-  const dLat = toR(c - a), dLon = toR(d - b);
-  const x = Math.sin(dLat/2)**2 + Math.cos(toR(a)) * Math.cos(toR(c)) * Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
-}
-
-function normalizeCoord(value, type = 'lat') {
-  const n = parseFloat(value);
-  if (!Number.isFinite(n)) return null;
-  const max = type === 'lon' ? 180 : 90;
-  return Math.abs(n) > max ? n / 100000 : n;
-}
-
-// ── Extract prices from a station record ─────────────────────────────────────
-// Format 2aaz (source principale) :
-//   Fuels: [{ shortName:"Gazole", Price:{ value:2.259 } }, { shortName:"SP95-E10", Price:{ value:1.979 } }]
-// Format gouv OpenDataSoft (fallback) :
-//   gazole_prix, prix_sp95, prix_e10... ou tableau prix:[{nom,valeur}]
-
-// Mapping shortName 2aaz → clé interne
-const FUEL_SHORTNAME = {
-  sp95:   ['sp95', 'sp95-e5', 'super sans plomb 95'],
-  sp98:   ['sp98', 'super sans plomb 98'],
-  e10:    ['e10', 'sp95-e10', 'super sans plomb 95 e10'],
-  gazole: ['gazole', 'diesel', 'b7'],
-  e85:    ['e85', 'superéthanol', 'superethanol', 'ed85'],
-  gplc:   ['gplc', 'gpl', 'lpg'],
-};
-
-// Mapping clés plates OpenDataSoft
-const FUEL_FLAT_KEYS = {
-  sp95:   ['sp95_prix', 'prix_sp95'],
-  sp98:   ['sp98_prix', 'prix_sp98'],
-  e10:    ['e10_prix',  'prix_e10'],
-  gazole: ['gazole_prix','prix_gazole'],
-  e85:    ['e85_prix',  'prix_e85'],
-  gplc:   ['gplc_prix', 'prix_gplc'],
-};
-
-function extractFuelPrice(s, fuel) {
-  // ── Format 2aaz : Fuels[]
-  if (Array.isArray(s.Fuels)) {
-    const targets = FUEL_SHORTNAME[fuel] || [];
-    for (const f of s.Fuels) {
-      if (!f.available) continue;
-      const sn = (f.shortName || f.name || '').toLowerCase();
-      if (targets.some(t => sn.includes(t))) {
-        const v = parseFloat(f.Price?.value ?? f.price ?? 0);
-        if (v > 0) return v;
-      }
-    }
-  }
-  // ── Format OpenDataSoft : champs plats
-  for (const key of FUEL_FLAT_KEYS[fuel] || []) {
-    const v = parseFloat(s[key]);
-    if (v > 0) return v;
-  }
-  // ── Format gouv tableau prix:[{nom,valeur}]
-  const prixArr = Array.isArray(s.prix) ? s.prix
-    : (typeof s.prix === 'string' ? (() => { try { return JSON.parse(s.prix); } catch { return []; } })() : []);
-  if (prixArr.length) {
-    const targets = FUEL_SHORTNAME[fuel] || [];
-    for (const entry of prixArr) {
-      const nom = (entry.nom || entry.name || entry['@nom'] || '').toLowerCase();
-      if (targets.some(t => nom.includes(t))) {
-        const v = parseFloat(entry.valeur || entry.prix || entry['@valeur'] || 0);
-        if (v > 0) return v;
-      }
-    }
-  }
-  return null;
-}
-
-function allPricesOfStation(s) {
-  const fuels = ['sp95','sp98','e10','gazole','e85','gplc'];
-  const result = {};
-  for (const f of fuels) {
-    const v = extractFuelPrice(s, f);
-    if (v) result[f] = v;
-  }
-  return result;
-}
-
-function minPriceOfStation(s) {
-  const p = Object.values(allPricesOfStation(s)).filter(v => v > 0);
-  return p.length ? Math.min(...p) : null;
-}
-
-function activePriceOfStation(s) {
-  if (activeFuel === 'all') return minPriceOfStation(s);
-  return extractFuelPrice(s, activeFuel);
-}
-
-// ── Geocode city ──────────────────────────────────────────────────────────────
-async function search() {
-  const q = document.getElementById("city").value.trim();
-  if (!q) return;
-  showLoader("Géolocalisation...");
-  try {
-    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
-    const d = await r.json();
-    if (!d.features || !d.features.length) { showError("Ville introuvable."); return; }
-    userLat = d.features[0].geometry.coordinates[1];
-    userLon = d.features[0].geometry.coordinates[0];
-    // Extraire le code département depuis le code postal
-    const cp = d.features[0].properties.postcode || '';
-    userDep = cp.startsWith('97') ? cp.substring(0,3) : cp.substring(0,2);
-    await load();
-  } catch(e) { showError("Erreur géolocalisation : " + e.message); }
-}
-
-// ── GPS ───────────────────────────────────────────────────────────────────────
-function gps() {
-  if (!navigator.geolocation) { showError("Géolocalisation non supportée."); return; }
-  showLoader("Position GPS...");
-  navigator.geolocation.getCurrentPosition(
-    async p => {
-      userLat = p.coords.latitude;
-      userLon = p.coords.longitude;
-      try {
-        const r = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${encodeURIComponent(userLon)}&lat=${encodeURIComponent(userLat)}&limit=1`);
-        const d = await r.json();
-        const cp = d?.features?.[0]?.properties?.postcode || '';
-        userDep = cp.startsWith('97') ? cp.substring(0,3) : cp.substring(0,2);
-      } catch {}
-      await load();
-    },
-    () => showError("Accès GPS refusé. Essaie de saisir ta ville manuellement.")
-  );
-}
-
-// ── Load data ─────────────────────────────────────────────────────────────────
-// ── Stratégie API : 2aaz EN PREMIER (fournit nom+enseigne+adresse+ville+prix)
-// 2aaz enrichit les données gouv avec nom/enseigne scrapés de prix-carburants.gouv.fr
-// L'API gouv seule ne contient PAS ces champs — uniquement prix et coordonnées.
-
-// Extrait le tableau brut de stations depuis la réponse JSON (format variable selon source)
-function extractRaw(d) {
-  if (Array.isArray(d)) return d;                 // 2aaz retourne un tableau direct
-  if (Array.isArray(d.results)) return d.results; // OpenDataSoft v2.1
-  if (Array.isArray(d.data))    return d.data;
-  return [];
-}
-
-// Parse les coordonnées GPS depuis tous les formats connus
-function parseCoords(s) {
-  // 2aaz réel : { Coordinates: { latitude, longitude } }
-  if (s.Coordinates?.latitude  != null) return [parseFloat(s.Coordinates.latitude),  parseFloat(s.Coordinates.longitude)];
-  // Variante ancienne 2aaz : Coordonnees
-  if (s.Coordonnees?.latitude  != null) return [parseFloat(s.Coordonnees.latitude),  parseFloat(s.Coordonnees.longitude)];
-  // OpenDataSoft gouv (minuscules)
-  if (s.latitude  != null) return [normalizeCoord(s.latitude,'lat'),  normalizeCoord(s.longitude,'lon')];
-  if (s.Latitude  != null) return [normalizeCoord(s.Latitude,'lat'),  normalizeCoord(s.Longitude,'lon')];
-  // GeoJSON geom
-  if (s.geom?.geometry?.coordinates) return [normalizeCoord(s.geom.geometry.coordinates[1],'lat'), normalizeCoord(s.geom.geometry.coordinates[0],'lon')];
-  return [null, null];
-}
-
-// Parse nom, enseigne, adresse, ville depuis tous les formats connus
-function parseStationMeta(s) {
-  // ── Format 2aaz réel (confirmé par debug) ──
-  // Brand: { name:"E.Leclerc" }  |  name:"CENTRE LECLERC"
-  // Address: { street_line:"Rue de la Bosserie", city_line:"45500 Gien" }
-  const enseigne = (s.Brand?.name || s.Enseigne || s.enseigne || s.brand || '').trim();
-  const nom      = (s.name  || s.Nom || s.nom || '').trim();
-  const adresse  = (s.Address?.street_line || s.Adresse || s.adresse || '').trim();
-  const cityLine = (s.Address?.city_line   || '').trim();
-  // city_line = "45500 Gien" → extraire juste la ville
-  const ville    = (s.Ville || s.ville || s.cp || cityLine.replace(/^\d{5}\s*/, '') || '').trim();
-  // Affichage principal : enseigne si dispo, sinon nom, sinon adresse
-  const displayNom = enseigne || nom || adresse || 'Station';
-  return { enseigne, nom: displayNom, _stationName: nom, adresse, ville };
-}
-
-const APIS = [
-  // 1. 2aaz autour du point GPS — NOM + ENSEIGNE + ADRESSE + prix en temps réel
-  (lat, lon, radius) => `https://api.prix-carburants.2aaz.fr/stations/around/${lat},${lon}/?m=${Math.min(radius*1000,50000)}&max=200`,
-  // 2. 2aaz par département (si GPS échoue ou rayon trop grand)
-  (lat, lon, radius, dep) => dep ? `https://api.prix-carburants.2aaz.fr/stations/?dep=${dep}&max=500` : null,
-  // 3. OpenDataSoft gouv par département (fallback — sans nom/enseigne)
-  (lat, lon, radius, dep) => {
-    const where = dep ? `startswith(cp, "${dep}")` : `gazole_prix is not null`;
-    return `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=${encodeURIComponent(where)}&limit=100`;
-  },
-];
-
-async function load() {
-  if (userLat === null) { showError("Saisis une ville ou active le GPS d'abord."); return; }
-  const radius = parseInt(document.getElementById('radius').value);
-  const dep = userDep || '';
-
-  let lastError = '';
-  for (let i = 0; i < APIS.length; i++) {
-    const url = APIS[i](userLat, userLon, radius, dep);
-    if (!url) continue;
-    showLoader(`Chargement... (source ${i+1}/${APIS.length})`);
-    try {
-      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      if (!r.ok) { lastError = `Source ${i+1}: HTTP ${r.status}`; continue; }
-      const d = await r.json();
-      let raw = extractRaw(d);
-
-      // Pagination OpenDataSoft (source 3)
-      if (i === 2 && d.total_count && raw.length < d.total_count) {
-        const total = Math.min(d.total_count, 1000);
-        for (let offset = raw.length; offset < total; offset += 100) {
-          const u2 = new URL(url); u2.searchParams.set('offset', offset);
-          const r2 = await fetch(u2.toString());
-          if (!r2.ok) break;
-          const rows2 = extractRaw(await r2.json());
-          if (!rows2.length) break;
-          raw = raw.concat(rows2);
-          if (rows2.length < 100) break;
-        }
-      }
-
-      if (raw.length === 0) { lastError = `Source ${i+1}: 0 résultats`; continue; }
-
-      stations = raw.map(s => {
-        const [lat, lon] = parseCoords(s);
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-        const dist = haversine(userLat, userLon, lat, lon);
-        if (dist > radius) return null;
-        const { enseigne, nom, _stationName, adresse, ville } = parseStationMeta(s);
-        return { ...s, nom, enseigne, _stationName, ville, adresse, _lat: lat, _lon: lon, dist };
-      }).filter(Boolean);
-
-      if (stations.length === 0) {
-        lastError = `Source ${i+1}: aucune station dans ${radius}km (${raw.length} reçues, dep=${dep||'?'})`;
-        continue;
-      }
-      renderList();
-      return;
-    } catch(e) {
-      lastError = `Source ${i+1}: ${e.message}`;
-    }
-  }
-  showError(`Échec toutes sources. Dernier: ${lastError}`);
-}
-
-// ── Station brand / logo helpers ──────────────────────────────────────────────
-const BRAND_STYLES = {
-  'total':        { bg: '#c8102e', color: '#fff' },
-  'totalenergies':{ bg: '#c8102e', color: '#fff' },
-  'bp':           { bg: '#007a33', color: '#fff' },
-  'shell':        { bg: '#fbce07', color: '#cc0000' },
-  'esso':         { bg: '#003087', color: '#ff0000' },
-  'leclerc':      { bg: '#003ca6', color: '#f7c300' },
-  'intermarche':  { bg: '#e30613', color: '#fff' },
-  'intermarché':  { bg: '#e30613', color: '#fff' },
-  'carrefour':    { bg: '#004a97', color: '#ee1c25' },
-  'auchan':       { bg: '#e10600', color: '#fff' },
-  'casino':       { bg: '#d00010', color: '#fff' },
-  'super u':      { bg: '#c00000', color: '#fff' },
-  'système u':    { bg: '#c00000', color: '#fff' },
-  'systeme u':    { bg: '#c00000', color: '#fff' },
-  'géant':        { bg: '#c00000', color: '#fff' },
-  'geant':        { bg: '#c00000', color: '#fff' },
-  'netto':        { bg: '#ffcc00', color: '#000' },
-  'dyneff':       { bg: '#f26522', color: '#fff' },
-  'avia':         { bg: '#005baa', color: '#fff' },
-  'api':          { bg: '#00529b', color: '#fff' },
-  'uno':          { bg: '#ff6600', color: '#fff' },
-  'petro':        { bg: '#ff6600', color: '#fff' },
-  'vito':         { bg: '#00a651', color: '#fff' },
-  'relais':       { bg: '#444', color: '#fff' },
-  'autoroute':    { bg: '#333', color: '#f0a500' },
-};
-
-function getStationBrand(s) {
-  return (s.enseigne || s.nom || '').trim();
-}
-
-function getStationDisplayName(s) {
-  const enseigne = (s.enseigne || '').trim(); // Ex: "E.Leclerc"
-  const nom      = (s.nom      || '').trim(); // Ex: "E.Leclerc" (après parseStationMeta, nom = enseigne si enseigne existe)
-  // s._nom_station = nom brut avant remplacement par enseigne
-  const stationName = (s._stationName || '').trim(); // Ex: "CENTRE LECLERC"
-  if (enseigne && stationName && enseigne.toLowerCase() !== stationName.toLowerCase()) {
-    return { primary: enseigne, secondary: stationName };
-  }
-  return { primary: nom || 'Station', secondary: '' };
-}
-
-// Map shortName 2aaz → URL logo (CDN fiable, format PNG/SVG carré)
+// --- CONFIG LOGOS LOCAUX ---
+const LOGO_PATH = './assets/logos/';
 const BRAND_LOGOS = {
-  'eleclerc':      'https://logo.clearbit.com/e.leclerc',
-  'totalenergies': 'https://logo.clearbit.com/totalenergies.fr',
-  'total':         'https://logo.clearbit.com/totalenergies.fr',
-  'bp':            'https://logo.clearbit.com/bp.com',
-  'shell':         'https://logo.clearbit.com/shell.fr',
-  'esso':          'https://logo.clearbit.com/esso.fr',
-  'carrefour':     'https://logo.clearbit.com/carrefour.fr',
-  'intermarche':   'https://logo.clearbit.com/intermarche.com',
-  'auchan':        'https://logo.clearbit.com/auchan.fr',
-  'systemeu':      'https://logo.clearbit.com/magasins-u.com',
-  'systemeu2':     'https://logo.clearbit.com/magasins-u.com',
-  'casino':        'https://logo.clearbit.com/casino.fr',
-  'avia':          'https://logo.clearbit.com/avia.fr',
-  'netto':         'https://logo.clearbit.com/netto.fr',
-  'g20':           'https://logo.clearbit.com/g20.fr',
-  'vito':          'https://logo.clearbit.com/vito.fr',
+  'total': 'total.png', 'totalenergies': 'total.png', 'leclerc': 'leclerc.png',
+  'carrefour': 'carrefour.png', 'intermarche': 'intermarche.png', 'systemeu': 'systemeu.png',
+  'auchan': 'auchan.png', 'esso': 'esso.png', 'bp': 'bp.png', 'shell': 'shell.png',
+  'casino': 'casino.png', 'netto': 'netto.png', 'avia': 'avia.png'
 };
 
-function getLogoUrl(s) {
-  // Utilise shortName de l'API 2aaz si dispo (le plus fiable)
-  const shortName = (s.Brand?.shortName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (BRAND_LOGOS[shortName]) return BRAND_LOGOS[shortName];
-  // Sinon matching sur enseigne
-  const brand = (s.enseigne || s.nom || '').toLowerCase();
-  for (const [key, url] of Object.entries(BRAND_LOGOS)) {
-    if (brand.includes(key.replace(/\d/g, ''))) return url;
-  }
-  return null;
-}
+const BRAND_STYLES = {
+  'total': {bg:'#c8102e', c:'#fff'}, 'leclerc': {bg:'#003ca6', c:'#f7c300'},
+  'carrefour': {bg:'#004a97', c:'#fff'}, 'intermarche': {bg:'#e30613', c:'#fff'}
+};
 
 function stationLogoBadge(s) {
-  const brand     = (s.enseigne || s.nom || '').toLowerCase();
-  const logoUrl   = getLogoUrl(s);
-  // Couleur de fond selon marque
+  const brandRaw = (s.enseigne || s.nom || '').toLowerCase();
+  let logoFile = null;
+  for (let key in BRAND_LOGOS) { if (brandRaw.includes(key)) { logoFile = BRAND_LOGOS[key]; break; } }
+
   let bg = '#1e2229', color = '#aaa';
-  for (const [key, style] of Object.entries(BRAND_STYLES)) {
-    if (brand.includes(key)) { bg = style.bg; color = style.color; break; }
-  }
-  // Initiales de fallback : jusqu'à 3 chars de l'enseigne
-  const raw   = (s.enseigne || s.nom || '⛽').trim();
-  const words = raw.split(/[\s.]+/).filter(Boolean);
-  const abbr  = words.length >= 2
-    ? (words[0][0] + words[1][0]).toUpperCase()        // "E.Leclerc" → "EL"
-    : raw.substring(0, 3).toUpperCase();               // "Auchan" → "AUC"
+  for (let key in BRAND_STYLES) { if (brandRaw.includes(key)) { bg = BRAND_STYLES[key].bg; color = BRAND_STYLES[key].c; break; } }
 
-  if (logoUrl) {
-    return `<div class="station-logo" style="background:#fff;padding:4px;overflow:hidden">
-      <img src="${logoUrl}" alt="${raw}"
-        style="width:100%;height:100%;object-fit:contain;border-radius:6px"
-        onerror="this.parentElement.style.background='${bg}';this.parentElement.innerHTML='<span style=\\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:.95rem;color:${color}\\'>${abbr}</span>'">
+  const abbr = brandRaw.substring(0,2).toUpperCase();
+
+  if (logoFile) {
+    return `<div class="station-logo" style="background:#fff;padding:4px">
+      <img src="${LOGO_PATH}${logoFile}" alt="logo" 
+           onerror="this.parentElement.style.background='${bg}'; this.parentElement.innerHTML='<span style=\\'color:${color};font-weight:900\\'>${abbr}</span>';">
     </div>`;
   }
-  return `<div class="station-logo" style="background:${bg};color:${color}">${abbr}</div>`;
+  return `<div class="station-logo" style="background:${bg};color:${color};font-weight:900">${abbr}</div>`;
 }
 
-// ── Render: Liste stations ─────────────────────────────────────────────────────
-function renderList() {
-  if (!requireStations()) return;
+// --- LOGIQUE API ---
+async function search() {
+  const q = document.getElementById("city").value;
+  const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
+  const d = await r.json();
+  if (d.features.length) {
+    userLat = d.features[0].geometry.coordinates[1];
+    userLon = d.features[0].geometry.coordinates[0];
+    userDep = d.features[0].properties.postcode.substring(0,2);
+    load();
+  }
+}
 
-  const allP = stations.flatMap(s => Object.values(allPricesOfStation(s)));
-  const mean = allP.length ? allP.reduce((a,b) => a+b, 0) / allP.length : 999;
+async function load() {
+  document.getElementById("result").innerHTML = '<div class="card"><span class="loader"></span> Recherche...</div>';
+  const radius = document.getElementById("radius").value;
+  const url = `https://api.prix-carburants.2aaz.fr/stations/around/${userLat},${userLon}/?m=${radius*1000}`;
+  const r = await fetch(url);
+  const data = await r.json();
+  stations = data.map(s => ({
+    ...s,
+    nom: s.Brand?.name || s.name || "Station",
+    enseigne: s.Brand?.name || "",
+    dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
+  })).sort((a,b) => a.dist - b.dist);
+  render();
+}
 
-  let sorted = [...stations];
-  if (sortMode === 'dist') sorted.sort((a,b) => a.dist - b.dist);
-  else if (sortMode === 'price') sorted.sort((a,b) => {
-    const pa = activePriceOfStation(a) || 999;
-    const pb = activePriceOfStation(b) || 999;
-    return pa - pb;
+function render() {
+  let html = `<div class="card"><div style="font-weight:bold;margin-bottom:10px">📍 ${stations.length} stations trouvées</div>`;
+  stations.forEach(s => {
+    html += `<div class="station-row">
+      ${stationLogoBadge(s)}
+      <div style="flex:1">
+        <div style="font-weight:bold">${s.nom} <span style="color:#666;font-size:0.8rem">· ${s.dist.toFixed(1)}km</span></div>
+        <div style="font-size:0.8rem;color:#555">${s.Address?.street_line || ''}</div>
+      </div>
+    </div>`;
   });
-  else sorted.sort((a,b) => (a.nom||'').localeCompare(b.nom||''));
-
-  sorted = sorted.slice(0, 20);
-
-  const sortBar = `
-    <div class="sort-row">
-      <span class="muted" style="line-height:26px">Tri :</span>
-      <button class="sort-btn ${sortMode==='dist'?'active':''}"   onclick="setSortMode('dist')">📍 Distance</button>
-      <button class="sort-btn ${sortMode==='price'?'active':''}"  onclick="setSortMode('price')">💰 Prix</button>
-      <button class="sort-btn ${sortMode==='name'?'active':''}"   onclick="setSortMode('name')">A→Z Nom</button>
-    </div>`;
-
-  const rows = sorted.map(s => {
-    const p = activePriceOfStation(s);
-    const allP2 = allPricesOfStation(s);
-    const isCheap = p !== null && p < mean - 0.05;
-    const isExp   = p !== null && p > mean + 0.10;
-    const mapsUrl = `https://maps.google.com/?q=${s._lat},${s._lon}`;
-    const { primary, secondary } = getStationDisplayName(s);
-
-    const chips = Object.entries(allP2).map(([f,v]) =>
-      `<span class="price-chip">${f.toUpperCase()} ${v.toFixed(3)}€</span>`
-    ).join('');
-
-    return `
-      <div class="station-row">
-        ${stationLogoBadge(s)}
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700">${primary} <span class="muted" style="font-weight:400">· ${s.dist.toFixed(1)} km</span></div>
-          ${secondary ? `<div style="font-size:.82rem;color:#666">${secondary}</div>` : ''}
-          <div class="muted">${s.adresse || ''} ${s.ville || ''}</div>
-          <div class="prices-mini">${chips}</div>
-          ${isCheap ? '<span class="tag">🔥 Bon plan</span>' : ''}
-          ${isExp   ? '<span class="tag tag-red">⚠️ Cher</span>' : ''}
-        </div>
-        <div style="text-align:right;margin-left:10px;flex-shrink:0">
-          <div style="font-weight:700;font-size:1.1rem;color:${p!==null?(isCheap?'var(--green)':(isExp?'var(--danger)':'#fff')):'#555'}">
-            ${p !== null ? p.toFixed(3)+'€' : '—'}
-          </div>
-          <a href="${mapsUrl}" target="_blank" style="text-decoration:none">
-            <button class="btn-ghost" style="padding:4px 10px;font-size:.75rem;margin-top:4px">🗺️</button>
-          </a>
-        </div>
-      </div>`;
-  }).join('');
-
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="big" style="margin-bottom:10px">📋 ${stations.length} stations · ${sorted.length} affichées</div>
-      ${sortBar}
-      ${rows}
-    </div>`;
+  html += '</div>';
+  document.getElementById("result").innerHTML = html;
 }
 
-function setSortMode(mode) {
-  sortMode = mode;
-  renderList();
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-// ── Render: Meilleur prix ─────────────────────────────────────────────────────
-function bestDeal() {
-  if (!requireStations()) return;
-  const { best, worst } = getBestWorst();
-  if (!best) { showError("Aucun prix disponible pour ce carburant."); return; }
-  const eco = ((worst.price - best.price) * 50).toFixed(2);
-  const mapsUrl = `https://maps.google.com/?q=${best.s._lat},${best.s._lon}`;
-
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="big orange">🔥 MEILLEUR PRIX</div>
-      <div style="margin:10px 0 4px;font-weight:600">${best.s.nom || best.s.enseigne || 'Station'}</div>
-      <div class="muted">${best.s.adresse || ''} — ${best.s.ville || ''}</div>
-      <div class="muted">${best.s.dist.toFixed(1)} km</div>
-      <div style="margin:14px 0"><span class="xl green">${best.price.toFixed(3)}€</span><span class="muted"> /L</span></div>
-      <div style="color:#aaa;font-size:.9rem">💸 Gain vs station la plus chère : <strong class="green">${eco}€</strong> sur un plein</div>
-      <div style="margin-top:14px">
-        <a href="${mapsUrl}" target="_blank" style="text-decoration:none">
-          <button class="btn-primary" style="width:100%">🗺️ Y aller sur Maps</button>
-        </a>
-      </div>
-    </div>`;
+function setFuel(f, btn) {
+  activeFuel = f;
+  document.querySelectorAll('.fuel-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
 }
 
-// ── Render: Stations chères ───────────────────────────────────────────────────
-function scanExpensive() {
-  if (!requireStations()) return;
-  const allP = stations.flatMap(s => Object.values(allPricesOfStation(s)));
-  if (!allP.length) { showError("Aucun prix disponible."); return; }
-  const mean = allP.reduce((a,b) => a+b, 0) / allP.length;
-  const bad = stations
-    .filter(s => { const p = activePriceOfStation(s); return p !== null && p > mean + 0.10; })
-    .sort((a,b) => (activePriceOfStation(b)||0) - (activePriceOfStation(a)||0));
-
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="big red">⚠️ ${bad.length} stations au-dessus de la moyenne</div>
-      <div class="muted" style="margin:6px 0 14px">Prix moyen local : ${mean.toFixed(3)}€/L · seuil +0.10€</div>
-      ${bad.map(s => `
-        <div class="station-row">
-          <div>
-            <div style="font-weight:600">${s.nom || 'Station'}</div>
-            <div class="muted">${s.dist.toFixed(1)} km — ${s.ville || ''}</div>
-          </div>
-          <span class="red" style="font-weight:700">${(activePriceOfStation(s)||0).toFixed(3)}€</span>
-        </div>`).join('')}
-    </div>`;
-}
-
-// ── Render: Stats ─────────────────────────────────────────────────────────────
-function renderStats() {
-  if (!requireStations()) return;
-  const { best, worst } = getBestWorst();
-  if (!best) { showError("Aucun prix disponible."); return; }
-  const allP = stations.flatMap(s => Object.values(allPricesOfStation(s)));
-  const mean = (allP.reduce((a,b) => a+b, 0) / allP.length);
-  const median = [...allP].sort((a,b)=>a-b)[Math.floor(allP.length/2)];
-  const diff = worst.price - best.price;
-
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="big" style="margin-bottom:4px">📊 Statistiques locales</div>
-      <div class="muted" style="margin-bottom:10px">${stations.length} stations · ${allP.length} prix relevés</div>
-      <div class="stat-grid">
-        <div class="stat-box"><div class="val green">${best.price.toFixed(3)}€</div><div class="lbl">🔥 Prix le + bas</div></div>
-        <div class="stat-box"><div class="val red">${worst.price.toFixed(3)}€</div><div class="lbl">💸 Prix le + haut</div></div>
-        <div class="stat-box"><div class="val orange">${mean.toFixed(3)}€</div><div class="lbl">📈 Moyenne</div></div>
-        <div class="stat-box"><div class="val" style="color:#aaa">${median.toFixed(3)}€</div><div class="lbl">⚖️ Médiane</div></div>
-      </div>
-      <div style="margin-top:14px;color:#aaa;font-size:.9rem">
-        💡 Écart max : <strong style="color:var(--orange)">${diff.toFixed(3)}€/L</strong> —
-        soit <strong style="color:var(--green)">${(diff*50).toFixed(2)}€</strong> sur un plein de 50L
-      </div>
-    </div>`;
-}
-
-// ── TikTok simple ─────────────────────────────────────────────────────────────
-function generateContent() {
-  if (!requireStations()) return;
-  const { best, worst } = getBestWorst();
-  if (!best) { showError("Aucun prix disponible."); return; }
-  const diff = (worst.price - best.price).toFixed(2);
-  const gain = (diff * 50).toFixed(2);
-  const script = `🚨 TU PAYES TON ESSENCE TROP CHER
-
-Station chère :   ${worst.price.toFixed(3)}€/L
-Station pas chère : ${best.price.toFixed(3)}€/L
-
-💸 Différence : ${diff}€/L
-🔥 Gain sur un plein : ${gain}€
-
-👉 Va ici maintenant : ${best.s.ville}
-📍 ${best.s.nom || 'Station'}
-
-#carburant #essence #bonplan #économies`;
-  renderTextArea("🎬 SCRIPT TIKTOK", script);
-}
-
-// ── Auto TikTok x4 ────────────────────────────────────────────────────────────
-function autoTikTok() {
-  if (!requireStations()) return;
-  const { best, worst } = getBestWorst();
-  if (!best) { showError("Aucun prix disponible."); return; }
-  const diff = (worst.price - best.price).toFixed(2);
-  const gain = (diff * 50).toFixed(2);
-
-  const hooks = [
-    "🚨 Tu te fais arnaquer à la pompe",
-    "💸 Arrête de payer trop cher ton essence",
-    "😳 Cette station abuse clairement",
-    "🔥 J'ai trouvé le meilleur prix autour de moi"
-  ];
-  const scripts = hooks.map(h =>
-    `${h}\n\n⛽ ${worst.price.toFixed(3)}€ vs ${best.price.toFixed(3)}€\n💸 Gain : ${gain}€ sur un plein\n📍 ${best.s.ville}\n👉 Go maintenant`
-  );
-  const combined = scripts.join("\n\n---\n\n");
-
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="big" style="margin-bottom:12px">🤖 AUTO TIKTOK x${scripts.length}</div>
-      ${scripts.map((s, i) => `
-        <div style="margin-bottom:14px">
-          <div class="muted" style="margin-bottom:4px">Version ${i + 1}</div>
-          <textarea rows="5">${s}</textarea>
-        </div>`).join('')}
-      <button class="btn-primary" style="width:100%" onclick='copyText(${JSON.stringify(combined)}, this)'>📋 Tout copier</button>
-    </div>`;
-}
-
-// ── Prompt vidéo IA ───────────────────────────────────────────────────────────
-function generateVideo() {
-  if (!requireStations()) return;
-  const { best, worst } = getBestWorst();
-  if (!best) { showError("Aucun prix disponible."); return; }
-  const diff = (worst.price - best.price).toFixed(2);
-  const gain = (diff * 50).toFixed(2);
-
-  const prompt = `Vertical video 9:16, realistic scene at a gas station, dramatic cinematic lighting.
-
-Scene 1 (2s): Close-up of a shocked person staring at a fuel price display showing ${worst.price.toFixed(3)}€/L. Text overlay: "🚨 STOP PAYING TOO MUCH"
-
-Scene 2 (2s): Quick cut transition to a cheaper station at ${best.price.toFixed(3)}€/L. Text overlay: "SAVE ${gain}€ PER TANK — ${diff}€/L DIFFERENCE"
-
-Scene 3 (2s): Animated map zoom into ${best.s.ville}. Final text: "GO NOW — BEST PRICE NEARBY: ${best.s.nom || 'Station'}"
-
-Style: Viral TikTok energy, fast cuts, bold subtitles, high contrast, cinematic color grade. Music: urgent suspenseful loop.`;
-
-  renderTextArea("🎥 PROMPT VIDÉO IA", prompt);
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function getBestWorst() {
-  let best = null, worst = null;
-  for (const s of stations) {
-    const p = activePriceOfStation(s);
-    if (p === null) continue;
-    if (!best || p < best.price) best = { s, price: p };
-    if (!worst || p > worst.price) worst = { s, price: p };
-  }
-  return { best, worst };
-}
-
-function renderTextArea(title, text) {
-  document.getElementById("result").innerHTML = `
-    <div class="card">
-      <div class="big" style="margin-bottom:8px">${title}</div>
-      <textarea rows="10">${text}</textarea>
-      <div style="margin-top:12px">
-        <button class="btn-primary" style="width:100%" onclick='copyText(${JSON.stringify(text)}, this)'>📋 Copier</button>
-      </div>
-    </div>`;
-}
-
-function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
-    const targetBtn = btn || event?.target;
-    if (!targetBtn) return;
-    const orig = targetBtn.textContent;
-    targetBtn.textContent = "✅ Copié !";
-    setTimeout(() => targetBtn.textContent = orig, 1800);
-  });
-}
-
-function forceUpdate() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      regs.forEach(r => r.unregister());
-    });
-  }
-  caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
-    location.reload(true);
-  });
-}
-
-function showLoader(msg) {
-  document.getElementById("result").innerHTML =
-    `<div class="card" style="color:#666"><span class="loader"></span>${msg}</div>`;
-}
-
-function showError(msg) {
-  document.getElementById("result").innerHTML =
-    `<div class="card red">❌ ${msg}</div>`;
-}
-
-function requireStations() {
-  if (!stations.length) {
-    showError("Lance d'abord une recherche par ville ou GPS 📍");
-    return false;
-  }
-  return true;
-}
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
