@@ -12,96 +12,44 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
 
-    /* Design System */
     :root {
       --bg-primary: #0a0f1a;
       --bg-secondary: #11161f;
-      --bg-tertiary: #151c27;
       --bg-card: #0d121c;
-      --bg-card-hover: #121826;
       --border-subtle: #1e2532;
       --border-medium: #2a3342;
-      
       --accent-primary: #f59e0b;
-      --accent-secondary: #dc2626;
       --accent-success: #10b981;
+      --accent-danger: #ef4444;
       --accent-warning: #f59e0b;
       --accent-info: #3b82f6;
-      --accent-danger: #ef4444;
-      
       --text-primary: #f1f5f9;
       --text-secondary: #94a3b8;
       --text-tertiary: #64748b;
-      --text-muted: #475569;
-      
       --gradient-hero: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
-      --gradient-card: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, rgba(220, 38, 38, 0.03) 100%);
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-      --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.2);
-      
-      --radius-sm: 8px;
+      --shadow-glow: 0 0 20px rgba(245,158,11,0.2);
       --radius-md: 12px;
       --radius-lg: 16px;
       --radius-xl: 20px;
       --radius-full: 9999px;
-      
-      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
       --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: var(--bg-primary);
       color: var(--text-primary);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
       padding: 20px 16px 100px;
       line-height: 1.5;
-      font-weight: 400;
     }
 
-    /* Container avec max-width élégant */
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-    }
+    .container { max-width: 640px; margin: 0 auto; }
 
-    /* Header moderne */
-    .hero {
-      margin-bottom: 28px;
-      text-align: center;
-      position: relative;
-    }
-    
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 80px;
-      background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
-      filter: blur(20px);
-      pointer-events: none;
-    }
-    
-    .hero-icon {
-      font-size: 3.5rem;
-      margin-bottom: 8px;
-      display: inline-block;
-      filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.3));
-    }
-    
+    /* Header */
+    .hero { text-align: center; margin-bottom: 28px; }
+    .hero-icon { font-size: 3.5rem; margin-bottom: 8px; }
     h1 {
       font-size: 2.5rem;
       font-weight: 800;
@@ -109,55 +57,29 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
     }
-    
-    .subtitle {
-      color: var(--text-tertiary);
-      font-size: 0.85rem;
-      font-weight: 400;
-    }
+    .subtitle { color: var(--text-tertiary); font-size: 0.85rem; }
 
-    /* Cartes de recherche */
-    .search-card {
+    /* Cartes */
+    .search-card, .station-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
       padding: 20px;
       margin-bottom: 20px;
-      backdrop-filter: blur(10px);
       transition: var(--transition-base);
     }
-    
-    .search-card:hover {
+    .station-card:hover {
       border-color: var(--border-medium);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
     }
-    
-    /* Champ de recherche */
-    .search-group {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    
-    .input-wrapper {
-      flex: 1;
-      position: relative;
-    }
-    
-    .input-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.1rem;
-      pointer-events: none;
-      color: var(--text-tertiary);
-    }
-    
-    input[type="text"] {
+
+    /* Recherche */
+    .search-group { display: flex; gap: 12px; margin-bottom: 20px; }
+    .input-wrapper { flex: 1; position: relative; }
+    .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); }
+    input {
       width: 100%;
       padding: 14px 16px 14px 44px;
       background: var(--bg-secondary);
@@ -165,76 +87,30 @@
       border-radius: var(--radius-lg);
       color: var(--text-primary);
       font-size: 0.95rem;
-      font-family: 'Inter', sans-serif;
-      transition: var(--transition-fast);
       outline: none;
     }
-    
-    input[type="text"]:focus {
-      border-color: var(--accent-primary);
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-    }
-    
-    input[type="text"]::placeholder {
-      color: var(--text-muted);
-    }
-    
-    /* Boutons icon */
+    input:focus { border-color: var(--accent-primary); }
+
     .icon-btn {
       width: 52px;
       height: 52px;
       border-radius: var(--radius-lg);
       border: 1.5px solid var(--border-subtle);
       background: var(--bg-secondary);
-      color: var(--text-secondary);
-      font-size: 1.2rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-fast);
+      font-size: 1.2rem;
     }
-    
-    .icon-btn:hover {
-      border-color: var(--accent-primary);
-      color: var(--accent-primary);
-      transform: translateY(-1px);
-    }
-    
-    .icon-btn:active {
-      transform: translateY(0);
-    }
-    
-    /* Slider rayon */
-    .radius-section {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    
-    .radius-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-    
-    .radius-label span:first-child {
-      color: var(--accent-primary);
-    }
-    
+    .icon-btn:hover { border-color: var(--accent-primary); }
+
+    /* Slider */
+    .radius-section { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     input[type="range"] {
       flex: 1;
       height: 4px;
       -webkit-appearance: none;
       background: var(--border-subtle);
       border-radius: var(--radius-full);
-      outline: none;
     }
-    
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 18px;
@@ -242,243 +118,76 @@
       background: var(--accent-primary);
       border-radius: var(--radius-full);
       cursor: pointer;
-      box-shadow: var(--shadow-glow);
-      transition: var(--transition-fast);
     }
-    
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-    }
-    
     .radius-value {
       background: var(--bg-secondary);
       padding: 6px 12px;
       border-radius: var(--radius-full);
-      font-size: 0.85rem;
       font-weight: 600;
       color: var(--accent-primary);
-      min-width: 60px;
-      text-align: center;
-      border: 1px solid var(--border-subtle);
     }
-    
-    /* Filtres carburants */
-    .filters-section {
-      margin-bottom: 20px;
-    }
-    
-    .section-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
-      color: var(--text-tertiary);
-      margin-bottom: 12px;
-    }
-    
-    .fuel-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    
+
+    /* Filtres */
+    .fuel-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .fuel-btn {
       padding: 8px 18px;
       border-radius: var(--radius-full);
       border: 1.5px solid var(--border-subtle);
       background: var(--bg-secondary);
       color: var(--text-secondary);
-      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--transition-fast);
-      font-family: 'Inter', sans-serif;
     }
-    
-    .fuel-btn:hover {
-      border-color: var(--accent-primary);
-      color: var(--accent-primary);
-      transform: translateY(-1px);
-    }
-    
     .fuel-btn.active {
       background: var(--gradient-hero);
       border-color: transparent;
       color: white;
-      box-shadow: var(--shadow-glow);
     }
-    
+
     /* Tri */
     .sort-section {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       margin-bottom: 20px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border-subtle);
     }
-    
-    .sort-group {
-      display: flex;
-      gap: 8px;
-    }
-    
+    .sort-group { display: flex; gap: 8px; }
     .sort-btn {
       padding: 6px 16px;
       border-radius: var(--radius-full);
       border: 1px solid var(--border-subtle);
       background: transparent;
       color: var(--text-secondary);
-      font-size: 0.8rem;
-      font-weight: 500;
       cursor: pointer;
-      transition: var(--transition-fast);
     }
-    
-    .sort-btn.active {
-      border-color: var(--accent-primary);
-      color: var(--accent-primary);
-      background: rgba(245, 158, 11, 0.1);
-    }
-    
-    .sort-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    
+    .sort-btn.active { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(245,158,11,0.1); }
+    .sort-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
     /* Live bar */
     .live-bar {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(220, 38, 38, 0.08) 100%);
+      background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(220,38,38,0.08));
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 12px 16px;
       margin-bottom: 20px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      backdrop-filter: blur(8px);
-    }
-    
-    .live-left {
-      display: flex;
       align-items: center;
-      gap: 12px;
     }
-    
+    .live-left { display: flex; align-items: center; gap: 12px; }
     .live-dot {
       width: 8px;
       height: 8px;
       border-radius: var(--radius-full);
-      background: var(--accent-success);
-      box-shadow: 0 0 8px var(--accent-success);
-      animation: pulse 2s ease-in-out infinite;
+      background: #10b981;
+      animation: pulse 2s infinite;
     }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
-    
-    .live-dot.stale {
-      background: var(--accent-warning);
-      box-shadow: 0 0 8px var(--accent-warning);
-      animation: none;
-    }
-    
-    .live-countdown {
-      font-family: 'Inter', monospace;
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--accent-primary);
-    }
-    
-    .live-ts {
-      font-size: 0.7rem;
-      color: var(--text-tertiary);
-    }
-    
-    .refresh-btn {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 6px 14px;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: var(--transition-fast);
-    }
-    
-    .refresh-btn:hover {
-      border-color: var(--accent-primary);
-      color: var(--accent-primary);
-    }
-    
+    @keyframes pulse { 50% { opacity: 0.5; transform: scale(0.8); } }
+    .live-countdown { font-weight: 700; color: var(--accent-primary); }
+
     /* Cartes stations */
-    .results-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 16px;
-      padding: 0 4px;
-    }
-    
-    .results-count {
-      font-size: 0.85rem;
-      color: var(--text-tertiary);
-    }
-    
-    .results-badge {
-      background: var(--bg-secondary);
-      padding: 4px 12px;
-      border-radius: var(--radius-full);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--accent-primary);
-      border: 1px solid var(--border-subtle);
-    }
-    
-    .station-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      padding: 18px;
-      margin-bottom: 12px;
-      transition: var(--transition-base);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .station-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--gradient-hero);
-      opacity: 0;
-      transition: var(--transition-fast);
-    }
-    
-    .station-card:hover {
-      border-color: var(--border-medium);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .station-card:hover::before {
-      opacity: 1;
-    }
-    
-    .station-header {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-    
+    .station-header { display: flex; gap: 14px; margin-bottom: 16px; }
     .station-logo {
       width: 52px;
       height: 52px;
@@ -487,135 +196,125 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 1px solid var(--border-subtle);
     }
-    
-    .station-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 8px;
-    }
-    
-    .logo-abbr {
-      width: 52px;
-      height: 52px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.1rem;
-      text-transform: uppercase;
-    }
-    
-    .station-info {
-      flex: 1;
-    }
-    
-    .station-name {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 4px;
-      letter-spacing: -0.2px;
-    }
-    
-    .station-address {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
+    .station-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+    .station-address { font-size: 0.75rem; color: var(--text-tertiary); }
     .station-distance {
       font-size: 0.7rem;
       color: var(--accent-info);
+      background: rgba(59,130,246,0.1);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+
+    /* Prix - VERSION AMÉLIORÉE AVEC INDICATEURS VISUELS */
+    .fuel-prices { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .price-item {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      position: relative;
+      transition: var(--transition-base);
+    }
+    .price-item:hover { transform: translateX(4px); }
+    
+    .price-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .price-fuel-name {
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .price-rank {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .price-main {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .price-amount {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+    .price-amount.cheap { color: var(--accent-success); }
+    .price-amount.expensive { color: var(--accent-danger); }
+    
+    .price-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      background: rgba(59, 130, 246, 0.1);
-      padding: 2px 8px;
+      padding: 4px 10px;
       border-radius: var(--radius-full);
-    }
-    
-    .fuel-prices {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    
-    .price-pill {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 8px 12px;
-      min-width: 85px;
-      text-align: center;
-      transition: var(--transition-fast);
-    }
-    
-    .price-pill.best {
-      border-color: var(--accent-success);
-      background: rgba(16, 185, 129, 0.08);
-    }
-    
-    .price-fuel-name {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-tertiary);
     }
-    
-    .price-amount {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1.2;
-    }
-    
-    .price-amount.cheap {
+    .badge-best {
+      background: rgba(16,185,129,0.2);
       color: var(--accent-success);
+      border: 1px solid var(--accent-success);
     }
-    
-    .price-amount.expensive {
+    .badge-worst {
+      background: rgba(239,68,68,0.2);
       color: var(--accent-danger);
+      border: 1px solid var(--accent-danger);
     }
+    .badge-trend-up { color: var(--accent-danger); }
+    .badge-trend-down { color: var(--accent-success); }
     
-    .price-updated {
-      font-size: 0.6rem;
-      color: var(--text-tertiary);
+    /* Barre de progression */
+    .price-bar-container {
+      width: 100%;
+      height: 6px;
+      background: var(--border-subtle);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin: 8px 0;
     }
+    .price-bar {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.5s ease;
+    }
+    .price-bar.cheap { background: linear-gradient(90deg, var(--accent-success), #34d399); }
+    .price-bar.expensive { background: linear-gradient(90deg, var(--accent-danger), #f87171); }
+    .price-bar.mid { background: linear-gradient(90deg, var(--accent-warning), #fbbf24); }
     
+    .price-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.7rem;
+    }
+    .price-updated { color: var(--text-tertiary); }
     .price-updated.fresh { color: var(--accent-success); }
     .price-updated.recent { color: var(--accent-warning); }
     .price-updated.old { color: var(--accent-danger); }
+    .price-indicator { font-size: 0.9rem; }
     
-    .station-footer {
-      display: flex;
-      justify-content: flex-end;
-    }
-    
+    .station-footer { display: flex; justify-content: flex-end; }
     .maps-link {
-      font-size: 0.75rem;
       color: var(--accent-info);
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      font-size: 0.75rem;
       padding: 6px 12px;
       border-radius: var(--radius-md);
-      transition: var(--transition-fast);
-    }
-    
-    .maps-link:hover {
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--accent-info);
     }
     
     /* États */
@@ -626,26 +325,6 @@
       padding: 48px 24px;
       text-align: center;
     }
-    
-    .state-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
-      opacity: 0.7;
-    }
-    
-    .state-card p {
-      color: var(--text-tertiary);
-      font-size: 0.9rem;
-    }
-    
-    .state-card.error {
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-    
-    .state-card.error p {
-      color: var(--accent-danger);
-    }
-    
     .loader {
       display: inline-block;
       width: 20px;
@@ -655,105 +334,52 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       margin-right: 10px;
-      vertical-align: middle;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
     
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    /* Animations flash prix */
-    @keyframes flash-up {
-      0% { background: rgba(16, 185, 129, 0.3); transform: scale(1); }
-      100% { background: transparent; transform: scale(1); }
-    }
-    
-    @keyframes flash-down {
-      0% { background: rgba(239, 68, 68, 0.3); transform: scale(1); }
-      100% { background: transparent; transform: scale(1); }
-    }
-    
-    .price-flash-up {
-      animation: flash-up 0.6s ease-out;
-    }
-    
-    .price-flash-down {
-      animation: flash-down 0.6s ease-out;
-    }
-    
-    /* Responsive */
-    @media (max-width: 480px) {
-      body {
-        padding: 16px 12px 80px;
-      }
-      
-      h1 {
-        font-size: 2rem;
-      }
-      
-      .fuel-btn {
-        padding: 6px 14px;
-        font-size: 0.75rem;
-      }
-      
-      .price-pill {
-        min-width: 75px;
-        padding: 6px 10px;
-      }
-      
-      .price-amount {
-        font-size: 0.95rem;
-      }
-    }
+    /* Animations flash */
+    @keyframes flash-up { 0% { background: rgba(16,185,129,0.3); } 100% { background: transparent; } }
+    @keyframes flash-down { 0% { background: rgba(239,68,68,0.3); } 100% { background: transparent; } }
+    .price-flash-up { animation: flash-up 0.6s ease-out; }
+    .price-flash-down { animation: flash-down 0.6s ease-out; }
   </style>
 </head>
 <body>
 <div class="container">
-  <!-- Hero section -->
   <div class="hero">
     <div class="hero-icon">⛽</div>
     <h1>CarbuFuel</h1>
-    <p class="subtitle">Prix carburants en temps réel · France métropolitaine</p>
+    <p class="subtitle">Prix carburants en temps réel · France</p>
   </div>
   
-  <!-- Recherche -->
   <div class="search-card">
     <div class="search-group">
       <div class="input-wrapper">
         <span class="input-icon">📍</span>
-        <input type="text" id="city" placeholder="Ville, code postal ou adresse" autocomplete="off">
+        <input type="text" id="city" placeholder="Ville, code postal ou adresse">
       </div>
-      <button class="icon-btn" id="searchBtn" onclick="searchCity()" title="Rechercher">🔍</button>
-      <button class="icon-btn" id="gpsBtn" onclick="gps()" title="Me localiser">📍</button>
+      <button class="icon-btn" id="searchBtn" onclick="searchCity()">🔍</button>
+      <button class="icon-btn" id="gpsBtn" onclick="gps()">📍</button>
     </div>
-    
     <div class="radius-section">
-      <div class="radius-label">
-        <span>⭕</span>
-        <span>Rayon d'action</span>
-      </div>
+      <span>⭕ Rayon</span>
       <input type="range" id="radius" min="2" max="50" value="15" oninput="updateRadius(this.value)">
       <div class="radius-value" id="radiusVal">15 km</div>
     </div>
   </div>
   
-  <!-- Filtres carburants -->
-  <div class="filters-section">
-    <div class="section-title">⛽ Type de carburant</div>
-    <div class="fuel-grid">
-      <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
-      <button class="fuel-btn" onclick="setFuel('Gazole',this)">Gazole</button>
-      <button class="fuel-btn" onclick="setFuel('SP95',this)">SP95</button>
-      <button class="fuel-btn" onclick="setFuel('E10',this)">E10</button>
-      <button class="fuel-btn" onclick="setFuel('SP98',this)">SP98</button>
-      <button class="fuel-btn" onclick="setFuel('E85',this)">E85</button>
-      <button class="fuel-btn" onclick="setFuel('GPLc',this)">GPL</button>
-    </div>
+  <div class="fuel-grid">
+    <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
+    <button class="fuel-btn" onclick="setFuel('Gazole',this)">Gazole</button>
+    <button class="fuel-btn" onclick="setFuel('SP95',this)">SP95</button>
+    <button class="fuel-btn" onclick="setFuel('E10',this)">E10</button>
+    <button class="fuel-btn" onclick="setFuel('SP98',this)">SP98</button>
+    <button class="fuel-btn" onclick="setFuel('E85',this)">E85</button>
+    <button class="fuel-btn" onclick="setFuel('GPLc',this)">GPL</button>
   </div>
   
-  <!-- Tri et live bar -->
   <div class="sort-section">
-    <div class="section-title">📊 Trier par</div>
+    <span class="section-title">📊 Trier par</span>
     <div class="sort-group">
       <button class="sort-btn active" id="sortDist" onclick="setSort('dist')">Distance</button>
       <button class="sort-btn" id="sortPrice" onclick="setSort('price')" disabled>Prix</button>
@@ -763,44 +389,37 @@
   <div class="live-bar" id="liveBar" style="display: none;">
     <div class="live-left">
       <div class="live-dot" id="liveDot"></div>
-      <span>Refresh dans <span id="liveCountdown" class="live-countdown">15:00</span></span>
-      <span class="live-ts" id="liveTs"></span>
+      <span>Refresh <span id="liveCountdown" class="live-countdown">15:00</span></span>
+      <span id="liveTs" style="font-size:0.7rem"></span>
     </div>
-    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
-      🔄 Rafraîchir
-    </button>
+    <button class="refresh-btn" onclick="manualRefresh()" style="background:transparent;border:1px solid var(--border-subtle);padding:6px 12px;border-radius:8px;cursor:pointer">🔄</button>
   </div>
   
-  <!-- Résultats -->
   <div id="result">
-    <div class="state-card">
-      <div class="state-icon">⛽</div>
-      <p>Recherchez une ville, un code postal<br>ou activez la géolocalisation</p>
-    </div>
+    <div class="state-card"><div class="state-icon">⛽</div><p>Recherchez une ville ou activez la géolocalisation</p></div>
   </div>
 </div>
 
 <script>
 'use strict';
 
-// État global
 let userLat = null, userLon = null;
 let stations = [];
 let prevPrices = {};
 let activeFuel = 'all';
 let sortMode = 'dist';
 let isLoading = false;
-let REFRESH_INTERVAL = 15 * 60;
 let refreshTimer = null;
-let countdownLeft = REFRESH_INTERVAL;
+let countdownLeft = 900;
+const REFRESH_INTERVAL = 900;
 
 const BRAND_MAP = {
   'total': {bg: '#c8102e', c: '#fff', domain: 'totalenergies.fr'},
   'leclerc': {bg: '#003ca6', c: '#f7c300', domain: 'e.leclerc'},
   'carrefour': {bg: '#004a97', c: '#fff', domain: 'carrefour.fr'},
   'intermarche': {bg: '#e30613', c: '#fff', domain: 'intermarche.com'},
-  'systeme u': {bg: '#c00000', c: '#fff', domain: 'magasins-u.com'},
   'auchan': {bg: '#e10600', c: '#fff', domain: 'auchan.fr'},
+  'systeme u': {bg: '#c00000', c: '#fff', domain: 'magasins-u.com'},
   'esso': {bg: '#003087', c: '#fff', domain: 'esso.fr'},
   'shell': {bg: '#fbce07', c: '#cc0000', domain: 'shell.fr'}
 };
@@ -809,8 +428,6 @@ function getPrice(f) {
   if (!f) return null;
   if (f.Price?.amount != null) return {amount: +f.Price.amount, updatedAt: f.Price.last_update};
   if (f.price?.amount != null) return {amount: +f.price.amount, updatedAt: f.price.last_update};
-  if (f.Price?.value != null) return {amount: +f.Price.value, updatedAt: f.Price.last_update};
-  if (typeof f.Price === 'number') return {amount: f.Price, updatedAt: null};
   return null;
 }
 
@@ -841,38 +458,23 @@ async function searchCity() {
   try {
     const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
     const d = await r.json();
-    if (!d.features?.length) throw new Error('Non trouvé');
+    if (!d.features?.length) throw new Error();
     userLat = d.features[0].geometry.coordinates[1];
     userLon = d.features[0].geometry.coordinates[0];
-    await load();
+    load();
   } catch(e) {
-    showState('❌', 'Ville ou code postal non trouvé', true);
+    showState('❌', 'Ville non trouvée', true);
   }
 }
 
 function gps() {
-  if (!navigator.geolocation) {
-    showState('📱', 'Géolocalisation non disponible', true);
-    return;
-  }
+  if (!navigator.geolocation) { showState('📱', 'GPS non disponible', true); return; }
   const btn = document.getElementById('gpsBtn');
   btn.textContent = '⏳';
-  btn.disabled = true;
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      userLat = pos.coords.latitude;
-      userLon = pos.coords.longitude;
-      btn.textContent = '📍';
-      btn.disabled = false;
-      load();
-    },
-    err => {
-      btn.textContent = '📍';
-      btn.disabled = false;
-      const msgs = {1: 'Permission refusée', 2: 'Position indisponible', 3: 'Délai dépassé'};
-      showState('⚠️', msgs[err.code] || 'Erreur GPS', true);
-    },
-    {timeout: 10000}
+    pos => { userLat = pos.coords.latitude; userLon = pos.coords.longitude; btn.textContent = '📍'; load(); },
+    () => { btn.textContent = '📍'; showState('⚠️', 'Erreur GPS', true); },
+    { timeout: 10000 }
   );
 }
 
@@ -885,8 +487,7 @@ async function load() {
   
   try {
     const aroundUrl = `https://api.prix-carburants.2aaz.fr/stations/around/${userLat},${userLon}/?m=${radiusM}`;
-    const r1 = await fetch(aroundUrl);
-    const list = await r1.json();
+    const list = await (await fetch(aroundUrl)).json();
     if (!list.length) throw new Error('Aucune station');
     
     const slice = list.slice(0, 20);
@@ -894,26 +495,22 @@ async function load() {
       fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`).then(r => r.ok ? r.json() : null).catch(() => null)
     ));
     
-    stations = slice.map((s, i) => {
-      const det = details[i];
-      const brandName = s.Brand?.name || s.name || 'Station';
-      return {
-        id: s.id,
-        nom: brandName,
-        brand: brandName.toLowerCase(),
-        lat: s.Coordinates.latitude,
-        lon: s.Coordinates.longitude,
-        address: s.Address?.street_line || '',
-        city: s.Address?.city_line || '',
-        fuels: normalizeFuels(det?.Fuels || []),
-        dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
-      };
-    }).filter(s => s.fuels.length > 0);
+    stations = slice.map((s, i) => ({
+      id: s.id,
+      nom: s.Brand?.name || s.name || 'Station',
+      brand: (s.Brand?.name || s.name || '').toLowerCase(),
+      lat: s.Coordinates.latitude,
+      lon: s.Coordinates.longitude,
+      address: s.Address?.street_line || '',
+      city: s.Address?.city_line || '',
+      fuels: normalizeFuels(details[i]?.Fuels || []),
+      dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
+    })).filter(s => s.fuels.length);
     
     startLiveRefresh();
     render();
   } catch(e) {
-    showState('⚠️', e.message || 'Erreur de chargement', true);
+    showState('⚠️', e.message || 'Erreur', true);
   } finally {
     isLoading = false;
   }
@@ -922,18 +519,23 @@ async function load() {
 function render() {
   let filtered = activeFuel === 'all' ? stations : stations.filter(s => s.fuels.some(f => f.shortName === activeFuel));
   if (!filtered.length) {
-    showState('🔍', activeFuel === 'all' ? 'Aucune station trouvée' : `Aucune station avec du ${activeFuel}`, false);
+    showState('🔍', activeFuel === 'all' ? 'Aucune station' : `Aucune station avec ${activeFuel}`, false);
     return;
   }
   
-  let minPrice = null, maxPrice = null;
-  if (activeFuel !== 'all') {
-    const prices = filtered.map(s => s.fuels.find(f => f.shortName === activeFuel)?.amount).filter(p => p);
-    if (prices.length) {
-      minPrice = Math.min(...prices);
-      maxPrice = Math.max(...prices);
-    }
-  }
+  // Calcul des statistiques par carburant
+  const fuelStats = {};
+  filtered.forEach(s => {
+    s.fuels.forEach(f => {
+      if (activeFuel !== 'all' && f.shortName !== activeFuel) return;
+      if (!fuelStats[f.shortName]) fuelStats[f.shortName] = [];
+      fuelStats[f.shortName].push({ amount: f.amount, stationId: s.id });
+    });
+  });
+  
+  Object.keys(fuelStats).forEach(fuel => {
+    fuelStats[fuel].sort((a,b) => a.amount - b.amount);
+  });
   
   const sorted = [...filtered].sort((a, b) => {
     if (sortMode === 'price' && activeFuel !== 'all') {
@@ -944,30 +546,53 @@ function render() {
     return a.dist - b.dist;
   });
   
-  const radiusVal = document.getElementById('radiusVal').textContent;
-  let html = `<div class="results-header"><span class="results-count">${sorted.length} station${sorted.length > 1 ? 's' : ''}</span><span class="results-badge">${radiusVal}</span></div>`;
-  sorted.forEach(s => html += buildCard(s, minPrice, maxPrice));
+  let html = `<div class="results-header" style="display:flex;justify-content:space-between;margin-bottom:16px"><span>${sorted.length} station${sorted.length>1?'s':''}</span><span class="results-badge">${document.getElementById('radiusVal').textContent}</span></div>`;
+  sorted.forEach(s => html += buildCard(s, fuelStats));
   document.getElementById('result').innerHTML = html;
   document.getElementById('liveBar').style.display = 'flex';
 }
 
-function buildCard(s, minPrice, maxPrice) {
+function buildCard(s, fuelStats) {
   const address = [s.address, s.city].filter(Boolean).join(' · ');
   const mapsUrl = `https://maps.google.com/?q=${s.lat},${s.lon}`;
   const fuelsList = activeFuel === 'all' ? s.fuels : s.fuels.filter(f => f.shortName === activeFuel);
   
   let pricesHtml = '';
-  fuelsList.sort((a, b) => (a.amount || 0) - (b.amount || 0));
   fuelsList.forEach(f => {
-    const isBest = activeFuel !== 'all' && f.amount === minPrice && minPrice !== maxPrice;
-    const priceClass = minPrice !== null && maxPrice !== null ? (f.amount <= minPrice ? ' cheap' : (f.amount >= maxPrice ? ' expensive' : '')) : '';
+    const stats = fuelStats[f.shortName];
+    const rank = stats ? stats.findIndex(item => item.stationId === s.id) + 1 : 0;
+    const total = stats ? stats.length : 0;
+    const isBest = rank === 1 && total > 1;
+    const isWorst = rank === total && total > 1 && total > 1;
+    const percentPosition = total > 1 ? ((rank - 1) / (total - 1)) * 100 : 50;
+    const barColor = percentPosition < 33 ? 'cheap' : (percentPosition > 66 ? 'expensive' : 'mid');
+    
     const age = f.updatedAt ? formatAge(f.updatedAt) : '';
     const freshClass = f.updatedAt ? getFreshClass(f.updatedAt) : '';
-    pricesHtml += `<div class="price-pill${isBest ? ' best' : ''}" data-key="${s.id}_${f.shortName}">
-      <div class="price-fuel-name">${escapeHtml(f.shortName)}</div>
-      <div class="price-amount${priceClass}">${f.amount.toFixed(3)}€</div>
-      ${age ? `<div class="price-updated ${freshClass}">${age}</div>` : ''}
-    </div>`;
+    
+    pricesHtml += `
+      <div class="price-item" data-key="${s.id}_${f.shortName}">
+        <div class="price-header">
+          <span class="price-fuel-name">${escapeHtml(f.shortName)}</span>
+          <span class="price-rank">${rank > 0 ? `#${rank}/${total}` : ''}</span>
+        </div>
+        <div class="price-main">
+          <span class="price-amount ${isBest ? 'cheap' : (isWorst ? 'expensive' : '')}">${f.amount.toFixed(3)}€</span>
+          <div style="display:flex;gap:6px">
+            ${isBest ? '<span class="price-badge badge-best">🏆 Meilleur prix</span>' : ''}
+            ${isWorst ? '<span class="price-badge badge-worst">⚠️ Plus cher</span>' : ''}
+            ${!isBest && !isWorst && total > 2 ? `<span class="price-indicator">${percentPosition < 33 ? '📉' : (percentPosition > 66 ? '📈' : '➡️')}</span>` : ''}
+          </div>
+        </div>
+        <div class="price-bar-container">
+          <div class="price-bar ${barColor}" style="width: ${percentPosition}%"></div>
+        </div>
+        <div class="price-footer">
+          <span class="price-updated ${freshClass}">${age ? `🕐 ${age}` : ''}</span>
+          <span style="color:var(--text-tertiary)">${percentPosition.toFixed(0)}% des stations</span>
+        </div>
+      </div>
+    `;
   });
   
   return `<div class="station-card">
@@ -979,9 +604,9 @@ function buildCard(s, minPrice, maxPrice) {
         <div class="station-distance">📏 ${s.dist.toFixed(1)} km</div>
       </div>
     </div>
-    <div class="fuel-prices">${pricesHtml || '<span style="color: var(--text-tertiary);">Prix non disponibles</span>'}</div>
+    <div class="fuel-prices">${pricesHtml}</div>
     <div class="station-footer">
-      <a class="maps-link" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">🗺️ Ouvrir dans Maps →</a>
+      <a class="maps-link" href="${mapsUrl}" target="_blank">🗺️ Ouvrir dans Maps →</a>
     </div>
   </div>`;
 }
@@ -993,154 +618,37 @@ function buildLogo(brandNorm, nom) {
   }
   const abbr = nom.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || '??';
   if (style.domain) {
-    return `<div class="station-logo"><img src="https://logo.clearbit.com/${style.domain}" alt="${abbr}" loading="lazy" data-abbr="${abbr}" data-bg="${style.bg}" data-fg="${style.c}" onerror="imgFallback(this)"></div>`;
+    return `<div class="station-logo"><img src="https://logo.clearbit.com/${style.domain}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain;padding:8px" onerror="this.parentElement.innerHTML='<div class=\'logo-abbr\' style=\'background:${style.bg};color:${style.c};width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:800\'>${abbr}</div>'"></div>`;
   }
-  return `<div class="logo-abbr" style="background:${style.bg};color:${style.c}">${abbr}</div>`;
-}
-
-function imgFallback(img) {
-  const abbr = img.dataset.abbr || '?';
-  const bg = img.dataset.bg || '#1e2532';
-  const fg = img.dataset.fg || '#94a3b8';
-  const wrapper = img.closest('.station-logo');
-  if (wrapper) {
-    const div = document.createElement('div');
-    div.className = 'logo-abbr';
-    div.style.cssText = `background:${bg};color:${fg}`;
-    div.textContent = abbr;
-    wrapper.replaceWith(div);
-  }
+  return `<div class="station-logo" style="background:${style.bg};color:${style.c};font-weight:800">${abbr}</div>`;
 }
 
 function haversine(lat1, lon1, lat2, lon2) {
-  const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function escapeHtml(str) {
-  return String(str || '').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-}
-
-function formatAge(iso) {
-  try {
-    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
-    if (h < 1) return 'maintenant';
-    if (h < 24) return `${Math.floor(h)}h`;
-    return `${Math.floor(h/24)}j`;
-  } catch(e) { return ''; }
-}
-
-function getFreshClass(iso) {
-  try {
-    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
-    if (h < 2) return 'fresh';
-    if (h < 12) return 'recent';
-    return 'old';
-  } catch(e) { return ''; }
-}
+function escapeHtml(str) { return String(str||'').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+function formatAge(iso) { try { const h = (Date.now() - new Date(iso).getTime())/3600000; if (h<1) return 'maintenant'; if (h<24) return `${Math.floor(h)}h`; return `${Math.floor(h/24)}j`; } catch(e) { return ''; } }
+function getFreshClass(iso) { try { const h = (Date.now() - new Date(iso).getTime())/3600000; if (h<2) return 'fresh'; if (h<12) return 'recent'; return 'old'; } catch(e) { return ''; } }
 
 function startLiveRefresh() {
   stopLiveRefresh();
   countdownLeft = REFRESH_INTERVAL;
   updateLiveBar();
-  refreshTimer = setInterval(() => {
-    countdownLeft--;
-    if (countdownLeft <= 0) {
-      countdownLeft = REFRESH_INTERVAL;
-      refreshPricesOnly();
-    }
-    updateLiveBar();
-  }, 1000);
+  refreshTimer = setInterval(() => { countdownLeft--; if (countdownLeft <= 0) { countdownLeft = REFRESH_INTERVAL; refreshPricesOnly(); } updateLiveBar(); }, 1000);
 }
+function stopLiveRefresh() { if (refreshTimer) clearInterval(refreshTimer); }
+function updateLiveBar() { const m = Math.floor(countdownLeft/60), s = countdownLeft%60; document.getElementById('liveCountdown').textContent = `${m}:${s.toString().padStart(2,'0')}`; document.getElementById('liveTs').textContent = `· ${new Date().toLocaleTimeString()}`; }
+async function refreshPricesOnly() { if (!stations.length) return; const oldPrices = {}; stations.forEach(s => s.fuels.forEach(f => oldPrices[`${s.id}_${f.shortName}`] = f.amount)); const details = await Promise.all(stations.map(s => fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`).then(r => r.ok ? r.json() : null).catch(() => null))); stations.forEach((s,i) => { if (details[i]?.Fuels) s.fuels = normalizeFuels(details[i].Fuels); }); render(); setTimeout(() => { Object.entries(oldPrices).forEach(([key, oldAmt]) => { const [id, fuel] = key.split('_'); const station = stations.find(s => s.id == id); const fuelData = station?.fuels.find(f => f.shortName === fuel); if (fuelData && fuelData.amount !== oldAmt) { const pill = document.querySelector(`[data-key="${key}"]`); if(pill) pill.classList.add(fuelData.amount < oldAmt ? 'price-flash-up' : 'price-flash-down'); setTimeout(() => pill?.classList.remove('price-flash-up','price-flash-down'), 600); } }); }, 100); }
+async function manualRefresh() { if (isLoading || !userLat) return; countdownLeft = REFRESH_INTERVAL; await refreshPricesOnly(); }
+function setFuel(f, btn) { activeFuel = f; document.querySelectorAll('.fuel-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const priceBtn = document.getElementById('sortPrice'); priceBtn.disabled = f === 'all'; if (f === 'all' && sortMode === 'price') setSort('dist'); else if (stations.length) render(); }
+function setSort(mode) { sortMode = mode; document.getElementById('sortDist').classList.toggle('active', mode === 'dist'); document.getElementById('sortPrice').classList.toggle('active', mode === 'price'); if (stations.length) render(); }
+function showLoading(msg) { document.getElementById('result').innerHTML = `<div class="state-card"><div class="loader"></div> ${msg}</div>`; }
+function showState(icon, msg, isError) { document.getElementById('result').innerHTML = `<div class="state-card${isError ? ' error' : ''}" style="${isError ? 'border-color:#ef4444' : ''}"><div style="font-size:3rem;margin-bottom:16px">${icon}</div><p>${msg}</p></div>`; }
 
-function stopLiveRefresh() {
-  if (refreshTimer) clearInterval(refreshTimer);
-}
-
-function updateLiveBar() {
-  const m = Math.floor(countdownLeft / 60);
-  const s = countdownLeft % 60;
-  document.getElementById('liveCountdown').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-  const dot = document.getElementById('liveDot');
-  if (dot) dot.classList.toggle('stale', countdownLeft <= 30);
-  document.getElementById('liveTs').textContent = `· ${new Date().toLocaleTimeString()}`;
-}
-
-async function refreshPricesOnly() {
-  if (!stations.length) return;
-  const oldPrices = {};
-  stations.forEach(s => s.fuels.forEach(f => oldPrices[`${s.id}_${f.shortName}`] = f.amount));
-  
-  const details = await Promise.all(stations.map(s => 
-    fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`).then(r => r.ok ? r.json() : null).catch(() => null)
-  ));
-  
-  stations.forEach((s, i) => {
-    if (details[i]?.Fuels) s.fuels = normalizeFuels(details[i].Fuels);
-  });
-  
-  renderWithDiff(oldPrices);
-}
-
-function renderWithDiff(oldPrices) {
-  render();
-  setTimeout(() => {
-    Object.entries(oldPrices).forEach(([key, oldAmt]) => {
-      const [id, fuel] = key.split('_');
-      const station = stations.find(s => s.id == id);
-      const fuelData = station?.fuels.find(f => f.shortName === fuel);
-      if (fuelData && fuelData.amount !== oldAmt) {
-        const pill = document.querySelector(`[data-key="${key}"]`);
-        if (pill) {
-          const cls = fuelData.amount < oldAmt ? 'price-flash-up' : 'price-flash-down';
-          pill.classList.add(cls);
-          setTimeout(() => pill.classList.remove(cls), 600);
-        }
-      }
-    });
-  }, 100);
-}
-
-function setFuel(f, btn) {
-  activeFuel = f;
-  document.querySelectorAll('.fuel-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const priceBtn = document.getElementById('sortPrice');
-  priceBtn.disabled = f === 'all';
-  if (f === 'all' && sortMode === 'price') setSort('dist');
-  else if (stations.length) render();
-}
-
-function setSort(mode) {
-  sortMode = mode;
-  document.getElementById('sortDist').classList.toggle('active', mode === 'dist');
-  document.getElementById('sortPrice').classList.toggle('active', mode === 'price');
-  if (stations.length) render();
-}
-
-async function manualRefresh() {
-  if (isLoading || !userLat) return;
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  countdownLeft = REFRESH_INTERVAL;
-  await refreshPricesOnly();
-  btn.classList.remove('spinning');
-}
-
-function showLoading(msg) {
-  document.getElementById('result').innerHTML = `<div class="state-card"><div class="loader"></div> ${msg}</div>`;
-}
-
-function showState(icon, msg, isError) {
-  document.getElementById('result').innerHTML = `<div class="state-card${isError ? ' error' : ''}"><div class="state-icon">${icon}</div><p>${msg}</p></div>`;
-}
-
-// Initialisation
-if (new URLSearchParams(location.search).get('action') === 'gps') {
-  window.addEventListener('DOMContentLoaded', () => setTimeout(gps, 100));
-}
-
+if (new URLSearchParams(location.search).get('action') === 'gps') window.addEventListener('DOMContentLoaded', () => setTimeout(gps, 100));
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.warn);
 </script>
 </body>
