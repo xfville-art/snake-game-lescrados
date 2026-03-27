@@ -259,19 +259,36 @@ function getPrice(f) {
   return null;
 }
 
+function canonicalFuelShortName(name) {
+  var raw = String(name || '').trim();
+  var key = raw.toUpperCase().replace(/\s+/g, '').replace(/_/g, '-');
+  if (key === 'SP95-E10' || key === 'SP95E10' || key === 'E10') return 'E10';
+  if (key === 'GPL' || key === 'GPLC') return 'GPLc';
+  if (key === 'DIESEL' || key === 'GASOIL') return 'Gazole';
+  return raw;
+}
+
 /* ── normalizeFuels : structure unifiee depuis n'importe quelle API ──────── */
 function normalizeFuels(rawFuels) {
-  return rawFuels.map(function(f) {
+  var byFuel = {};
+  rawFuels.forEach(function(f) {
     var p = getPrice(f);
-    return {
-      shortName: f.shortName || f.short_name || f.name || String(f.id || '?'),
-      name:      f.name      || f.shortName  || '',
-      amount:    p ? p.amount    : null,
-      updatedAt: p ? p.updatedAt : null
-    };
-  }).filter(function(f) {
-    return f.amount !== null && isFinite(f.amount) && f.amount > 0;
+    if (!p || p.amount === null || !isFinite(p.amount) || p.amount <= 0) return;
+
+    var shortName = canonicalFuelShortName(f.shortName || f.short_name || f.name || String(f.id || '?'));
+    var name = f.name || shortName || '';
+    var existing = byFuel[shortName];
+
+    if (!existing || p.amount < existing.amount) {
+      byFuel[shortName] = {
+        shortName: shortName,
+        name: name,
+        amount: p.amount,
+        updatedAt: p.updatedAt
+      };
+    }
   });
+  return Object.values(byFuel);
 }
 
 /* ── Live refresh ─────────────────────────────────────────────────────────────────────── */
@@ -709,5 +726,6 @@ if (new URLSearchParams(location.search).get('action') === 'gps')
 /* ── Service Worker ──────────────────────────────────────────────────────── */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
