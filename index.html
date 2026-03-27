@@ -106,6 +106,37 @@
     .state-card.error{border-color:rgba(248,81,73,.25)}
     .state-card.error p{color:var(--danger)}
     .state-card.loading{border-color:rgba(240,165,0,.15)}
+
+    /* ── Live refresh bar ────────────────────────────────── */
+    .live-bar{display:none;align-items:center;justify-content:space-between;
+      background:var(--card);border:1.5px solid var(--border);border-radius:12px;
+      padding:9px 14px;margin-bottom:14px;font-size:.8rem}
+    .live-bar.visible{display:flex}
+    .live-left{display:flex;align-items:center;gap:8px;color:var(--muted)}
+    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);
+      animation:pulse-dot 2s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .live-dot.stale{background:var(--orange);animation:none}
+    .live-countdown{color:var(--orange);font-family:'Barlow Condensed',sans-serif;
+      font-weight:700;font-size:.9rem}
+    .live-ts{color:var(--muted);font-size:.72rem}
+    .refresh-btn{background:transparent;border:1.5px solid var(--border);border-radius:8px;
+      color:var(--muted);font-size:.78rem;padding:4px 10px;cursor:pointer;
+      display:flex;align-items:center;gap:5px;transition:all .15s}
+    .refresh-btn:hover{border-color:var(--orange);color:var(--orange)}
+    .refresh-btn.spinning svg{animation:spin .7s linear infinite}
+    /* Fraicheur des prix */
+    .price-fresh{color:var(--green)}
+    .price-recent{color:var(--orange)}
+    .price-old{color:var(--danger)}
+    .price-updated.fresh{color:#2a5c35}
+    .price-updated.recent{color:#6e4a00}
+    .price-updated.old{color:#7a1f1b}
+    /* Flash si prix change entre 2 refreshs */
+    @keyframes flash-up{0%{background:rgba(63,185,80,.3)}100%{background:transparent}}
+    @keyframes flash-down{0%{background:rgba(248,81,73,.3)}100%{background:transparent}}
+    .price-flash-up{animation:flash-up .8s ease-out}
+    .price-flash-down{animation:flash-down .8s ease-out}
   </style>
 </head>
 <body>
@@ -146,6 +177,20 @@
   <button class="sort-btn"        id="sortPrice" onclick="setSort('price')" disabled>&#x1F4B0; Prix</button>
 </div>
 
+<div class="live-bar" id="liveBar">
+  <div class="live-left">
+    <div class="live-dot" id="liveDot"></div>
+    <span>Prochain refresh dans <span id="liveCountdown" class="live-countdown">15:00</span></span>
+    <span class="live-ts" id="liveTs"></span>
+  </div>
+  <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Rafraichir maintenant">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+    </svg>
+    Rafraichir
+  </button>
+</div>
+
 <div id="result">
   <div class="state-card">
     <div class="state-icon">&#x26FD;</div>
@@ -157,11 +202,16 @@
 'use strict';
 
 /* ── Etat global ─────────────────────────────────────────────────────────── */
-var userLat   = null, userLon = null;
-var stations  = [];
+var userLat    = null, userLon = null;
+var stations   = [];         // stations normalisees affichees
+var prevPrices = {};         // {stationId_shortName: amount} pour detecter les changements
 var activeFuel = 'all';
 var sortMode   = 'dist';
 var isLoading  = false;
+/* ── Live refresh ─────────────────────────────────────────── */
+var REFRESH_INTERVAL = 15 * 60;  // secondes
+var refreshTimer     = null;      // setInterval countdown
+var countdownLeft    = REFRESH_INTERVAL;
 
 /* ── Marques ─────────────────────────────────────────────────────────────── */
 var BRAND_MAP = {
@@ -224,6 +274,116 @@ function normalizeFuels(rawFuels) {
   });
 }
 
+/* ── Live refresh ─────────────────────────────────────────────────────────────────────── */
+
+function startLiveRefresh() {
+  stopLiveRefresh();
+  countdownLeft = REFRESH_INTERVAL;
+  updateLiveBar();
+  refreshTimer = setInterval(function() {
+    countdownLeft--;
+    if (countdownLeft <= 0) {
+      countdownLeft = REFRESH_INTERVAL;
+      refreshPricesOnly();  // rafraichit uniquement les prix, pas la liste
+    }
+    updateLiveBar();
+  }, 1000);
+}
+
+function stopLiveRefresh() {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+}
+
+function updateLiveBar() {
+  var bar = document.getElementById('liveBar');
+  var cd  = document.getElementById('liveCountdown');
+  var dot = document.getElementById('liveDot');
+  if (!bar) return;
+  bar.classList.add('visible');
+  var m = Math.floor(countdownLeft / 60);
+  var s = countdownLeft % 60;
+  cd.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  // Dot jaune dans les 30 dernieres secondes
+  dot.className = 'live-dot' + (countdownLeft <= 30 ? ' stale' : '');
+}
+
+function setLastFetchTime() {
+  var el = document.getElementById('liveTs');
+  if (!el) return;
+  var now = new Date();
+  el.textContent = '· mis à jour ' +
+    now.getHours().toString().padStart(2,'0') + ':' +
+    now.getMinutes().toString().padStart(2,'0') + ':' +
+    now.getSeconds().toString().padStart(2,'0');
+}
+
+function manualRefresh() {
+  if (isLoading || !userLat) return;
+  var btn = document.getElementById('refreshBtn');
+  if (btn) btn.classList.add('spinning');
+  countdownLeft = REFRESH_INTERVAL;
+  refreshPricesOnly().then(function() {
+    if (btn) btn.classList.remove('spinning');
+  });
+}
+
+/* Rafraichit seulement les prix des stations deja affichees (pas le /around/) */
+async function refreshPricesOnly() {
+  if (isLoading || stations.length === 0) return;
+  try {
+    var BASE = 'https://api.prix-carburants.2aaz.fr/station/';
+    var promises = stations.map(function(s) {
+      return fetch(BASE + s.id)
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .catch(function()  { return null; });
+    });
+    var details = await Promise.all(promises);
+
+    /* Sauvegarde des anciens prix pour comparaison */
+    var oldPrices = {};
+    stations.forEach(function(s) {
+      s.fuels.forEach(function(f) {
+        oldPrices[s.id + '_' + f.shortName] = f.amount;
+      });
+    });
+
+    /* Mise a jour des fuels en place */
+    for (var i = 0; i < stations.length; i++) {
+      var det = details[i];
+      if (!det || !Array.isArray(det.Fuels)) continue;
+      stations[i].fuels = normalizeFuels(det.Fuels);
+    }
+
+    setLastFetchTime();
+    renderWithDiff(oldPrices);  // render avec detection des changements
+  } catch(e) {
+    console.warn('Refresh silencieux echoue:', e.message);
+  }
+}
+
+/* render() avec animation flash sur les prix changes */
+function renderWithDiff(oldPrices) {
+  render();  // render normal d'abord
+  if (!oldPrices) return;
+  /* Apres render, flasher les pills dont le prix a change */
+  setTimeout(function() {
+    stations.forEach(function(s) {
+      s.fuels.forEach(function(f) {
+        var key = s.id + '_' + f.shortName;
+        var oldAmt = oldPrices[key];
+        if (oldAmt == null || oldAmt === f.amount) return;
+        /* Trouver la pill dans le DOM — on cherche par data-key */
+        var pill = document.querySelector('[data-key="' + key + '"]');
+        if (!pill) return;
+        var cls = f.amount < oldAmt ? 'price-flash-up' : 'price-flash-down';
+        pill.classList.remove('price-flash-up', 'price-flash-down');
+        void pill.offsetWidth;  // reflow pour reset animation
+        pill.classList.add(cls);
+      });
+    });
+  }, 50);
+}
+
 /* ── Geocoding ───────────────────────────────────────────────────────────── */
 async function searchCity() {
   var q = document.getElementById('city').value.trim();
@@ -279,6 +439,7 @@ function setSearching(on) {
 /* ── Chargement API 2aaz ─────────────────────────────────────────────────── */
 async function load() {
   if (isLoading) return;
+  stopLiveRefresh();  // reset le timer a chaque nouvelle recherche
   isLoading = true;
   var radiusM = parseInt(document.getElementById('radiusVal').textContent) * 1000;
   // Recalcul propre du rayon en metres
@@ -336,6 +497,8 @@ async function load() {
       });
     }
 
+    setLastFetchTime();
+    startLiveRefresh();
     render();
   } catch(e) {
     showState('&#x274C;', 'Erreur lors du chargement. (' + e.message + ')', true);
@@ -415,11 +578,13 @@ function buildCard(s, minPrice, maxPrice) {
         if (price <= minPrice) cls = ' cheap';
         else if (price >= maxPrice) cls = ' expensive';
       }
-      var age = f.updatedAt ? formatAge(f.updatedAt) : '';
-      pricesHtml += '<div class="price-pill' + (isBest?' best':'') + '">' +
+      var age       = f.updatedAt ? formatAge(f.updatedAt) : '';
+      var freshClass = f.updatedAt ? getFreshClass(f.updatedAt) : '';
+      var dataKey    = 'data-key="' + s.id + '_' + escHtml(f.shortName) + '"';
+      pricesHtml += '<div class="price-pill' + (isBest?' best':'') + '" ' + dataKey + '>' +
         '<span class="price-fuel-name">' + escHtml(f.shortName) + '</span>' +
         '<span class="price-amount' + cls + '">' + price.toFixed(3) + '\u20AC</span>' +
-        (age ? '<span class="price-updated">' + age + '</span>' : '') +
+        (age ? '<span class="price-updated ' + freshClass + '">' + age + '</span>' : '') +
         '</div>';
     }
   }
@@ -496,6 +661,16 @@ function formatAge(iso) {
     if (h < 1)  return 'maintenant';
     if (h < 24) return Math.floor(h) + 'h';
     return Math.floor(h/24) + 'j';
+  } catch(e) { return ''; }
+}
+
+/* Classe CSS selon l'age du prix : fresh < 2h, recent < 12h, old >= 12h */
+function getFreshClass(iso) {
+  try {
+    var h = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (h < 2)  return 'fresh';
+    if (h < 12) return 'recent';
+    return 'old';
   } catch(e) { return ''; }
 }
 
