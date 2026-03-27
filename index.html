@@ -2,730 +2,1146 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CarbuFuel &#x26FD;</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CarbuFuel · Prix carburants en temps réel</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0a0c0f">
+  <meta name="theme-color" content="#0a0f1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon-192.png">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@300;400;600&display=swap');
-    :root {
-      --orange:#f0a500; --red:#e05c2a; --green:#3fb950; --danger:#f85149;
-      --blue:#58a6ff; --bg:#0a0c0f; --card:#111318; --card2:#161b22;
-      --border:#1e2229; --text:#e6edf3; --muted:#8b949e;
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;
-      min-height:100vh;padding:24px 16px 80px;max-width:560px;margin:auto}
-    .header{margin-bottom:22px}
-    h1{font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;
-      background:linear-gradient(135deg,var(--orange),var(--red));
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      background-clip:text;line-height:1}
-    .subtitle{color:var(--muted);font-size:.82rem;margin-top:4px}
-    .search-row{display:flex;gap:8px;margin-bottom:10px}
-    input[type=text]{flex:1;padding:12px 16px;background:var(--card);
-      border:1.5px solid var(--border);border-radius:12px;color:var(--text);
-      font-size:1rem;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s}
-    input[type=text]:focus{border-color:var(--orange)}
-    input[type=text]::placeholder{color:#3d4450}
-    .icon-btn{width:46px;height:46px;border-radius:12px;border:1.5px solid var(--border);
-      background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-      transition:background .15s,border-color .15s}
-    .icon-btn:hover{background:var(--card2);border-color:var(--orange)}
-    .icon-btn.active{background:var(--orange);border-color:var(--orange);color:#000}
-    .icon-btn:disabled{opacity:.5;cursor:default}
-    .radius-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;
-      color:var(--muted);font-size:.85rem}
-    input[type=range]{flex:1;accent-color:var(--orange);cursor:pointer}
-    .radius-val{color:var(--orange);font-weight:700;min-width:38px;text-align:right}
-    .fuel-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-    .fuel-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);
-      background:var(--card);color:var(--muted);font-size:.85rem;cursor:pointer;
-      font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.3px;
-      transition:all .15s}
-    .fuel-btn:hover{border-color:var(--orange);color:var(--text)}
-    .fuel-btn.active{background:var(--orange);color:#000;border-color:var(--orange)}
-    .sort-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;
-      font-size:.82rem;color:var(--muted)}
-    .sort-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);
-      background:transparent;color:var(--muted);font-size:.82rem;cursor:pointer;
-      transition:all .15s}
-    .sort-btn.active{border-color:var(--orange);color:var(--orange)}
-    .sort-btn:disabled{opacity:.35;cursor:default}
-    .results-header{display:flex;justify-content:space-between;align-items:center;
-      padding:0 2px 10px;font-size:.82rem;color:var(--muted)}
-    .count-badge{background:var(--card);border:1px solid var(--border);border-radius:20px;
-      padding:3px 10px;font-size:.78rem;color:var(--orange);font-weight:700}
-    .station-card{background:var(--card);border:1.5px solid var(--border);
-      border-radius:14px;padding:14px 16px;margin-bottom:8px;transition:border-color .2s}
-    .station-card:hover{border-color:#2d333b}
-    .station-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-    .station-logo{width:44px;height:44px;border-radius:10px;background:#fff;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;
-      border:1px solid rgba(255,255,255,.07)}
-    .station-logo img{width:100%;height:100%;object-fit:contain;padding:5px}
-    .logo-abbr{width:44px;height:44px;border-radius:10px;display:flex;
-      align-items:center;justify-content:center;flex-shrink:0;
-      font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.5px}
-    .station-info{flex:1;min-width:0}
-    .station-name{font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .station-address{font-size:.78rem;color:var(--muted);margin-top:2px;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .station-dist{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;
-      color:var(--blue);margin-top:3px}
-    .fuel-prices{display:flex;flex-wrap:wrap;gap:6px}
-    .price-pill{display:flex;flex-direction:column;align-items:center;
-      background:rgba(255,255,255,.03);border:1px solid var(--border);
-      border-radius:9px;padding:6px 12px;min-width:64px}
-    .price-pill.best{border-color:var(--green);background:rgba(63,185,80,.08)}
-    .price-fuel-name{font-size:.68rem;color:var(--muted);font-family:'Barlow Condensed',sans-serif;
-      font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-    .price-amount{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;
-      font-weight:900;color:var(--text);line-height:1.1}
-    .price-amount.cheap{color:var(--green)}
-    .price-amount.expensive{color:var(--danger)}
-    .price-updated{font-size:.6rem;color:#3a404a;margin-top:1px}
-    .no-price{font-size:.8rem;color:#3a404a}
-    .station-footer{display:flex;justify-content:flex-end;margin-top:10px}
-    .maps-link{font-size:.78rem;color:var(--blue);text-decoration:none;
-      display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;
-      transition:background .15s}
-    .maps-link:hover{background:rgba(88,166,255,.1)}
-    .loader{display:inline-block;width:16px;height:16px;border:2px solid #2d333b;
-      border-top-color:var(--orange);border-radius:50%;
-      animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .state-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;
-      padding:36px 20px;text-align:center;color:var(--muted)}
-    .state-card .state-icon{font-size:2.6rem;margin-bottom:10px}
-    .state-card p{font-size:.88rem;line-height:1.7}
-    .state-card.error{border-color:rgba(248,81,73,.25)}
-    .state-card.error p{color:var(--danger)}
-    .state-card.loading{border-color:rgba(240,165,0,.15)}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
 
-    /* ── Live refresh bar ────────────────────────────────── */
-    .live-bar{display:none;align-items:center;justify-content:space-between;
-      background:var(--card);border:1.5px solid var(--border);border-radius:12px;
-      padding:9px 14px;margin-bottom:14px;font-size:.8rem}
-    .live-bar.visible{display:flex}
-    .live-left{display:flex;align-items:center;gap:8px;color:var(--muted)}
-    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);
-      animation:pulse-dot 2s ease-in-out infinite}
-    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-    .live-dot.stale{background:var(--orange);animation:none}
-    .live-countdown{color:var(--orange);font-family:'Barlow Condensed',sans-serif;
-      font-weight:700;font-size:.9rem}
-    .live-ts{color:var(--muted);font-size:.72rem}
-    .refresh-btn{background:transparent;border:1.5px solid var(--border);border-radius:8px;
-      color:var(--muted);font-size:.78rem;padding:4px 10px;cursor:pointer;
-      display:flex;align-items:center;gap:5px;transition:all .15s}
-    .refresh-btn:hover{border-color:var(--orange);color:var(--orange)}
-    .refresh-btn.spinning svg{animation:spin .7s linear infinite}
-    /* Fraicheur des prix */
-    .price-fresh{color:var(--green)}
-    .price-recent{color:var(--orange)}
-    .price-old{color:var(--danger)}
-    .price-updated.fresh{color:#2a5c35}
-    .price-updated.recent{color:#6e4a00}
-    .price-updated.old{color:#7a1f1b}
-    /* Flash si prix change entre 2 refreshs */
-    @keyframes flash-up{0%{background:rgba(63,185,80,.3)}100%{background:transparent}}
-    @keyframes flash-down{0%{background:rgba(248,81,73,.3)}100%{background:transparent}}
-    .price-flash-up{animation:flash-up .8s ease-out}
-    .price-flash-down{animation:flash-down .8s ease-out}
+    /* Design System */
+    :root {
+      --bg-primary: #0a0f1a;
+      --bg-secondary: #11161f;
+      --bg-tertiary: #151c27;
+      --bg-card: #0d121c;
+      --bg-card-hover: #121826;
+      --border-subtle: #1e2532;
+      --border-medium: #2a3342;
+      
+      --accent-primary: #f59e0b;
+      --accent-secondary: #dc2626;
+      --accent-success: #10b981;
+      --accent-warning: #f59e0b;
+      --accent-info: #3b82f6;
+      --accent-danger: #ef4444;
+      
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      --text-muted: #475569;
+      
+      --gradient-hero: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+      --gradient-card: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, rgba(220, 38, 38, 0.03) 100%);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.2);
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-full: 9999px;
+      
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      padding: 20px 16px 100px;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    /* Container avec max-width élégant */
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Header moderne */
+    .hero {
+      margin-bottom: 28px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+      filter: blur(20px);
+      pointer-events: none;
+    }
+    
+    .hero-icon {
+      font-size: 3.5rem;
+      margin-bottom: 8px;
+      display: inline-block;
+      filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.3));
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    
+    .subtitle {
+      color: var(--text-tertiary);
+      font-size: 0.85rem;
+      font-weight: 400;
+    }
+
+    /* Cartes de recherche */
+    .search-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      transition: var(--transition-base);
+    }
+    
+    .search-card:hover {
+      border-color: var(--border-medium);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* Champ de recherche */
+    .search-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      pointer-events: none;
+      color: var(--text-tertiary);
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      background: var(--bg-secondary);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      transition: var(--transition-fast);
+      outline: none;
+    }
+    
+    input[type="text"]:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+    
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+    }
+    
+    /* Boutons icon */
+    .icon-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-fast);
+    }
+    
+    .icon-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+    
+    .icon-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Slider rayon */
+    .radius-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .radius-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .radius-label span:first-child {
+      color: var(--accent-primary);
+    }
+    
+    input[type="range"] {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      background: var(--border-subtle);
+      border-radius: var(--radius-full);
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--accent-primary);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      box-shadow: var(--shadow-glow);
+      transition: var(--transition-fast);
+    }
+    
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    
+    .radius-value {
+      background: var(--bg-secondary);
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      min-width: 60px;
+      text-align: center;
+      border: 1px solid var(--border-subtle);
+    }
+    
+    /* Filtres carburants */
+    .filters-section {
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+    
+    .fuel-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .fuel-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .fuel-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+    
+    .fuel-btn.active {
+      background: var(--gradient-hero);
+      border-color: transparent;
+      color: white;
+      box-shadow: var(--shadow-glow);
+    }
+    
+    /* Tri */
+    .sort-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .sort-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .sort-btn {
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    
+    .sort-btn.active {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      background: rgba(245, 158, 11, 0.1);
+    }
+    
+    .sort-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    /* Live bar */
+    .live-bar {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(220, 38, 38, 0.08) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(8px);
+    }
+    
+    .live-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: var(--accent-success);
+      box-shadow: 0 0 8px var(--accent-success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    
+    .live-dot.stale {
+      background: var(--accent-warning);
+      box-shadow: 0 0 8px var(--accent-warning);
+      animation: none;
+    }
+    
+    .live-countdown {
+      font-family: 'Inter', monospace;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent-primary);
+    }
+    
+    .live-ts {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+    }
+    
+    .refresh-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 6px 14px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-fast);
+    }
+    
+    .refresh-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+    
+    /* Cartes stations */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      padding: 0 4px;
+    }
+    
+    .results-count {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+    
+    .results-badge {
+      background: var(--bg-secondary);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      border: 1px solid var(--border-subtle);
+    }
+    
+    .station-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      margin-bottom: 12px;
+      transition: var(--transition-base);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .station-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-hero);
+      opacity: 0;
+      transition: var(--transition-fast);
+    }
+    
+    .station-card:hover {
+      border-color: var(--border-medium);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .station-card:hover::before {
+      opacity: 1;
+    }
+    
+    .station-header {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .station-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    
+    .station-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+    }
+    
+    .logo-abbr {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+    
+    .station-info {
+      flex: 1;
+    }
+    
+    .station-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+    
+    .station-address {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .station-distance {
+      font-size: 0.7rem;
+      color: var(--accent-info);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(59, 130, 246, 0.1);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+    
+    .fuel-prices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .price-pill {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      min-width: 85px;
+      text-align: center;
+      transition: var(--transition-fast);
+    }
+    
+    .price-pill.best {
+      border-color: var(--accent-success);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    
+    .price-fuel-name {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-tertiary);
+    }
+    
+    .price-amount {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    
+    .price-amount.cheap {
+      color: var(--accent-success);
+    }
+    
+    .price-amount.expensive {
+      color: var(--accent-danger);
+    }
+    
+    .price-updated {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+    }
+    
+    .price-updated.fresh { color: var(--accent-success); }
+    .price-updated.recent { color: var(--accent-warning); }
+    .price-updated.old { color: var(--accent-danger); }
+    
+    .station-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+    
+    .maps-link {
+      font-size: 0.75rem;
+      color: var(--accent-info);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      transition: var(--transition-fast);
+    }
+    
+    .maps-link:hover {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-info);
+    }
+    
+    /* États */
+    .state-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 48px 24px;
+      text-align: center;
+    }
+    
+    .state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+    
+    .state-card p {
+      color: var(--text-tertiary);
+      font-size: 0.9rem;
+    }
+    
+    .state-card.error {
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    
+    .state-card.error p {
+      color: var(--accent-danger);
+    }
+    
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-subtle);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Animations flash prix */
+    @keyframes flash-up {
+      0% { background: rgba(16, 185, 129, 0.3); transform: scale(1); }
+      100% { background: transparent; transform: scale(1); }
+    }
+    
+    @keyframes flash-down {
+      0% { background: rgba(239, 68, 68, 0.3); transform: scale(1); }
+      100% { background: transparent; transform: scale(1); }
+    }
+    
+    .price-flash-up {
+      animation: flash-up 0.6s ease-out;
+    }
+    
+    .price-flash-down {
+      animation: flash-down 0.6s ease-out;
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 16px 12px 80px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .fuel-btn {
+        padding: 6px 14px;
+        font-size: 0.75rem;
+      }
+      
+      .price-pill {
+        min-width: 75px;
+        padding: 6px 10px;
+      }
+      
+      .price-amount {
+        font-size: 0.95rem;
+      }
+    }
   </style>
 </head>
 <body>
-
-<div class="header">
-  <h1>&#x26FD; CarbuFuel</h1>
-  <p class="subtitle">Prix carburants en temps r&#233;el &middot; France</p>
-</div>
-
-<div class="search-row">
-  <input id="city" type="text" placeholder="Ville ou code postal&#x2026;"
-         autocomplete="off" autocorrect="off" spellcheck="false"
-         onkeydown="if(event.key==='Enter')searchCity()">
-  <button class="icon-btn" id="searchBtn" onclick="searchCity()" title="Rechercher">&#x1F50D;</button>
-  <button class="icon-btn" id="gpsBtn"    onclick="gps()"        title="Me localiser">&#x1F4CD;</button>
-</div>
-
-<div class="radius-row">
-  <label for="radius">Rayon</label>
-  <input type="range" id="radius" min="2" max="50" value="15"
-         oninput="document.getElementById('radiusVal').textContent=this.value+'km'">
-  <span id="radiusVal" class="radius-val">15km</span>
-</div>
-
-<div class="fuel-grid">
-  <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
-  <button class="fuel-btn" onclick="setFuel('Gazole',this)">Gazole</button>
-  <button class="fuel-btn" onclick="setFuel('SP95',this)">SP95</button>
-  <button class="fuel-btn" onclick="setFuel('E10',this)">E10</button>
-  <button class="fuel-btn" onclick="setFuel('SP98',this)">SP98</button>
-  <button class="fuel-btn" onclick="setFuel('E85',this)">E85</button>
-  <button class="fuel-btn" onclick="setFuel('GPLc',this)">GPL</button>
-</div>
-
-<div class="sort-row">
-  <span>Trier par&nbsp;:</span>
-  <button class="sort-btn active" id="sortDist"  onclick="setSort('dist')">&#x1F4CD; Distance</button>
-  <button class="sort-btn"        id="sortPrice" onclick="setSort('price')" disabled>&#x1F4B0; Prix</button>
-</div>
-
-<div class="live-bar" id="liveBar">
-  <div class="live-left">
-    <div class="live-dot" id="liveDot"></div>
-    <span>Prochain refresh dans <span id="liveCountdown" class="live-countdown">15:00</span></span>
-    <span class="live-ts" id="liveTs"></span>
+<div class="container">
+  <!-- Hero section -->
+  <div class="hero">
+    <div class="hero-icon">⛽</div>
+    <h1>CarbuFuel</h1>
+    <p class="subtitle">Prix carburants en temps réel · France métropolitaine</p>
   </div>
-  <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Rafraichir maintenant">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-    </svg>
-    Rafraichir
-  </button>
-</div>
-
-<div id="result">
-  <div class="state-card">
-    <div class="state-icon">&#x26FD;</div>
-    <p>Entrez une ville, un code postal<br>ou activez le GPS pour d&#233;marrer.</p>
+  
+  <!-- Recherche -->
+  <div class="search-card">
+    <div class="search-group">
+      <div class="input-wrapper">
+        <span class="input-icon">📍</span>
+        <input type="text" id="city" placeholder="Ville, code postal ou adresse" autocomplete="off">
+      </div>
+      <button class="icon-btn" id="searchBtn" onclick="searchCity()" title="Rechercher">🔍</button>
+      <button class="icon-btn" id="gpsBtn" onclick="gps()" title="Me localiser">📍</button>
+    </div>
+    
+    <div class="radius-section">
+      <div class="radius-label">
+        <span>⭕</span>
+        <span>Rayon d'action</span>
+      </div>
+      <input type="range" id="radius" min="2" max="50" value="15" oninput="updateRadius(this.value)">
+      <div class="radius-value" id="radiusVal">15 km</div>
+    </div>
+  </div>
+  
+  <!-- Filtres carburants -->
+  <div class="filters-section">
+    <div class="section-title">⛽ Type de carburant</div>
+    <div class="fuel-grid">
+      <button class="fuel-btn active" onclick="setFuel('all',this)">Tous</button>
+      <button class="fuel-btn" onclick="setFuel('Gazole',this)">Gazole</button>
+      <button class="fuel-btn" onclick="setFuel('SP95',this)">SP95</button>
+      <button class="fuel-btn" onclick="setFuel('E10',this)">E10</button>
+      <button class="fuel-btn" onclick="setFuel('SP98',this)">SP98</button>
+      <button class="fuel-btn" onclick="setFuel('E85',this)">E85</button>
+      <button class="fuel-btn" onclick="setFuel('GPLc',this)">GPL</button>
+    </div>
+  </div>
+  
+  <!-- Tri et live bar -->
+  <div class="sort-section">
+    <div class="section-title">📊 Trier par</div>
+    <div class="sort-group">
+      <button class="sort-btn active" id="sortDist" onclick="setSort('dist')">Distance</button>
+      <button class="sort-btn" id="sortPrice" onclick="setSort('price')" disabled>Prix</button>
+    </div>
+  </div>
+  
+  <div class="live-bar" id="liveBar" style="display: none;">
+    <div class="live-left">
+      <div class="live-dot" id="liveDot"></div>
+      <span>Refresh dans <span id="liveCountdown" class="live-countdown">15:00</span></span>
+      <span class="live-ts" id="liveTs"></span>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
+      🔄 Rafraîchir
+    </button>
+  </div>
+  
+  <!-- Résultats -->
+  <div id="result">
+    <div class="state-card">
+      <div class="state-icon">⛽</div>
+      <p>Recherchez une ville, un code postal<br>ou activez la géolocalisation</p>
+    </div>
   </div>
 </div>
 
 <script>
 'use strict';
 
-/* ── Etat global ─────────────────────────────────────────────────────────── */
-var userLat    = null, userLon = null;
-var stations   = [];         // stations normalisees affichees
-var prevPrices = {};         // {stationId_shortName: amount} pour detecter les changements
-var activeFuel = 'all';
-var sortMode   = 'dist';
-var isLoading  = false;
-/* ── Live refresh ─────────────────────────────────────────── */
-var REFRESH_INTERVAL = 15 * 60;  // secondes
-var refreshTimer     = null;      // setInterval countdown
-var countdownLeft    = REFRESH_INTERVAL;
+// État global
+let userLat = null, userLon = null;
+let stations = [];
+let prevPrices = {};
+let activeFuel = 'all';
+let sortMode = 'dist';
+let isLoading = false;
+let REFRESH_INTERVAL = 15 * 60;
+let refreshTimer = null;
+let countdownLeft = REFRESH_INTERVAL;
 
-/* ── Marques ─────────────────────────────────────────────────────────────── */
-var BRAND_MAP = {
-  'total':       {bg:'#c8102e',c:'#fff',domain:'totalenergies.fr'},
-  'leclerc':     {bg:'#003ca6',c:'#f7c300',domain:'e.leclerc'},
-  'carrefour':   {bg:'#004a97',c:'#fff',domain:'carrefour.fr'},
-  'intermarche': {bg:'#e30613',c:'#fff',domain:'intermarche.com'},
-  'intermar':    {bg:'#e30613',c:'#fff',domain:'intermarche.com'},
-  'systeme u':   {bg:'#c00000',c:'#fff',domain:'magasins-u.com'},
-  'super u':     {bg:'#c00000',c:'#fff',domain:'magasins-u.com'},
-  'hyper u':     {bg:'#c00000',c:'#fff',domain:'magasins-u.com'},
-  'auchan':      {bg:'#e10600',c:'#fff',domain:'auchan.fr'},
-  'esso':        {bg:'#003087',c:'#fff',domain:'esso.fr'},
-  'bp':          {bg:'#007a33',c:'#fff',domain:'bp.com'},
-  'shell':       {bg:'#fbce07',c:'#cc0000',domain:'shell.fr'},
-  'avia':        {bg:'#e30613',c:'#fff',domain:'avia-france.fr'},
-  'casino':      {bg:'#c41230',c:'#fff',domain:'casino.fr'},
-  'cora':        {bg:'#e30613',c:'#fff',domain:'cora.fr'}
+const BRAND_MAP = {
+  'total': {bg: '#c8102e', c: '#fff', domain: 'totalenergies.fr'},
+  'leclerc': {bg: '#003ca6', c: '#f7c300', domain: 'e.leclerc'},
+  'carrefour': {bg: '#004a97', c: '#fff', domain: 'carrefour.fr'},
+  'intermarche': {bg: '#e30613', c: '#fff', domain: 'intermarche.com'},
+  'systeme u': {bg: '#c00000', c: '#fff', domain: 'magasins-u.com'},
+  'auchan': {bg: '#e10600', c: '#fff', domain: 'auchan.fr'},
+  'esso': {bg: '#003087', c: '#fff', domain: 'esso.fr'},
+  'shell': {bg: '#fbce07', c: '#cc0000', domain: 'shell.fr'}
 };
 
-/* ── getPrice : teste toutes les variantes possibles de l'API ────────────── */
 function getPrice(f) {
   if (!f) return null;
-  // Variante capitalisee : Price.amount
-  if (f.Price && f.Price.amount != null)
-    return {amount: +f.Price.amount, updatedAt: f.Price.last_update || null};
-  // Variante minuscule : price.amount
-  if (f.price && f.price.amount != null)
-    return {amount: +f.price.amount, updatedAt: f.price.last_update || null};
-  // Price est directement un nombre
-  if (typeof f.Price === 'number') return {amount: +f.Price, updatedAt: null};
-  if (typeof f.price === 'number') return {amount: +f.price, updatedAt: null};
-  // Price.value au lieu de Price.amount
-  if (f.Price && f.Price.value != null)
-    return {amount: +f.Price.value, updatedAt: f.Price.last_update || null};
-  if (f.price && f.price.value != null)
-    return {amount: +f.price.value, updatedAt: f.price.last_update || null};
-  // Variantes francophones
-  if (f.prix    != null) return {amount: +f.prix,     updatedAt: f.maj || null};
-  if (f.valeur  != null) return {amount: +f.valeur,   updatedAt: null};
-  // Autres variantes generiques
-  if (f.value   != null) return {amount: +f.value,    updatedAt: null};
-  if (f.amount  != null) return {amount: +f.amount,   updatedAt: null};
-  if (f.unitPrice != null) return {amount: +f.unitPrice, updatedAt: null};
+  if (f.Price?.amount != null) return {amount: +f.Price.amount, updatedAt: f.Price.last_update};
+  if (f.price?.amount != null) return {amount: +f.price.amount, updatedAt: f.price.last_update};
+  if (f.Price?.value != null) return {amount: +f.Price.value, updatedAt: f.Price.last_update};
+  if (typeof f.Price === 'number') return {amount: f.Price, updatedAt: null};
   return null;
 }
 
-function canonicalFuelShortName(name) {
-  var raw = String(name || '').trim();
-  var key = raw.toUpperCase().replace(/\s+/g, '').replace(/_/g, '-');
-  if (key === 'SP95-E10' || key === 'SP95E10' || key === 'E10') return 'E10';
-  if (key === 'GPL' || key === 'GPLC') return 'GPLc';
-  if (key === 'DIESEL' || key === 'GASOIL') return 'Gazole';
-  return raw;
-}
-
-/* ── normalizeFuels : structure unifiee depuis n'importe quelle API ──────── */
 function normalizeFuels(rawFuels) {
-  var byFuel = {};
-  rawFuels.forEach(function(f) {
-    var p = getPrice(f);
-    if (!p || p.amount === null || !isFinite(p.amount) || p.amount <= 0) return;
-
-    var shortName = canonicalFuelShortName(f.shortName || f.short_name || f.name || String(f.id || '?'));
-    var name = f.name || shortName || '';
-    var existing = byFuel[shortName];
-
-    if (!existing || p.amount < existing.amount) {
-      byFuel[shortName] = {
-        shortName: shortName,
-        name: name,
-        amount: p.amount,
-        updatedAt: p.updatedAt
-      };
+  const byFuel = {};
+  rawFuels.forEach(f => {
+    const p = getPrice(f);
+    if (!p || p.amount <= 0) return;
+    let shortName = (f.shortName || f.short_name || f.name || '').trim();
+    if (shortName.includes('E10')) shortName = 'E10';
+    else if (shortName.includes('GPL')) shortName = 'GPLc';
+    else if (shortName === 'Diesel' || shortName === 'Gasoil') shortName = 'Gazole';
+    if (!byFuel[shortName] || p.amount < byFuel[shortName].amount) {
+      byFuel[shortName] = { shortName, amount: p.amount, updatedAt: p.updatedAt };
     }
   });
   return Object.values(byFuel);
 }
 
-/* ── Live refresh ─────────────────────────────────────────────────────────────────────── */
+function updateRadius(val) {
+  document.getElementById('radiusVal').textContent = val + ' km';
+  if (userLat) load();
+}
+
+async function searchCity() {
+  const q = document.getElementById('city').value.trim();
+  if (!q) return;
+  try {
+    const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
+    const d = await r.json();
+    if (!d.features?.length) throw new Error('Non trouvé');
+    userLat = d.features[0].geometry.coordinates[1];
+    userLon = d.features[0].geometry.coordinates[0];
+    await load();
+  } catch(e) {
+    showState('❌', 'Ville ou code postal non trouvé', true);
+  }
+}
+
+function gps() {
+  if (!navigator.geolocation) {
+    showState('📱', 'Géolocalisation non disponible', true);
+    return;
+  }
+  const btn = document.getElementById('gpsBtn');
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLon = pos.coords.longitude;
+      btn.textContent = '📍';
+      btn.disabled = false;
+      load();
+    },
+    err => {
+      btn.textContent = '📍';
+      btn.disabled = false;
+      const msgs = {1: 'Permission refusée', 2: 'Position indisponible', 3: 'Délai dépassé'};
+      showState('⚠️', msgs[err.code] || 'Erreur GPS', true);
+    },
+    {timeout: 10000}
+  );
+}
+
+async function load() {
+  if (isLoading || !userLat) return;
+  isLoading = true;
+  stopLiveRefresh();
+  const radiusM = parseInt(document.getElementById('radius').value) * 1000;
+  showLoading('Recherche des stations...');
+  
+  try {
+    const aroundUrl = `https://api.prix-carburants.2aaz.fr/stations/around/${userLat},${userLon}/?m=${radiusM}`;
+    const r1 = await fetch(aroundUrl);
+    const list = await r1.json();
+    if (!list.length) throw new Error('Aucune station');
+    
+    const slice = list.slice(0, 20);
+    const details = await Promise.all(slice.map(s => 
+      fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`).then(r => r.ok ? r.json() : null).catch(() => null)
+    ));
+    
+    stations = slice.map((s, i) => {
+      const det = details[i];
+      const brandName = s.Brand?.name || s.name || 'Station';
+      return {
+        id: s.id,
+        nom: brandName,
+        brand: brandName.toLowerCase(),
+        lat: s.Coordinates.latitude,
+        lon: s.Coordinates.longitude,
+        address: s.Address?.street_line || '',
+        city: s.Address?.city_line || '',
+        fuels: normalizeFuels(det?.Fuels || []),
+        dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
+      };
+    }).filter(s => s.fuels.length > 0);
+    
+    startLiveRefresh();
+    render();
+  } catch(e) {
+    showState('⚠️', e.message || 'Erreur de chargement', true);
+  } finally {
+    isLoading = false;
+  }
+}
+
+function render() {
+  let filtered = activeFuel === 'all' ? stations : stations.filter(s => s.fuels.some(f => f.shortName === activeFuel));
+  if (!filtered.length) {
+    showState('🔍', activeFuel === 'all' ? 'Aucune station trouvée' : `Aucune station avec du ${activeFuel}`, false);
+    return;
+  }
+  
+  let minPrice = null, maxPrice = null;
+  if (activeFuel !== 'all') {
+    const prices = filtered.map(s => s.fuels.find(f => f.shortName === activeFuel)?.amount).filter(p => p);
+    if (prices.length) {
+      minPrice = Math.min(...prices);
+      maxPrice = Math.max(...prices);
+    }
+  }
+  
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortMode === 'price' && activeFuel !== 'all') {
+      const pa = a.fuels.find(f => f.shortName === activeFuel)?.amount || Infinity;
+      const pb = b.fuels.find(f => f.shortName === activeFuel)?.amount || Infinity;
+      return pa - pb;
+    }
+    return a.dist - b.dist;
+  });
+  
+  const radiusVal = document.getElementById('radiusVal').textContent;
+  let html = `<div class="results-header"><span class="results-count">${sorted.length} station${sorted.length > 1 ? 's' : ''}</span><span class="results-badge">${radiusVal}</span></div>`;
+  sorted.forEach(s => html += buildCard(s, minPrice, maxPrice));
+  document.getElementById('result').innerHTML = html;
+  document.getElementById('liveBar').style.display = 'flex';
+}
+
+function buildCard(s, minPrice, maxPrice) {
+  const address = [s.address, s.city].filter(Boolean).join(' · ');
+  const mapsUrl = `https://maps.google.com/?q=${s.lat},${s.lon}`;
+  const fuelsList = activeFuel === 'all' ? s.fuels : s.fuels.filter(f => f.shortName === activeFuel);
+  
+  let pricesHtml = '';
+  fuelsList.sort((a, b) => (a.amount || 0) - (b.amount || 0));
+  fuelsList.forEach(f => {
+    const isBest = activeFuel !== 'all' && f.amount === minPrice && minPrice !== maxPrice;
+    const priceClass = minPrice !== null && maxPrice !== null ? (f.amount <= minPrice ? ' cheap' : (f.amount >= maxPrice ? ' expensive' : '')) : '';
+    const age = f.updatedAt ? formatAge(f.updatedAt) : '';
+    const freshClass = f.updatedAt ? getFreshClass(f.updatedAt) : '';
+    pricesHtml += `<div class="price-pill${isBest ? ' best' : ''}" data-key="${s.id}_${f.shortName}">
+      <div class="price-fuel-name">${escapeHtml(f.shortName)}</div>
+      <div class="price-amount${priceClass}">${f.amount.toFixed(3)}€</div>
+      ${age ? `<div class="price-updated ${freshClass}">${age}</div>` : ''}
+    </div>`;
+  });
+  
+  return `<div class="station-card">
+    <div class="station-header">
+      ${buildLogo(s.brand, s.nom)}
+      <div class="station-info">
+        <div class="station-name">${escapeHtml(s.nom)}</div>
+        ${address ? `<div class="station-address">📍 ${escapeHtml(address)}</div>` : ''}
+        <div class="station-distance">📏 ${s.dist.toFixed(1)} km</div>
+      </div>
+    </div>
+    <div class="fuel-prices">${pricesHtml || '<span style="color: var(--text-tertiary);">Prix non disponibles</span>'}</div>
+    <div class="station-footer">
+      <a class="maps-link" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">🗺️ Ouvrir dans Maps →</a>
+    </div>
+  </div>`;
+}
+
+function buildLogo(brandNorm, nom) {
+  let style = {bg: '#1e2532', c: '#94a3b8', domain: ''};
+  for (let [key, val] of Object.entries(BRAND_MAP)) {
+    if (brandNorm.includes(key)) { style = val; break; }
+  }
+  const abbr = nom.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || '??';
+  if (style.domain) {
+    return `<div class="station-logo"><img src="https://logo.clearbit.com/${style.domain}" alt="${abbr}" loading="lazy" data-abbr="${abbr}" data-bg="${style.bg}" data-fg="${style.c}" onerror="imgFallback(this)"></div>`;
+  }
+  return `<div class="logo-abbr" style="background:${style.bg};color:${style.c}">${abbr}</div>`;
+}
+
+function imgFallback(img) {
+  const abbr = img.dataset.abbr || '?';
+  const bg = img.dataset.bg || '#1e2532';
+  const fg = img.dataset.fg || '#94a3b8';
+  const wrapper = img.closest('.station-logo');
+  if (wrapper) {
+    const div = document.createElement('div');
+    div.className = 'logo-abbr';
+    div.style.cssText = `background:${bg};color:${fg}`;
+    div.textContent = abbr;
+    wrapper.replaceWith(div);
+  }
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+}
+
+function formatAge(iso) {
+  try {
+    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (h < 1) return 'maintenant';
+    if (h < 24) return `${Math.floor(h)}h`;
+    return `${Math.floor(h/24)}j`;
+  } catch(e) { return ''; }
+}
+
+function getFreshClass(iso) {
+  try {
+    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (h < 2) return 'fresh';
+    if (h < 12) return 'recent';
+    return 'old';
+  } catch(e) { return ''; }
+}
 
 function startLiveRefresh() {
   stopLiveRefresh();
   countdownLeft = REFRESH_INTERVAL;
   updateLiveBar();
-  refreshTimer = setInterval(function() {
+  refreshTimer = setInterval(() => {
     countdownLeft--;
     if (countdownLeft <= 0) {
       countdownLeft = REFRESH_INTERVAL;
-      refreshPricesOnly();  // rafraichit uniquement les prix, pas la liste
+      refreshPricesOnly();
     }
     updateLiveBar();
   }, 1000);
 }
 
 function stopLiveRefresh() {
-  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  if (refreshTimer) clearInterval(refreshTimer);
 }
 
 function updateLiveBar() {
-  var bar = document.getElementById('liveBar');
-  var cd  = document.getElementById('liveCountdown');
-  var dot = document.getElementById('liveDot');
-  if (!bar) return;
-  bar.classList.add('visible');
-  var m = Math.floor(countdownLeft / 60);
-  var s = countdownLeft % 60;
-  cd.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-  // Dot jaune dans les 30 dernieres secondes
-  dot.className = 'live-dot' + (countdownLeft <= 30 ? ' stale' : '');
+  const m = Math.floor(countdownLeft / 60);
+  const s = countdownLeft % 60;
+  document.getElementById('liveCountdown').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  const dot = document.getElementById('liveDot');
+  if (dot) dot.classList.toggle('stale', countdownLeft <= 30);
+  document.getElementById('liveTs').textContent = `· ${new Date().toLocaleTimeString()}`;
 }
 
-function setLastFetchTime() {
-  var el = document.getElementById('liveTs');
-  if (!el) return;
-  var now = new Date();
-  el.textContent = '· mis à jour ' +
-    now.getHours().toString().padStart(2,'0') + ':' +
-    now.getMinutes().toString().padStart(2,'0') + ':' +
-    now.getSeconds().toString().padStart(2,'0');
-}
-
-function manualRefresh() {
-  if (isLoading || !userLat) return;
-  var btn = document.getElementById('refreshBtn');
-  if (btn) btn.classList.add('spinning');
-  countdownLeft = REFRESH_INTERVAL;
-  refreshPricesOnly().then(function() {
-    if (btn) btn.classList.remove('spinning');
-  });
-}
-
-/* Rafraichit seulement les prix des stations deja affichees (pas le /around/) */
 async function refreshPricesOnly() {
-  if (isLoading || stations.length === 0) return;
-  try {
-    var BASE = 'https://api.prix-carburants.2aaz.fr/station/';
-    var promises = stations.map(function(s) {
-      return fetch(BASE + s.id)
-        .then(function(r) { return r.ok ? r.json() : null; })
-        .catch(function()  { return null; });
-    });
-    var details = await Promise.all(promises);
-
-    /* Sauvegarde des anciens prix pour comparaison */
-    var oldPrices = {};
-    stations.forEach(function(s) {
-      s.fuels.forEach(function(f) {
-        oldPrices[s.id + '_' + f.shortName] = f.amount;
-      });
-    });
-
-    /* Mise a jour des fuels en place */
-    for (var i = 0; i < stations.length; i++) {
-      var det = details[i];
-      if (!det || !Array.isArray(det.Fuels)) continue;
-      stations[i].fuels = normalizeFuels(det.Fuels);
-    }
-
-    setLastFetchTime();
-    renderWithDiff(oldPrices);  // render avec detection des changements
-  } catch(e) {
-    console.warn('Refresh silencieux echoue:', e.message);
-  }
+  if (!stations.length) return;
+  const oldPrices = {};
+  stations.forEach(s => s.fuels.forEach(f => oldPrices[`${s.id}_${f.shortName}`] = f.amount));
+  
+  const details = await Promise.all(stations.map(s => 
+    fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`).then(r => r.ok ? r.json() : null).catch(() => null)
+  ));
+  
+  stations.forEach((s, i) => {
+    if (details[i]?.Fuels) s.fuels = normalizeFuels(details[i].Fuels);
+  });
+  
+  renderWithDiff(oldPrices);
 }
 
-/* render() avec animation flash sur les prix changes */
 function renderWithDiff(oldPrices) {
-  render();  // render normal d'abord
-  if (!oldPrices) return;
-  /* Apres render, flasher les pills dont le prix a change */
-  setTimeout(function() {
-    stations.forEach(function(s) {
-      s.fuels.forEach(function(f) {
-        var key = s.id + '_' + f.shortName;
-        var oldAmt = oldPrices[key];
-        if (oldAmt == null || oldAmt === f.amount) return;
-        /* Trouver la pill dans le DOM — on cherche par data-key */
-        var pill = document.querySelector('[data-key="' + key + '"]');
-        if (!pill) return;
-        var cls = f.amount < oldAmt ? 'price-flash-up' : 'price-flash-down';
-        pill.classList.remove('price-flash-up', 'price-flash-down');
-        void pill.offsetWidth;  // reflow pour reset animation
-        pill.classList.add(cls);
-      });
-    });
-  }, 50);
-}
-
-/* ── Geocoding ───────────────────────────────────────────────────────────── */
-async function searchCity() {
-  var q = document.getElementById('city').value.trim();
-  if (!q) return;
-  setSearching(true);
-  try {
-    var r = await fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(q) + '&limit=1');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    var d = await r.json();
-    if (!d.features || !d.features.length) {
-      showState('&#x1F50D;', 'Ville ou code postal non trouv&#233;. Essayez autrement.'); return;
-    }
-    userLat = d.features[0].geometry.coordinates[1];
-    userLon = d.features[0].geometry.coordinates[0];
-    load();
-  } catch(e) {
-    showState('&#x26A0;&#xFE0F;', 'Erreur r&#233;seau lors de la recherche.', true);
-  } finally { setSearching(false); }
-}
-
-function gps() {
-  if (!navigator.geolocation) {
-    showState('&#x1F4F5;', 'G&#233;olocalisation non disponible sur ce navigateur.'); return;
-  }
-  var btn = document.getElementById('gpsBtn');
-  btn.textContent = '\u23F3'; btn.classList.add('active'); btn.disabled = true;
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      userLat = pos.coords.latitude; userLon = pos.coords.longitude;
-      resetGpsBtn(); load();
-    },
-    function(err) {
-      resetGpsBtn();
-      var msgs = {
-        1:'Permission refus&#233;e. Autorisez la localisation dans les param&#232;tres.',
-        2:'Position indisponible. V&#233;rifiez que le GPS est activ&#233;.',
-        3:'D&#233;lai d&#233;pass&#233;. R&#233;essayez dans quelques instants.'
-      };
-      showState('&#x1F4CD;', msgs[err.code] || 'Impossible de r&#233;cup&#233;rer votre position.', true);
-    },
-    {timeout:12000, maximumAge:60000, enableHighAccuracy:false}
-  );
-}
-function resetGpsBtn() {
-  var btn = document.getElementById('gpsBtn');
-  btn.textContent = '\uD83D\uDCCD'; btn.classList.remove('active'); btn.disabled = false;
-}
-function setSearching(on) {
-  var btn = document.getElementById('searchBtn');
-  btn.textContent = on ? '\u23F3' : '\uD83D\uDD0D'; btn.disabled = on;
-}
-
-/* ── Chargement API 2aaz ─────────────────────────────────────────────────── */
-async function load() {
-  if (isLoading) return;
-  stopLiveRefresh();  // reset le timer a chaque nouvelle recherche
-  isLoading = true;
-  var radiusM = parseInt(document.getElementById('radiusVal').textContent) * 1000;
-  // Recalcul propre du rayon en metres
-  radiusM = parseInt(document.getElementById('radius').value) * 1000;
-  showLoading();
-  try {
-    /* ETAPE 1 : liste des stations autour (sans prix) */
-    var urlAround = 'https://api.prix-carburants.2aaz.fr/stations/around/' + userLat + ',' + userLon + '/?m=' + radiusM;
-    var r1 = await fetch(urlAround);
-    if (!r1.ok) throw new Error('HTTP ' + r1.status);
-    var listRaw = await r1.json();
-
-    if (!Array.isArray(listRaw) || listRaw.length === 0) {
-      showState('\uD83C\uDFDC\uFE0F',
-        'Aucune station dans ' + document.getElementById('radiusVal').textContent + '.<br>Essayez d\'agrandir le rayon.');
-      return;
-    }
-
-    /* On prend au max 20 stations (les plus proches, deja triees par l'API) */
-    var slice = listRaw.slice(0, 20);
-
-    /* ETAPE 2 : fetch /station/{id} en parallele pour obtenir les prix */
-    var BASE = 'https://api.prix-carburants.2aaz.fr/station/';
-    var detailPromises = slice.map(function(s) {
-      return fetch(BASE + s.id)
-        .then(function(res) { return res.ok ? res.json() : null; })
-        .catch(function()   { return null; });
-    });
-    showLoading('Chargement des prix (' + slice.length + ' stations)\u2026');
-    var details = await Promise.all(detailPromises);
-
-    /* ETAPE 3 : fusion metadata (around) + prix (detail) */
-    stations = [];
-    for (var i = 0; i < slice.length; i++) {
-      var s    = slice[i];
-      var det  = details[i];
-      if (!s.Coordinates || !s.Coordinates.latitude) continue;
-
-      var brandName = (s.Brand && s.Brand.name) ? s.Brand.name : (s.name || 'Station');
-      /* Fuels depuis le detail si disponible, sinon fallback sur l'objet around */
-      var rawFuels = (det && Array.isArray(det.Fuels) && det.Fuels.length > 0)
-        ? det.Fuels
-        : (Array.isArray(s.Fuels) ? s.Fuels : []);
-
-      stations.push({
-        id:      s.id,
-        nom:     brandName,
-        brand:   brandName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(),
-        lat:     s.Coordinates.latitude,
-        lon:     s.Coordinates.longitude,
-        address: (s.Address && s.Address.street_line) ? s.Address.street_line : '',
-        city:    (s.Address && s.Address.city_line)   ? s.Address.city_line   : '',
-        fuels:   normalizeFuels(rawFuels),
-        dist:    haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
-      });
-    }
-
-    setLastFetchTime();
-    startLiveRefresh();
-    render();
-  } catch(e) {
-    showState('&#x274C;', 'Erreur lors du chargement. (' + e.message + ')', true);
-  } finally { isLoading = false; }
-}
-
-/* ── Rendu ───────────────────────────────────────────────────────────────── */
-function render() {
-  var filtered = stations;
-  if (activeFuel !== 'all') {
-    filtered = stations.filter(function(s) {
-      return s.fuels.some(function(f) { return f.shortName === activeFuel; });
-    });
-  }
-
-  if (filtered.length === 0) {
-    showState('&#x1F50D;',
-      activeFuel === 'all'
-        ? 'Aucune station trouv&#233;e.'
-        : 'Aucune station ne propose du <strong>' + activeFuel + '</strong> dans ce rayon.');
-    return;
-  }
-
-  /* Min / max pour coloration */
-  var minPrice = null, maxPrice = null;
-  if (activeFuel !== 'all') {
-    var prices = filtered.map(function(s) {
-      var f = s.fuels.find(function(f) { return f.shortName === activeFuel; });
-      return f ? f.amount : null;
-    }).filter(function(p) { return p != null; });
-    if (prices.length > 1) {
-      minPrice = Math.min.apply(null, prices);
-      maxPrice = Math.max.apply(null, prices);
-    }
-  }
-
-  /* Tri */
-  var sorted = filtered.slice();
-  if (sortMode === 'price' && activeFuel !== 'all') {
-    sorted.sort(function(a, b) {
-      var fa = a.fuels.find(function(f){return f.shortName===activeFuel;});
-      var fb = b.fuels.find(function(f){return f.shortName===activeFuel;});
-      return ((fa&&fa.amount)||Infinity) - ((fb&&fb.amount)||Infinity);
-    });
-  } else {
-    sorted.sort(function(a,b){ return a.dist - b.dist; });
-  }
-
-  var radiusLabel = document.getElementById('radiusVal').textContent;
-  var html = '<div class="results-header"><span>' +
-    sorted.length + ' station' + (sorted.length>1?'s':'') + ' trouv' + (sorted.length>1?'ées':'ée') +
-    '</span><span class="count-badge">' + radiusLabel + '</span></div>';
-
-  for (var i = 0; i < sorted.length; i++) html += buildCard(sorted[i], minPrice, maxPrice);
-  document.getElementById('result').innerHTML = html;
-}
-
-function buildCard(s, minPrice, maxPrice) {
-  var address = [s.address, s.city].filter(Boolean).join(' \u00B7 ');
-  var mapsUrl = 'https://maps.google.com/?q=' + s.lat + ',' + s.lon;
-
-  var fuelRows = activeFuel === 'all'
-    ? s.fuels.slice()
-    : s.fuels.filter(function(f){ return f.shortName === activeFuel; });
-  fuelRows.sort(function(a,b){ return (a.amount||0)-(b.amount||0); });
-
-  var pricesHtml = '';
-  if (fuelRows.length === 0) {
-    pricesHtml = '<span class="no-price">Prix non disponibles</span>';
-  } else {
-    for (var i=0; i<fuelRows.length; i++) {
-      var f = fuelRows[i];
-      var price = f.amount;
-      var isBest = activeFuel !== 'all' && price === minPrice && minPrice !== maxPrice;
-      var cls = '';
-      if (minPrice !== null && maxPrice !== null) {
-        if (price <= minPrice) cls = ' cheap';
-        else if (price >= maxPrice) cls = ' expensive';
+  render();
+  setTimeout(() => {
+    Object.entries(oldPrices).forEach(([key, oldAmt]) => {
+      const [id, fuel] = key.split('_');
+      const station = stations.find(s => s.id == id);
+      const fuelData = station?.fuels.find(f => f.shortName === fuel);
+      if (fuelData && fuelData.amount !== oldAmt) {
+        const pill = document.querySelector(`[data-key="${key}"]`);
+        if (pill) {
+          const cls = fuelData.amount < oldAmt ? 'price-flash-up' : 'price-flash-down';
+          pill.classList.add(cls);
+          setTimeout(() => pill.classList.remove(cls), 600);
+        }
       }
-      var age       = f.updatedAt ? formatAge(f.updatedAt) : '';
-      var freshClass = f.updatedAt ? getFreshClass(f.updatedAt) : '';
-      var dataKey    = 'data-key="' + s.id + '_' + escHtml(f.shortName) + '"';
-      pricesHtml += '<div class="price-pill' + (isBest?' best':'') + '" ' + dataKey + '>' +
-        '<span class="price-fuel-name">' + escHtml(f.shortName) + '</span>' +
-        '<span class="price-amount' + cls + '">' + price.toFixed(3) + '\u20AC</span>' +
-        (age ? '<span class="price-updated ' + freshClass + '">' + age + '</span>' : '') +
-        '</div>';
-    }
-  }
-
-  return '<div class="station-card">' +
-    '<div class="station-top">' +
-      buildLogo(s.brand, s.nom) +
-      '<div class="station-info">' +
-        '<div class="station-name">' + escHtml(s.nom) + '</div>' +
-        (address ? '<div class="station-address">' + escHtml(address) + '</div>' : '') +
-        '<div class="station-dist">\uD83D\uDCCD ' + s.dist.toFixed(1) + ' km</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="fuel-prices">' + pricesHtml + '</div>' +
-    '<div class="station-footer">' +
-      '<a class="maps-link" href="' + mapsUrl + '" target="_blank" rel="noopener noreferrer">' +
-        '\uD83D\uDDFA\uFE0F Ouvrir dans Maps' +
-      '</a>' +
-    '</div>' +
-  '</div>';
+    });
+  }, 100);
 }
 
-/* ── Logo ────────────────────────────────────────────────────────────────── */
-function buildLogo(brandNorm, nom) {
-  var style = {bg:'#1e2229', c:'#7d8590', domain:''};
-  var keys = Object.keys(BRAND_MAP);
-  for (var i=0; i<keys.length; i++) {
-    if (brandNorm.indexOf(keys[i]) !== -1) { style = BRAND_MAP[keys[i]]; break; }
-  }
-  var abbr = nom.replace(/[^a-zA-Z\u00C0-\u024F]/g,'').slice(0,2).toUpperCase() || '??';
-  if (style.domain) {
-    return '<div class="station-logo">' +
-      '<img src="https://logo.clearbit.com/' + style.domain + '"' +
-      ' alt="' + escHtml(abbr) + '" loading="lazy"' +
-      ' data-abbr="' + escHtml(abbr) + '"' +
-      ' data-bg="' + escHtml(style.bg) + '"' +
-      ' data-fg="' + escHtml(style.c) + '"' +
-      ' onerror="imgFallback(this)">' +
-      '</div>';
-  }
-  return '<div class="logo-abbr" style="background:' + style.bg + ';color:' + style.c + '">' + abbr + '</div>';
-}
-
-function imgFallback(img) {
-  var abbr = img.dataset.abbr || '?';
-  var bg   = img.dataset.bg   || '#1e2229';
-  var fg   = img.dataset.fg   || '#aaa';
-  var w = img.closest('.station-logo');
-  if (!w) return;
-  var d = document.createElement('div');
-  d.className = 'logo-abbr';
-  d.style.cssText = 'background:' + bg + ';color:' + fg;
-  d.textContent = abbr;
-  w.replaceWith(d);
-}
-
-/* ── Utilitaires ─────────────────────────────────────────────────────────── */
-function haversine(lat1, lon1, lat2, lon2) {
-  var R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
-  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+
-        Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-        Math.sin(dLon/2)*Math.sin(dLon/2);
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function escHtml(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-function formatAge(iso) {
-  try {
-    var h = (Date.now() - new Date(iso).getTime()) / 3600000;
-    if (h < 1)  return 'maintenant';
-    if (h < 24) return Math.floor(h) + 'h';
-    return Math.floor(h/24) + 'j';
-  } catch(e) { return ''; }
-}
-
-/* Classe CSS selon l'age du prix : fresh < 2h, recent < 12h, old >= 12h */
-function getFreshClass(iso) {
-  try {
-    var h = (Date.now() - new Date(iso).getTime()) / 3600000;
-    if (h < 2)  return 'fresh';
-    if (h < 12) return 'recent';
-    return 'old';
-  } catch(e) { return ''; }
-}
-
-function showLoading(msg) {
-  msg = msg || 'Chargement des stations\u2026';
-  document.getElementById('result').innerHTML =
-    '<div class="state-card loading"><span class="loader"></span> ' + msg + '</div>';
-}
-function showState(icon, msg, isError) {
-  document.getElementById('result').innerHTML =
-    '<div class="state-card' + (isError?' error':'') + '">' +
-    '<div class="state-icon">' + icon + '</div><p>' + msg + '</p></div>';
-}
-
-/* ── Controles ───────────────────────────────────────────────────────────── */
 function setFuel(f, btn) {
   activeFuel = f;
-  document.querySelectorAll('.fuel-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.fuel-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  var pb = document.getElementById('sortPrice');
-  pb.disabled = (f === 'all');
+  const priceBtn = document.getElementById('sortPrice');
+  priceBtn.disabled = f === 'all';
   if (f === 'all' && sortMode === 'price') setSort('dist');
   else if (stations.length) render();
 }
+
 function setSort(mode) {
   sortMode = mode;
-  document.getElementById('sortDist').classList.toggle('active',  mode==='dist');
-  document.getElementById('sortPrice').classList.toggle('active', mode==='price');
+  document.getElementById('sortDist').classList.toggle('active', mode === 'dist');
+  document.getElementById('sortPrice').classList.toggle('active', mode === 'price');
   if (stations.length) render();
 }
 
-/* ── Raccourci PWA ───────────────────────────────────────────────────────── */
-if (new URLSearchParams(location.search).get('action') === 'gps')
-  window.addEventListener('DOMContentLoaded', function(){ gps(); });
+async function manualRefresh() {
+  if (isLoading || !userLat) return;
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  countdownLeft = REFRESH_INTERVAL;
+  await refreshPricesOnly();
+  btn.classList.remove('spinning');
+}
 
-/* ── Service Worker ──────────────────────────────────────────────────────── */
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});
+function showLoading(msg) {
+  document.getElementById('result').innerHTML = `<div class="state-card"><div class="loader"></div> ${msg}</div>`;
+}
+
+function showState(icon, msg, isError) {
+  document.getElementById('result').innerHTML = `<div class="state-card${isError ? ' error' : ''}"><div class="state-icon">${icon}</div><p>${msg}</p></div>`;
+}
+
+// Initialisation
+if (new URLSearchParams(location.search).get('action') === 'gps') {
+  window.addEventListener('DOMContentLoaded', () => setTimeout(gps, 100));
+}
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.warn);
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
