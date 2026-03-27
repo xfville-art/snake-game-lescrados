@@ -7,6 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0a0f1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -15,9 +16,11 @@
       --bg-secondary: #11161f;
       --bg-card: #0d121c;
       --border-subtle: #1e2532;
+      --border-medium: #2a3342;
       --accent-primary: #f59e0b;
       --accent-success: #10b981;
       --accent-danger: #ef4444;
+      --accent-warning: #f59e0b;
       --accent-info: #3b82f6;
       --text-primary: #f1f5f9;
       --text-secondary: #94a3b8;
@@ -27,6 +30,7 @@
       --radius-lg: 16px;
       --radius-xl: 20px;
       --radius-full: 9999px;
+      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     body {
@@ -57,6 +61,11 @@
       border-radius: var(--radius-xl);
       padding: 20px;
       margin-bottom: 20px;
+      transition: var(--transition-base);
+    }
+    .station-card:hover {
+      border-color: var(--border-medium);
+      transform: translateY(-2px);
     }
 
     .search-group { display: flex; gap: 12px; margin-bottom: 20px; }
@@ -82,8 +91,10 @@
       background: var(--bg-secondary);
       cursor: pointer;
       font-size: 1.2rem;
+      transition: var(--transition-base);
     }
     .icon-btn:hover { border-color: var(--accent-primary); }
+    .icon-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .radius-section { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     input[type="range"] {
@@ -118,6 +129,7 @@
       color: var(--text-secondary);
       font-weight: 600;
       cursor: pointer;
+      transition: var(--transition-base);
     }
     .fuel-btn.active {
       background: var(--gradient-hero);
@@ -140,10 +152,43 @@
       background: transparent;
       color: var(--text-secondary);
       cursor: pointer;
+      transition: var(--transition-base);
     }
     .sort-btn.active { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(245,158,11,0.1); }
     .sort-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    .live-bar {
+      background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(220,38,38,0.08));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .live-left { display: flex; align-items: center; gap: 12px; }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.5; transform: scale(0.8); } }
+    .live-countdown { font-weight: 700; color: var(--accent-primary); }
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: var(--transition-base);
+    }
+    .refresh-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+    /* Styles pour les logos */
     .station-logo {
       width: 56px;
       height: 56px;
@@ -154,12 +199,16 @@
       justify-content: center;
       flex-shrink: 0;
       overflow: hidden;
+      transition: var(--transition-base);
     }
     .station-logo img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       padding: 8px;
+    }
+    .station-logo.fallback {
+      background: var(--bg-secondary);
     }
     .logo-fallback {
       width: 56px;
@@ -194,6 +243,7 @@
       background: var(--bg-secondary);
       border-radius: var(--radius-md);
       padding: 12px;
+      transition: var(--transition-base);
     }
     .price-header {
       display: flex;
@@ -205,6 +255,7 @@
       font-weight: 800;
       font-size: 0.85rem;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
       background: var(--gradient-hero);
       -webkit-background-clip: text;
       background-clip: text;
@@ -274,6 +325,15 @@
       font-size: 0.7rem;
     }
     .price-updated { color: var(--text-tertiary); }
+    .price-updated.fresh { color: var(--accent-success); }
+    .price-updated.recent { color: var(--accent-warning); }
+    .price-updated.old { color: var(--accent-danger); }
+    .no-price-message {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
     
     .station-footer { display: flex; justify-content: flex-end; }
     .maps-link {
@@ -282,7 +342,9 @@
       font-size: 0.75rem;
       padding: 6px 12px;
       border-radius: var(--radius-md);
+      transition: var(--transition-base);
     }
+    .maps-link:hover { background: rgba(59,130,246,0.1); }
 
     .state-card {
       background: var(--bg-card);
@@ -291,6 +353,8 @@
       padding: 48px 24px;
       text-align: center;
     }
+    .state-card.error { border-color: var(--accent-danger); }
+    .state-card.error p { color: var(--accent-danger); }
     .loader {
       display: inline-block;
       width: 20px;
@@ -304,9 +368,16 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     
+    @keyframes flash-up { 0% { background: rgba(16,185,129,0.3); } 100% { background: transparent; } }
+    @keyframes flash-down { 0% { background: rgba(239,68,68,0.3); } 100% { background: transparent; } }
+    .price-flash-up { animation: flash-up 0.6s ease-out; }
+    .price-flash-down { animation: flash-down 0.6s ease-out; }
+    
     @media (max-width: 480px) {
-      .station-logo, .logo-fallback { width: 48px; height: 48px; }
+      body { padding: 16px 12px 80px; }
+      h1 { font-size: 2rem; }
       .price-amount { font-size: 1.2rem; }
+      .station-logo, .logo-fallback { width: 48px; height: 48px; }
     }
   </style>
 </head>
@@ -352,8 +423,17 @@
     </div>
   </div>
   
+  <div class="live-bar" id="liveBar" style="display: none;">
+    <div class="live-left">
+      <div class="live-dot" id="liveDot"></div>
+      <span>Refresh <span id="liveCountdown" class="live-countdown">15:00</span></span>
+      <span id="liveTs" style="font-size:0.7rem"></span>
+    </div>
+    <button class="refresh-btn" onclick="manualRefresh()">🔄 Rafraîchir</button>
+  </div>
+  
   <div id="result">
-    <div class="state-card"><div style="font-size:3rem;margin-bottom:16px">⛽</div><p>Recherche en cours...</p></div>
+    <div class="state-card"><div style="font-size:3rem;margin-bottom:16px">⛽</div><p>Recherchez une ville ou activez la géolocalisation</p></div>
   </div>
 </div>
 
@@ -365,24 +445,131 @@ let stations = [];
 let activeFuel = 'all';
 let sortMode = 'dist';
 let isLoading = false;
+let refreshTimer = null;
+let countdownLeft = 900;
+const REFRESH_INTERVAL = 900;
 
-// Logos via Clearbit - version stable
+// Base de données des logos officiels des enseignes
 const BRAND_LOGOS = {
-  'leclerc': { url: 'https://logo.clearbit.com/e.leclerc', bg: '#003ca6' },
-  'carrefour': { url: 'https://logo.clearbit.com/carrefour.fr', bg: '#004a97' },
-  'auchan': { url: 'https://logo.clearbit.com/auchan.fr', bg: '#e10600' },
-  'intermarche': { url: 'https://logo.clearbit.com/intermarche.com', bg: '#e30613' },
-  'systeme u': { url: 'https://logo.clearbit.com/magasins-u.com', bg: '#c00000' },
-  'total': { url: 'https://logo.clearbit.com/totalenergies.fr', bg: '#c8102e' },
-  'esso': { url: 'https://logo.clearbit.com/esso.fr', bg: '#003087' },
-  'shell': { url: 'https://logo.clearbit.com/shell.fr', bg: '#fbce07' }
+  // Supermarchés
+  'leclerc': { url: 'https://logo.clearbit.com/e.leclerc', bg: '#003ca6', fallbackColor: '#003ca6', domain: 'e.leclerc' },
+  'carrefour': { url: 'https://logo.clearbit.com/carrefour.fr', bg: '#004a97', fallbackColor: '#004a97', domain: 'carrefour.fr' },
+  'auchan': { url: 'https://logo.clearbit.com/auchan.fr', bg: '#e10600', fallbackColor: '#e10600', domain: 'auchan.fr' },
+  'intermarche': { url: 'https://logo.clearbit.com/intermarche.com', bg: '#e30613', fallbackColor: '#e30613', domain: 'intermarche.com' },
+  'systeme u': { url: 'https://logo.clearbit.com/magasins-u.com', bg: '#c00000', fallbackColor: '#c00000', domain: 'magasins-u.com' },
+  'casino': { url: 'https://logo.clearbit.com/casino.fr', bg: '#c41230', fallbackColor: '#c41230', domain: 'casino.fr' },
+  'cora': { url: 'https://logo.clearbit.com/cora.fr', bg: '#e30613', fallbackColor: '#e30613', domain: 'cora.fr' },
+  
+  // Pétroliers
+  'total': { url: 'https://logo.clearbit.com/totalenergies.fr', bg: '#c8102e', fallbackColor: '#c8102e', domain: 'totalenergies.fr' },
+  'totalenergies': { url: 'https://logo.clearbit.com/totalenergies.fr', bg: '#c8102e', fallbackColor: '#c8102e', domain: 'totalenergies.fr' },
+  'esso': { url: 'https://logo.clearbit.com/esso.fr', bg: '#003087', fallbackColor: '#003087', domain: 'esso.fr' },
+  'bp': { url: 'https://logo.clearbit.com/bp.com', bg: '#007a33', fallbackColor: '#007a33', domain: 'bp.com' },
+  'shell': { url: 'https://logo.clearbit.com/shell.fr', bg: '#fbce07', fallbackColor: '#fbce07', domain: 'shell.fr' },
+  'avia': { url: 'https://logo.clearbit.com/avia-france.fr', bg: '#e30613', fallbackColor: '#e30613', domain: 'avia-france.fr' },
+  'elf': { url: 'https://logo.clearbit.com/elf.fr', bg: '#ffcd00', fallbackColor: '#ffcd00', domain: 'elf.fr' },
+  
+  // Autres
+  'agip': { url: 'https://logo.clearbit.com/eni.com', bg: '#0066cc', fallbackColor: '#0066cc', domain: 'eni.com' },
+  'eni': { url: 'https://logo.clearbit.com/eni.com', bg: '#0066cc', fallbackColor: '#0066cc', domain: 'eni.com' },
+  'socar': { url: 'https://logo.clearbit.com/socar.az', bg: '#00a651', fallbackColor: '#00a651', domain: 'socar.az' },
+  'darty': { url: 'https://logo.clearbit.com/darty.com', bg: '#e31837', fallbackColor: '#e31837', domain: 'darty.com' }
 };
 
+// Table de correspondance des noms de carburants
+const FUEL_NAME_MAP = {
+  'E10': 'E10',
+  'SP95-E10': 'E10',
+  'SP95E10': 'E10',
+  'Sans Plomb 95-E10': 'E10',
+  '95-E10': 'E10',
+  'SP95': 'SP95',
+  'Sans Plomb 95': 'SP95',
+  '95': 'SP95',
+  'SP98': 'SP98',
+  'Sans Plomb 98': 'SP98',
+  '98': 'SP98',
+  'Gazole': 'Gazole',
+  'Diesel': 'Gazole',
+  'Gasoil': 'Gazole',
+  'GO': 'Gazole',
+  'E85': 'E85',
+  'Superethanol': 'E85',
+  'Superéthanol': 'E85',
+  'Ethanol': 'E85',
+  'GPLc': 'GPLc',
+  'GPL': 'GPLc',
+  'LPG': 'GPLc'
+};
+
+function normalizeFuelName(rawName) {
+  if (!rawName) return null;
+  const cleanName = rawName.trim().toUpperCase();
+  if (FUEL_NAME_MAP[cleanName]) return FUEL_NAME_MAP[cleanName];
+  for (let [key, value] of Object.entries(FUEL_NAME_MAP)) {
+    if (cleanName.includes(key) || key.includes(cleanName)) return value;
+  }
+  return cleanName.replace(/\s+/g, '').substring(0, 15);
+}
+
+function extractPrice(fuelObj) {
+  if (!fuelObj) return null;
+  const paths = [
+    () => fuelObj.Price?.amount,
+    () => fuelObj.price?.amount,
+    () => fuelObj.Price?.value,
+    () => fuelObj.price?.value,
+    () => fuelObj.amount,
+    () => fuelObj.value,
+    () => fuelObj.prix,
+    () => typeof fuelObj === 'number' ? fuelObj : null
+  ];
+  for (let getter of paths) {
+    const val = getter();
+    if (val !== undefined && val !== null && !isNaN(val) && val > 0) {
+      return {
+        amount: parseFloat(val),
+        updatedAt: fuelObj.last_update || fuelObj.Price?.last_update || fuelObj.price?.last_update || null
+      };
+    }
+  }
+  return null;
+}
+
+function normalizeFuels(rawFuels) {
+  const byFuel = {};
+  if (!Array.isArray(rawFuels)) return [];
+  rawFuels.forEach(fuel => {
+    const priceData = extractPrice(fuel);
+    if (!priceData || priceData.amount <= 0) return;
+    let rawName = fuel.shortName || fuel.short_name || fuel.name || '';
+    const normalizedName = normalizeFuelName(rawName);
+    if (!normalizedName) return;
+    if (!byFuel[normalizedName] || priceData.amount < byFuel[normalizedName].amount) {
+      byFuel[normalizedName] = {
+        shortName: normalizedName,
+        amount: priceData.amount,
+        updatedAt: priceData.updatedAt,
+        originalName: rawName
+      };
+    }
+  });
+  return Object.values(byFuel);
+}
+
+// Fonction améliorée pour obtenir le logo d'une enseigne
 function getBrandLogo(brandName) {
   if (!brandName) return null;
   const normalized = brandName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  // Recherche exacte
+  if (BRAND_LOGOS[normalized]) return BRAND_LOGOS[normalized];
+  
+  // Recherche partielle
   for (let [key, value] of Object.entries(BRAND_LOGOS)) {
-    if (normalized.includes(key)) return value;
+    if (normalized.includes(key) || key.includes(normalized)) {
+      return value;
+    }
   }
   return null;
 }
@@ -392,12 +579,20 @@ function buildLogoElement(brandName, stationName) {
   const abbr = stationName.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || '??';
   
   if (brandData) {
+    // Logo officiel
     return `<div class="station-logo">
-      <img src="${brandData.url}" alt="${stationName}"
-        onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'logo-fallback\\' style=\\'background:${brandData.bg};color:white\\'>${abbr}</div>'">
+      <img src="${brandData.url}" 
+           alt="${stationName}"
+           data-fallback-bg="${brandData.bg}"
+           data-abbr="${abbr}"
+           onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'logo-fallback\\' style=\\'background:${brandData.bg};color:white\\'>${abbr}</div>'">
     </div>`;
+  } else {
+    // Pas de logo trouvé, afficher une abréviation avec couleur générique
+    const colors = ['#c8102e', '#003ca6', '#e10600', '#e30613', '#c00000', '#004a97', '#007a33'];
+    const color = colors[Math.abs(brandName.length) % colors.length];
+    return `<div class="logo-fallback" style="background:${color};color:white">${abbr}</div>`;
   }
-  return `<div class="logo-fallback">${abbr}</div>`;
 }
 
 function updateRadius(val) {
@@ -408,120 +603,89 @@ function updateRadius(val) {
 async function searchCity() {
   const q = document.getElementById('city').value.trim();
   if (!q) return;
-  const btn = document.getElementById('searchBtn');
-  btn.textContent = '⏳';
+  const searchBtn = document.getElementById('searchBtn');
+  searchBtn.textContent = '⏳';
+  searchBtn.disabled = true;
   try {
     const r = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
     const d = await r.json();
-    if (!d.features?.length) throw new Error();
+    if (!d.features || !d.features.length) throw new Error('Ville non trouvée');
     userLat = d.features[0].geometry.coordinates[1];
     userLon = d.features[0].geometry.coordinates[0];
     load();
   } catch(e) {
-    showState('❌', 'Ville non trouvée', true);
+    showState('❌', 'Ville ou code postal non trouvé', true);
   } finally {
-    btn.textContent = '🔍';
+    searchBtn.textContent = '🔍';
+    searchBtn.disabled = false;
   }
 }
 
 function gps() {
   if (!navigator.geolocation) {
-    showState('📱', 'GPS non disponible', true);
+    showState('📱', 'Géolocalisation non disponible', true);
     return;
   }
-  const btn = document.getElementById('gpsBtn');
-  btn.textContent = '⏳';
+  const gpsBtn = document.getElementById('gpsBtn');
+  gpsBtn.textContent = '⏳';
+  gpsBtn.disabled = true;
   navigator.geolocation.getCurrentPosition(
-    pos => {
+    function(pos) {
       userLat = pos.coords.latitude;
       userLon = pos.coords.longitude;
-      btn.textContent = '📍';
+      gpsBtn.textContent = '📍';
+      gpsBtn.disabled = false;
       load();
     },
-    () => {
-      btn.textContent = '📍';
-      showState('⚠️', 'Erreur GPS', true);
+    function(err) {
+      gpsBtn.textContent = '📍';
+      gpsBtn.disabled = false;
+      let errorMsg = '';
+      switch(err.code) {
+        case 1: errorMsg = 'Permission refusée. Activez la localisation.'; break;
+        case 2: errorMsg = 'Position indisponible. Vérifiez le GPS.'; break;
+        case 3: errorMsg = 'Délai dépassé. Réessayez.'; break;
+        default: errorMsg = 'Erreur de géolocalisation.';
+      }
+      showState('⚠️', errorMsg, true);
     },
-    { timeout: 10000 }
+    { timeout: 10000, enableHighAccuracy: false }
   );
 }
 
-function extractPrice(fuelObj) {
-  if (!fuelObj) return null;
-  if (fuelObj.Price?.amount) return { amount: +fuelObj.Price.amount, updatedAt: fuelObj.Price.last_update };
-  if (fuelObj.price?.amount) return { amount: +fuelObj.price.amount, updatedAt: fuelObj.price.last_update };
-  if (fuelObj.amount) return { amount: +fuelObj.amount, updatedAt: null };
-  if (fuelObj.value) return { amount: +fuelObj.value, updatedAt: null };
-  return null;
-}
-
-function normalizeFuels(rawFuels) {
-  const byFuel = {};
-  if (!Array.isArray(rawFuels)) return [];
-  
-  rawFuels.forEach(fuel => {
-    const priceData = extractPrice(fuel);
-    if (!priceData || priceData.amount <= 0) return;
-    
-    let shortName = (fuel.shortName || fuel.short_name || fuel.name || '').trim();
-    if (shortName.includes('E10')) shortName = 'E10';
-    else if (shortName.includes('SP95') && !shortName.includes('E10')) shortName = 'SP95';
-    else if (shortName.includes('SP98')) shortName = 'SP98';
-    else if (shortName.includes('Gazole') || shortName.includes('Diesel')) shortName = 'Gazole';
-    else if (shortName.includes('E85')) shortName = 'E85';
-    else if (shortName.includes('GPL')) shortName = 'GPLc';
-    else return;
-    
-    if (!byFuel[shortName] || priceData.amount < byFuel[shortName].amount) {
-      byFuel[shortName] = {
-        shortName: shortName,
-        amount: priceData.amount,
-        updatedAt: priceData.updatedAt
-      };
-    }
-  });
-  return Object.values(byFuel);
-}
-
 async function load() {
-  if (isLoading || !userLat) return;
+  if (isLoading || !userLat || !userLon) return;
   isLoading = true;
+  stopLiveRefresh();
   const radiusM = parseInt(document.getElementById('radius').value) * 1000;
   showLoading('Recherche des stations...');
   
   try {
     const aroundUrl = `https://api.prix-carburants.2aaz.fr/stations/around/${userLat},${userLon}/?m=${radiusM}`;
     const response = await fetch(aroundUrl);
-    if (!response.ok) throw new Error('API indisponible');
+    if (!response.ok) throw new Error('Erreur API');
     const list = await response.json();
+    if (!Array.isArray(list) || list.length === 0) throw new Error('Aucune station trouvée');
     
-    if (!Array.isArray(list) || list.length === 0) {
-      throw new Error('Aucune station trouvée');
-    }
-    
+    showLoading(`Chargement des prix pour ${Math.min(list.length, 20)} stations...`);
     const slice = list.slice(0, 20);
-    const pricePromises = slice.map(s => 
+    const details = await Promise.all(slice.map(s => 
       fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`)
         .then(r => r.ok ? r.json() : null)
         .catch(() => null)
-    );
-    const priceDetails = await Promise.all(pricePromises);
+    ));
     
     stations = [];
     for (let i = 0; i < slice.length; i++) {
       const s = slice[i];
-      const priceData = priceDetails[i];
-      const brandName = s.Brand?.name || s.name || 'Station Service';
+      const det = details[i];
+      if (!s.Coordinates || !s.Coordinates.latitude) continue;
       
       let fuels = [];
-      if (priceData && priceData.Fuels) {
-        fuels = normalizeFuels(priceData.Fuels);
-      }
-      if (fuels.length === 0 && s.Fuels) {
-        fuels = normalizeFuels(s.Fuels);
-      }
+      if (det && det.Fuels && Array.isArray(det.Fuels)) fuels = normalizeFuels(det.Fuels);
+      if (fuels.length === 0 && s.Fuels && Array.isArray(s.Fuels)) fuels = normalizeFuels(s.Fuels);
       
-      if (fuels.length === 0) continue;
+      const brandName = (s.Brand && s.Brand.name) ? s.Brand.name : (s.name || 'Station Service');
       
       stations.push({
         id: s.id,
@@ -529,26 +693,38 @@ async function load() {
         brand: brandName,
         lat: s.Coordinates.latitude,
         lon: s.Coordinates.longitude,
-        address: s.Address?.street_line || '',
-        city: s.Address?.city_line || '',
+        address: (s.Address && s.Address.street_line) || '',
+        city: (s.Address && s.Address.city_line) || '',
         fuels: fuels,
         dist: haversine(userLat, userLon, s.Coordinates.latitude, s.Coordinates.longitude)
       });
     }
     
-    if (stations.length === 0) throw new Error('Aucun prix disponible');
+    if (stations.length === 0) throw new Error('Aucune station avec prix disponibles');
+    startLiveRefresh();
     render();
   } catch(e) {
-    showState('⚠️', e.message, true);
+    console.error('Erreur load:', e);
+    showState('⚠️', e.message || 'Erreur de chargement', true);
   } finally {
     isLoading = false;
   }
 }
 
 function render() {
-  let filtered = activeFuel === 'all' ? stations : stations.filter(s => s.fuels.some(f => f.shortName === activeFuel));
+  let filtered = stations;
+  if (activeFuel !== 'all') {
+    filtered = stations.filter(s => s.fuels.some(f => f.shortName === activeFuel));
+  }
+  
   if (!filtered.length) {
-    showState('⛽', activeFuel === 'all' ? 'Aucune station' : `Aucun ${activeFuel} disponible`, false);
+    const availableFuels = new Set();
+    stations.forEach(s => s.fuels.forEach(f => availableFuels.add(f.shortName)));
+    const availableList = Array.from(availableFuels).join(', ');
+    const msg = activeFuel === 'all' 
+      ? `Aucune station avec prix disponibles dans ce rayon`
+      : `Aucune station proposant du "${activeFuel}" avec prix disponibles. Carburants trouvés : ${availableList || 'aucun'}`;
+    showState('⛽', msg, false);
     return;
   }
   
@@ -560,9 +736,12 @@ function render() {
       fuelStats[f.shortName].push({ amount: f.amount, stationId: s.id });
     });
   });
-  Object.keys(fuelStats).forEach(f => fuelStats[f].sort((a,b) => a.amount - b.amount));
   
-  const sorted = [...filtered].sort((a,b) => {
+  Object.keys(fuelStats).forEach(fuel => {
+    fuelStats[fuel].sort((a, b) => a.amount - b.amount);
+  });
+  
+  const sorted = [...filtered].sort((a, b) => {
     if (sortMode === 'price' && activeFuel !== 'all') {
       const pa = a.fuels.find(f => f.shortName === activeFuel)?.amount || Infinity;
       const pb = b.fuels.find(f => f.shortName === activeFuel)?.amount || Infinity;
@@ -572,12 +751,13 @@ function render() {
   });
   
   let html = `<div style="display:flex;justify-content:space-between;margin-bottom:16px">
-    <span style="color:var(--text-secondary)">${sorted.length} station${sorted.length>1?'s':''}</span>
+    <span style="color:var(--text-secondary)">${sorted.length} station${sorted.length>1?'s':''} avec prix</span>
     <span style="background:var(--bg-secondary);padding:4px 12px;border-radius:var(--radius-full);font-size:0.75rem;color:var(--accent-primary)">${document.getElementById('radiusVal').textContent}</span>
   </div>`;
   
   sorted.forEach(s => html += buildCard(s, fuelStats));
   document.getElementById('result').innerHTML = html;
+  document.getElementById('liveBar').style.display = 'flex';
 }
 
 function buildCard(s, fuelStats) {
@@ -586,45 +766,50 @@ function buildCard(s, fuelStats) {
   const fuelsList = activeFuel === 'all' ? s.fuels : s.fuels.filter(f => f.shortName === activeFuel);
   
   let pricesHtml = '';
-  fuelsList.forEach(f => {
-    const stats = fuelStats[f.shortName];
-    const rank = stats ? stats.findIndex(item => item.stationId === s.id) + 1 : 0;
-    const total = stats ? stats.length : 0;
-    const isBest = rank === 1 && total > 1;
-    const isWorst = rank === total && total > 1;
-    const percentPosition = total > 1 ? ((rank - 1) / (total - 1)) * 100 : 50;
-    const barColor = percentPosition < 33 ? 'cheap' : (percentPosition > 66 ? 'expensive' : 'mid');
-    const age = f.updatedAt ? formatAge(f.updatedAt) : '';
-    
-    pricesHtml += `
-      <div class="price-item">
-        <div class="price-header">
-          <span class="price-fuel-name">${escapeHtml(f.shortName)}</span>
-          <span class="price-rank">${rank > 0 ? `#${rank}/${total}` : ''}</span>
-        </div>
-        <div class="price-main">
-          <span class="price-amount ${isBest ? 'cheap' : (isWorst ? 'expensive' : '')}">${f.amount.toFixed(3)}€</span>
-          <div>
-            ${isBest ? '<span class="price-badge badge-best">🏆 Meilleur prix</span>' : ''}
-            ${isWorst ? '<span class="price-badge badge-worst">⚠️ Plus cher</span>' : ''}
+  if (fuelsList.length === 0) {
+    pricesHtml = '<div class="no-price-message">📊 Prix non disponibles pour ce carburant</div>';
+  } else {
+    fuelsList.forEach(f => {
+      const stats = fuelStats[f.shortName];
+      const rank = stats ? stats.findIndex(item => item.stationId === s.id) + 1 : 0;
+      const total = stats ? stats.length : 0;
+      const isBest = rank === 1 && total > 1;
+      const isWorst = rank === total && total > 1;
+      const percentPosition = total > 1 ? ((rank - 1) / (total - 1)) * 100 : 50;
+      const barColor = percentPosition < 33 ? 'cheap' : (percentPosition > 66 ? 'expensive' : 'mid');
+      const age = f.updatedAt ? formatAge(f.updatedAt) : '';
+      const freshClass = f.updatedAt ? getFreshClass(f.updatedAt) : '';
+      
+      pricesHtml += `
+        <div class="price-item" data-key="${s.id}_${f.shortName}">
+          <div class="price-header">
+            <span class="price-fuel-name">${escapeHtml(f.shortName)}</span>
+            <span class="price-rank">${rank > 0 ? `#${rank}/${total}` : ''}</span>
           </div>
+          <div class="price-main">
+            <span class="price-amount ${isBest ? 'cheap' : (isWorst ? 'expensive' : '')}">${f.amount.toFixed(3)}€</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${isBest ? '<span class="price-badge badge-best">🏆 Meilleur prix</span>' : ''}
+              ${isWorst ? '<span class="price-badge badge-worst">⚠️ Plus cher</span>' : ''}
+            </div>
+          </div>
+          ${total > 1 ? `
+          <div class="price-bar-container">
+            <div class="price-bar ${barColor}" style="width: ${percentPosition}%"></div>
+          </div>
+          <div class="price-footer">
+            <span class="price-updated ${freshClass}">${age ? `🕐 ${age}` : ''}</span>
+            <span style="color:var(--text-tertiary)">${Math.round(percentPosition)}% des stations</span>
+          </div>
+          ` : `
+          <div class="price-footer">
+            <span class="price-updated ${freshClass}">${age ? `🕐 ${age}` : ''}</span>
+          </div>
+          `}
         </div>
-        ${total > 1 ? `
-        <div class="price-bar-container">
-          <div class="price-bar ${barColor}" style="width: ${percentPosition}%"></div>
-        </div>
-        <div class="price-footer">
-          <span class="price-updated">${age ? `🕐 ${age}` : ''}</span>
-          <span style="color:var(--text-tertiary)">${Math.round(percentPosition)}% des stations</span>
-        </div>
-        ` : `
-        <div class="price-footer">
-          <span class="price-updated">${age ? `🕐 ${age}` : ''}</span>
-        </div>
-        `}
-      </div>
-    `;
-  });
+      `;
+    });
+  }
   
   return `<div class="station-card">
     <div class="station-header">
@@ -643,27 +828,118 @@ function buildCard(s, fuelStats) {
 }
 
 function haversine(lat1, lon1, lat2, lon2) {
-  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function escapeHtml(str) { return String(str||'').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-function formatAge(iso) { try { const h = (Date.now() - new Date(iso).getTime())/3600000; if (h<1) return 'maintenant'; if (h<24) return `${Math.floor(h)}h`; return `${Math.floor(h/24)}j`; } catch(e) { return ''; } }
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function formatAge(iso) {
+  try {
+    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (h < 1) return 'maintenant';
+    if (h < 24) return `${Math.floor(h)}h`;
+    return `${Math.floor(h/24)}j`;
+  } catch(e) { return ''; }
+}
+
+function getFreshClass(iso) {
+  try {
+    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (h < 2) return 'fresh';
+    if (h < 12) return 'recent';
+    return 'old';
+  } catch(e) { return ''; }
+}
+
+function startLiveRefresh() {
+  stopLiveRefresh();
+  countdownLeft = REFRESH_INTERVAL;
+  updateLiveBar();
+  refreshTimer = setInterval(function() {
+    countdownLeft--;
+    if (countdownLeft <= 0) {
+      countdownLeft = REFRESH_INTERVAL;
+      refreshPricesOnly();
+    }
+    updateLiveBar();
+  }, 1000);
+}
+
+function stopLiveRefresh() {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+}
+
+function updateLiveBar() {
+  const m = Math.floor(countdownLeft / 60);
+  const s = countdownLeft % 60;
+  document.getElementById('liveCountdown').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('liveTs').textContent = `· ${new Date().toLocaleTimeString()}`;
+}
+
+async function refreshPricesOnly() {
+  if (!stations.length) return;
+  const oldPrices = {};
+  stations.forEach(s => s.fuels.forEach(f => oldPrices[`${s.id}_${f.shortName}`] = f.amount));
+  const details = await Promise.all(stations.map(s => 
+    fetch(`https://api.prix-carburants.2aaz.fr/station/${s.id}`)
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null)
+  ));
+  stations.forEach((s, i) => {
+    if (details[i] && details[i].Fuels) s.fuels = normalizeFuels(details[i].Fuels);
+  });
+  render();
+  setTimeout(function() {
+    for (let key in oldPrices) {
+      const [id, fuel] = key.split('_');
+      const station = stations.find(s => s.id == id);
+      const fuelData = station?.fuels.find(f => f.shortName === fuel);
+      if (fuelData && fuelData.amount !== oldPrices[key]) {
+        const pill = document.querySelector(`[data-key="${key}"]`);
+        if (pill) {
+          const cls = fuelData.amount < oldPrices[key] ? 'price-flash-up' : 'price-flash-down';
+          pill.classList.add(cls);
+          setTimeout(() => pill.classList.remove('price-flash-up', 'price-flash-down'), 600);
+        }
+      }
+    }
+  }, 100);
+}
+
+async function manualRefresh() {
+  if (isLoading || !userLat) return;
+  countdownLeft = REFRESH_INTERVAL;
+  await refreshPricesOnly();
+}
 
 function setFuel(f, btn) {
   activeFuel = f;
   document.querySelectorAll('.fuel-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('sortPrice').disabled = f === 'all';
+  const priceBtn = document.getElementById('sortPrice');
+  priceBtn.disabled = (f === 'all');
   if (f === 'all' && sortMode === 'price') setSort('dist');
   else if (stations.length) render();
 }
 
-function setSort(m) {
-  sortMode = m;
-  document.getElementById('sortDist').classList.toggle('active', m === 'dist');
-  document.getElementById('sortPrice').classList.toggle('active', m === 'price');
+function setSort(mode) {
+  sortMode = mode;
+  document.getElementById('sortDist').classList.toggle('active', mode === 'dist');
+  document.getElementById('sortPrice').classList.toggle('active', mode === 'price');
   if (stations.length) render();
 }
 
@@ -675,7 +951,10 @@ function showState(icon, msg, isError) {
   document.getElementById('result').innerHTML = `<div class="state-card${isError ? ' error' : ''}"><div style="font-size:3rem;margin-bottom:16px">${icon}</div><p>${msg}</p></div>`;
 }
 
-window.addEventListener('DOMContentLoaded', () => setTimeout(searchCity, 500));
+window.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('city').value === 'Gien') setTimeout(searchCity, 500);
+});
+
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.warn);
 </script>
 </body>
